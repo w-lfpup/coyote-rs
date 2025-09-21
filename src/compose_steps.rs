@@ -18,7 +18,9 @@ pub fn compose_steps(
             StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
             StepKind::Text => push_text(results, tag_info_stack, rules, template_str, step),
             StepKind::Attr => push_attr(results, tag_info_stack, template_str, step),
-            StepKind::AttrValue => push_attr_value(results, tag_info_stack, template_str, step),
+            StepKind::AttrValueDoubleQuoted => {
+                push_attr_value(results, tag_info_stack, template_str, step)
+            }
             StepKind::AttrValueUnquoted => {
                 push_attr_value_unquoted(results, tag_info_stack, template_str, step)
             }
