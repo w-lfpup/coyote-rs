@@ -24,7 +24,7 @@ pub fn tmpl<const N: usize>(template_str: &'static str, injections: [Component; 
 }
 
 pub fn text(txt: &str) -> Component {
-    let escaped = txt.replace("<", "&lt;").replace("&", "&amp;");
+    let escaped = txt.replace("<", "&lt;");
     Component::Text(escaped)
 }
 
@@ -37,7 +37,7 @@ pub fn attr(attr_str: &str) -> Component {
 }
 
 pub fn attr_val(attr_str: &str, value_txt: &str) -> Component {
-    let escaped_value = value_txt.replace("\"", "&quot;").replace("&", "&amp;");
+    let escaped_value = value_txt.replace("\"", "&quot;");
     Component::AttrVal(attr_str.to_string(), escaped_value)
 }
 

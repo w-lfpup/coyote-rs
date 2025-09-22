@@ -18,8 +18,11 @@ pub fn compose_steps(
             StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
             StepKind::Text => push_text(results, tag_info_stack, rules, template_str, step),
             StepKind::Attr => push_attr(results, tag_info_stack, template_str, step),
+            StepKind::AttrValueSingleQuoted => {
+                push_attr_value(results, tag_info_stack, template_str, step, '\'')
+            }
             StepKind::AttrValueDoubleQuoted => {
-                push_attr_value(results, tag_info_stack, template_str, step)
+                push_attr_value(results, tag_info_stack, template_str, step, '"')
             }
             StepKind::AttrValueUnquoted => {
                 push_attr_value_unquoted(results, tag_info_stack, template_str, step)
@@ -359,12 +362,18 @@ fn push_attr_value(
     stack: &mut Vec<TagInfo>,
     template_str: &str,
     step: &Step,
+    glyph: char,
 ) {
     let val = get_text_from_step(template_str, step);
-    push_attr_value_component(results, stack, val)
+    push_attr_value_component(results, stack, val, glyph)
 }
 
-pub fn push_attr_value_component(results: &mut String, stack: &mut Vec<TagInfo>, val: &str) {
+pub fn push_attr_value_component(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    val: &str,
+    glyph: char,
+) {
     let tag_info = match stack.last() {
         Some(curr) => curr,
         _ => return,
@@ -374,9 +383,10 @@ pub fn push_attr_value_component(results: &mut String, stack: &mut Vec<TagInfo>,
         return;
     }
 
-    results.push_str("=\"");
+    results.push_str("=");
+    results.push(glyph);
     results.push_str(val.trim());
-    results.push('"');
+    results.push(glyph);
 }
 
 fn push_attr_value_unquoted(
