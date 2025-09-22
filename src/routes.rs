@@ -35,11 +35,14 @@ pub enum StepKind {
 pub fn route(glyph: char, prev_kind: &StepKind) -> StepKind {
     match prev_kind {
         StepKind::Attr => get_kind_from_attribute(glyph),
-        StepKind::AttrMapInjection => get_kind_from_injection(glyph),
         StepKind::AttrDoubleQuote => get_kind_from_attribute_double_quote(glyph),
-        StepKind::AttrDoubleQuoteClosed => get_kind_from_attribute_double_quote_closed(glyph),
+        StepKind::AttrDoubleQuoteClosed => get_kind_from_attribute_quote_closed(glyph),
+        StepKind::AttrMapInjection => get_kind_from_injection(glyph),
         StepKind::AttrSetter => get_kind_from_attribute_setter(glyph),
+        StepKind::AttrSingleQuote => get_kind_from_attribute_single_quote(glyph),
+        StepKind::AttrSingleQuoteClosed => get_kind_from_attribute_quote_closed(glyph),
         StepKind::AttrValueDoubleQuoted => get_kind_from_attribute_double_quote(glyph),
+        StepKind::AttrValueSingleQuoted => get_kind_from_attribute_single_quote(glyph),
         StepKind::AttrValueUnquoted => get_kind_from_attribute_value_unquoted(glyph),
         StepKind::DescendantInjection => get_kind_from_injection(glyph),
         StepKind::Element => get_kind_from_element(glyph),
@@ -75,6 +78,13 @@ fn get_kind_from_injection(glyph: char) -> StepKind {
     }
 }
 
+fn get_kind_from_attribute_single_quote(glyph: char) -> StepKind {
+    match glyph {
+        '\'' => StepKind::AttrSingleQuoteClosed,
+        _ => StepKind::AttrValueSingleQuoted,
+    }
+}
+
 fn get_kind_from_attribute_double_quote(glyph: char) -> StepKind {
     match glyph {
         '"' => StepKind::AttrDoubleQuoteClosed,
@@ -82,7 +92,7 @@ fn get_kind_from_attribute_double_quote(glyph: char) -> StepKind {
     }
 }
 
-fn get_kind_from_attribute_double_quote_closed(glyph: char) -> StepKind {
+fn get_kind_from_attribute_quote_closed(glyph: char) -> StepKind {
     match glyph {
         '>' => StepKind::ElementClosed,
         '/' => StepKind::EmptyElement,
@@ -97,6 +107,7 @@ fn get_kind_from_attribute_setter(glyph: char) -> StepKind {
 
     match glyph {
         '"' => StepKind::AttrDoubleQuote,
+        '\'' => StepKind::AttrSingleQuote,
         _ => StepKind::AttrValueUnquoted,
     }
 }
