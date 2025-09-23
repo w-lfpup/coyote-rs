@@ -31,39 +31,7 @@ fn hai() -> Component {
 
 ## The template component
 
-The most crtical component, the template component, is most likely the most approachable component syntax.
-
-## Tags, void elements, fragments
-
-`Coyote-rs` supports self-closing tags, void elements, and fragments in templates:
-
-```rs
-fn syntax_story() -> Component {
-    tmpl("
-        <article>
-            <>
-                <p>no waaaay?</p>
-                <custom-element />
-                <input type=button value=\"high five! \" />
-            </>
-        </article>
-    ", [])
-}
-```
-
-However, `coyote-rs` will only output valid and correct HTML5:
-
-```html
-<article>
-    <p>
-        no waaaay?
-    </p>
-    <custom-element></custom-element>
-    <input value=button value="high-five">
-</article>
-```
-
-This gives developers an expressive template syntax while upholding modern HTML5 standards.
+The most crtical component, the template component, uses a syntax similar to sql strings.
 
 ## Injections
 
@@ -94,6 +62,8 @@ Any other instance of `{}` in a template component will not be considered an inj
 
 To use a `{` in a template without creating a descendant injection, use the html escape charactor for a left bracket.
 
+It is the only requirement for `Coyote` that is not html standard.
+
 So ...
 
 ```html
@@ -105,6 +75,38 @@ in a template would be:
 ```rust
 tmpl("hellooo, &#123; world }"); 
 ```
+
+## Tags, void elements, fragments
+
+Speaking of standards, `Coyote-rs` supports self-closing tags, void elements, and fragments in templates:
+
+```rs
+fn syntax_story() -> Component {
+    tmpl("
+        <article>
+            <>
+                <p>no waaaay?</p>
+                <custom-element />
+                <input type=button value=\"high five! \" />
+            </>
+        </article>
+    ", [])
+}
+```
+
+However, `coyote-rs` will only output valid and correct HTML5:
+
+```html
+<article>
+    <p>
+        no waaaay?
+    </p>
+    <custom-element></custom-element>
+    <input value=button value="high-five">
+</article>
+```
+
+This provides an robust template syntax while adhering modern HTML5 standards.
 
 ## Nested components
 
@@ -120,20 +122,18 @@ fn submit_button() -> Component {
 }
 
 fn form() -> Component {
-    let attributes = list([
+    let attributes = [
         attr_val("action", "/uwu"),
         attr_val("method", "post"),
-    ]);
+    ];
 
-    let mut descendant_vec: Vec<Component> = Vec::new();
-    descendant_vec.push(text("you're a boy kisser aren't you >:3"));
-    descendant_vec.push(submit_button());
+    let mut descendants: Vec<Component> = Vec::new();
+    descendants.push(text("you're a boy kisser aren't you >:3"));
+    descendants.push(submit_button());
     
-    let descendants = vlist(descendant_vec);
-
     tmpl(
         "<form {}>{}</form>",
-        [attributes, descendants],
+        [list(attributes), vlist(descendants)],
     )
 }
 ```
@@ -151,11 +151,11 @@ And the output will something like:
 
 Components are not quite HTML or XML.
 
-Components are a kind of (I)ntermediate (R)endering (F)ormat. They are the _potential_ for a document like HTML or XML.
+Components are an (I)ntermediate (R)endering (F)ormat.
 
-## Render Components
+They are the _potential_ for a document like HTML or XML.
 
-`Components` are not coupled to any particular markup language or environment. This makes `coyote` a particularly expressive way to create custom documents from html and scenes from xml.
+`Components` are not coupled to any particular markup language or environment. Which makes `coyote` a particularly expressive way to create custom xml-like languages for custom use-cases.
 
 ## Document builders
 

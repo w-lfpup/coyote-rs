@@ -7,15 +7,13 @@ fn submit_button() -> Component {
 }
 
 fn form() -> Component {
-    let attributes = list([attr_val("action", "/uwu"), attr_val("method", "post")]);
+    let attributes = [attr_val("action", "/uwu"), attr_val("method", "post")];
 
-    let mut descendant_vec: Vec<Component> = Vec::new();
-    descendant_vec.push(text("you're a boy kisser aren't you >:3"));
-    descendant_vec.push(submit_button());
+    let mut descendants: Vec<Component> = Vec::new();
+    descendants.push(text("you're a boy kisser aren't you >:3"));
+    descendants.push(submit_button());
 
-    let descendants = vlist(descendant_vec);
-
-    tmpl("<form {}>{}</form>", [attributes, descendants])
+    tmpl("<form {}>{}</form>", [list(attributes), vlist(descendants)])
 }
 
 #[test]

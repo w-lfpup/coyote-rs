@@ -1,28 +1,31 @@
 #[derive(Debug, Eq, Clone, PartialEq)]
 pub enum StepKind {
-    AttrQuoteClosed,
-    AttrQuote,
+    Attr,
+    AttrDoubleQuote,
+    AttrDoubleQuoteClosed,
     AttrMapInjection,
     AttrSetter,
-    AttrValue,
+    AttrSingleQuote,
+    AttrSingleQuoteClosed,
+    AttrValueDoubleQuoted,
+    AttrValueSingleQuoted,
     AttrValueUnquoted,
-    Attr,
+    DescendantInjection,
+    Element,
+    ElementClosed,
+    ElementSpace,
+    EmptyElement,
+    EmptyElementClosed,
+    Fragment,
+    FragmentClosed,
+    Initial,
+    InjectionConfirmed,
+    InjectionSpace,
+    Tag,
     TailElementClosed,
     TailElementSolidus,
     TailElementSpace,
     TailTag,
-    DescendantInjection,
-    FragmentClosed,
-    Fragment,
-    EmptyElementClosed,
-    EmptyElement,
-    Initial,
-    InjectionConfirmed,
-    InjectionSpace,
-    ElementClosed,
-    ElementSpace,
-    Element,
-    Tag,
     Text,
 }
 
@@ -32,11 +35,14 @@ pub enum StepKind {
 pub fn route(glyph: char, prev_kind: &StepKind) -> StepKind {
     match prev_kind {
         StepKind::Attr => get_kind_from_attribute(glyph),
+        StepKind::AttrDoubleQuote => get_kind_from_attribute_double_quote(glyph),
+        StepKind::AttrDoubleQuoteClosed => get_kind_from_attribute_quote_closed(glyph),
         StepKind::AttrMapInjection => get_kind_from_injection(glyph),
-        StepKind::AttrQuote => get_kind_from_attribute_quote(glyph),
-        StepKind::AttrQuoteClosed => get_kind_from_attribute_quote_closed(glyph),
         StepKind::AttrSetter => get_kind_from_attribute_setter(glyph),
-        StepKind::AttrValue => get_kind_from_attribute_quote(glyph),
+        StepKind::AttrSingleQuote => get_kind_from_attribute_single_quote(glyph),
+        StepKind::AttrSingleQuoteClosed => get_kind_from_attribute_quote_closed(glyph),
+        StepKind::AttrValueDoubleQuoted => get_kind_from_attribute_double_quote(glyph),
+        StepKind::AttrValueSingleQuoted => get_kind_from_attribute_single_quote(glyph),
         StepKind::AttrValueUnquoted => get_kind_from_attribute_value_unquoted(glyph),
         StepKind::DescendantInjection => get_kind_from_injection(glyph),
         StepKind::Element => get_kind_from_element(glyph),
@@ -72,10 +78,17 @@ fn get_kind_from_injection(glyph: char) -> StepKind {
     }
 }
 
-fn get_kind_from_attribute_quote(glyph: char) -> StepKind {
+fn get_kind_from_attribute_single_quote(glyph: char) -> StepKind {
     match glyph {
-        '"' => StepKind::AttrQuoteClosed,
-        _ => StepKind::AttrValue,
+        '\'' => StepKind::AttrSingleQuoteClosed,
+        _ => StepKind::AttrValueSingleQuoted,
+    }
+}
+
+fn get_kind_from_attribute_double_quote(glyph: char) -> StepKind {
+    match glyph {
+        '"' => StepKind::AttrDoubleQuoteClosed,
+        _ => StepKind::AttrValueDoubleQuoted,
     }
 }
 
@@ -93,7 +106,8 @@ fn get_kind_from_attribute_setter(glyph: char) -> StepKind {
     }
 
     match glyph {
-        '"' => StepKind::AttrQuote,
+        '"' => StepKind::AttrDoubleQuote,
+        '\'' => StepKind::AttrSingleQuote,
         _ => StepKind::AttrValueUnquoted,
     }
 }
