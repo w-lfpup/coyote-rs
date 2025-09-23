@@ -19,10 +19,10 @@ pub fn compose_steps(
             StepKind::Text => push_text(results, tag_info_stack, rules, template_str, step),
             StepKind::Attr => push_attr(results, tag_info_stack, template_str, step),
             StepKind::AttrValueSingleQuoted => {
-                push_attr_value(results, tag_info_stack, template_str, step, '\'')
+                push_attr_value_single_quoted(results, tag_info_stack, template_str, step)
             }
             StepKind::AttrValueDoubleQuoted => {
-                push_attr_value(results, tag_info_stack, template_str, step, '"')
+                push_attr_value_double_quoted(results, tag_info_stack, template_str, step)
             }
             StepKind::AttrValueUnquoted => {
                 push_attr_value_unquoted(results, tag_info_stack, template_str, step)
@@ -357,22 +357,11 @@ pub fn push_attr_component(results: &mut String, stack: &mut Vec<TagInfo>, attr:
     results.push_str(attr.trim());
 }
 
-fn push_attr_value(
+fn push_attr_value_single_quoted(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
     template_str: &str,
     step: &Step,
-    glyph: char,
-) {
-    let val = get_text_from_step(template_str, step);
-    push_attr_value_component(results, stack, val, glyph)
-}
-
-pub fn push_attr_value_component(
-    results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    val: &str,
-    glyph: char,
 ) {
     let tag_info = match stack.last() {
         Some(curr) => curr,
@@ -383,10 +372,46 @@ pub fn push_attr_value_component(
         return;
     }
 
-    results.push_str("=");
-    results.push(glyph);
+    results.push_str("='");
+    let val = get_text_from_step(template_str, step).trim();
+    results.push_str(val);
+    results.push('\'');
+}
+
+fn push_attr_value_double_quoted(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    template_str: &str,
+    step: &Step,
+) {
+    let tag_info = match stack.last() {
+        Some(curr) => curr,
+        _ => return,
+    };
+
+    if tag_info.banned_path {
+        return;
+    }
+
+    results.push_str("=\"");
+    let val = get_text_from_step(template_str, step).trim();
+    results.push_str(val);
+    results.push('"');
+}
+
+pub fn push_attr_value_component(results: &mut String, stack: &mut Vec<TagInfo>, val: &str) {
+    let tag_info = match stack.last() {
+        Some(curr) => curr,
+        _ => return,
+    };
+
+    if tag_info.banned_path {
+        return;
+    }
+
+    results.push_str("=\"");
     results.push_str(val.trim());
-    results.push(glyph);
+    results.push('"');
 }
 
 fn push_attr_value_unquoted(

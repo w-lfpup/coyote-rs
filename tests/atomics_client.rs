@@ -206,3 +206,58 @@ fn pretty_preserved_text_elements() {
 
     assert_eq!(Ok(expected.to_string()), results);
 }
+
+#[test]
+fn attribute() {
+    let template = tmpl("<span hai>UwU</span>", []);
+    let expected = "<span hai>UwU</span>";
+
+    let mut html = ClientHtml::new();
+    let results = html.build(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn attribute_with_single_quote() {
+    let template = tmpl("<span hai=''>UwU</span>", []);
+    let expected = "<span hai>UwU</span>";
+
+    let mut html = ClientHtml::new();
+    let results = html.build(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn attribute_with_double_quote() {
+    let template = tmpl("<span hai=\"\">UwU</span>", []);
+    let expected = "<span hai>UwU</span>";
+
+    let mut html = ClientHtml::new();
+    let results = html.build(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn attribute_with_single_quote_value() {
+    let template = tmpl("<span hai='hewoo'>UwU</span>", []);
+    let expected = "<span hai='hewoo'>UwU</span>";
+
+    let mut html = ClientHtml::new();
+    let results = html.build(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn attribute_with_double_quote_value() {
+    let template = tmpl("<span hai=\"hewoo\">UwU</span>", []);
+    let expected = "<span hai=\"hewoo\">UwU</span>";
+
+    let mut html = ClientHtml::new();
+    let results = html.build(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}

@@ -223,9 +223,6 @@ fn preserved_text_element() {
     assert_eq!(Ok(expected.to_string()), results);
 }
 
-// attributes
-// single quote and double quotes and an empty and an "" and a ''
-
 #[test]
 fn attribute() {
     let template = tmpl("<span hai>UwU</span>", []);
@@ -240,7 +237,7 @@ fn attribute() {
 #[test]
 fn attribute_with_single_quote() {
     let template = tmpl("<span hai=''>UwU</span>", []);
-    let expected = "<span hai=''>UwU</span>";
+    let expected = "<span hai>UwU</span>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -251,7 +248,7 @@ fn attribute_with_single_quote() {
 #[test]
 fn attribute_with_double_quote() {
     let template = tmpl("<span hai=\"\">UwU</span>", []);
-    let expected = "<span hai=\"\">UwU</span>";
+    let expected = "<span hai>UwU</span>";
 
     let mut html = Html::new();
     let results = html.build(&template);

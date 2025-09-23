@@ -20,18 +20,6 @@ enum StackBit<'a> {
     None,
 }
 
-/*
-    TODO:
-
-    `compose_string` might have too many lines of code (100+).
-
-    This might simply be a nexus of scope and complexity.
-
-    Current refinement attempts resulted in functions with 7 arguments.
-    So ... not the best solution ever.
-
-    At least the challenge is isolated to this function.
-*/
 pub fn compose_string(
     builder: &mut dyn BuilderImpl,
     rules: &dyn RulesetImpl,
@@ -161,12 +149,13 @@ fn get_bit_from_component_stack<'a>(
     }
 }
 
+// https://html.spec.whatwg.org/multipage/syntax.html#attributes-2
 fn add_attr_inj(stack: &mut Vec<TagInfo>, template_str: &mut String, cmpnt: &Component) {
     match cmpnt {
         Component::Attr(attr) => push_attr_component(template_str, stack, attr),
         Component::AttrVal(attr, val) => {
             push_attr_component(template_str, stack, attr);
-            push_attr_value_component(template_str, stack, val, '"');
+            push_attr_value_component(template_str, stack, val);
         }
         Component::List(attr_list) => {
             for cmpnt in attr_list {
@@ -176,7 +165,7 @@ fn add_attr_inj(stack: &mut Vec<TagInfo>, template_str: &mut String, cmpnt: &Com
                     }
                     Component::AttrVal(attr, val) => {
                         push_attr_component(template_str, stack, attr);
-                        push_attr_value_component(template_str, stack, val, '"');
+                        push_attr_value_component(template_str, stack, val);
                     }
                     _ => {}
                 }
