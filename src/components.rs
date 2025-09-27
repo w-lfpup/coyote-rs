@@ -1,3 +1,7 @@
+// COULD JUST USE ENUMS AS FUNCTIONS
+// LAZILY ESCAPE ATTRIBUTES OR RETURN ERRORS LATER
+//
+
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Component {
     Text(String),
