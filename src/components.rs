@@ -4,6 +4,7 @@
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Component {
+    UnescapedText(String),
     Text(String),
     Attr(String),
     AttrVal(String, String),
@@ -28,13 +29,11 @@ pub fn tmpl<const N: usize>(template_str: &'static str, injections: [Component; 
 }
 
 pub fn text(txt: &str) -> Component {
-    // should be done on render
-    let escaped = txt.replace("<", "&lt;").replace("\"", "&quot;");
-    Component::Text(escaped)
+    Component::Text(txt.to_string())
 }
 
 pub fn unescaped_text(txt: &str) -> Component {
-    Component::Text(txt.to_string())
+    Component::UnescapedText(txt.to_string())
 }
 
 pub fn attr(attr_str: &str) -> Component {
@@ -42,11 +41,9 @@ pub fn attr(attr_str: &str) -> Component {
 }
 
 pub fn attr_val(attr_str: &str, value_txt: &str) -> Component {
-    let escaped_value = value_txt.replace("\"", "&quot;");
-    Component::AttrVal(attr_str.to_string(), escaped_value)
+    Component::AttrVal(attr_str.to_string(), value_txt.to_string())
 }
 
-// What if "as array" for vecs instead?
 pub fn list<const N: usize>(components: [Component; N]) -> Component {
     Component::List(Vec::from(components))
 }
