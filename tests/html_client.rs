@@ -22,10 +22,7 @@ fn unbalanced_empty_element_errors_out() {
         return;
     }
 
-    assert_eq!(
-        Err("unbalanced template failed to error".to_string()),
-        results
-    );
+    assert!(false, "unbalanced template failed to error",);
 }
 
 #[test]
@@ -39,10 +36,7 @@ fn forbidden_glyph_in_attribute_injection_errors_out() {
         return;
     }
 
-    assert_eq!(
-        Err("forbidden attribute glyph failed to error".to_string()),
-        results
-    );
+    assert!(false, "forbidden attribute glyph failed to error",);
 }
 
 #[test]

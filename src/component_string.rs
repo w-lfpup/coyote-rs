@@ -38,7 +38,6 @@ pub fn compose_string(
             // text or list
             StackBit::Cmpnt(cmpnt) => match cmpnt {
                 Component::Text(text) => {
-                    // escape text here
                     let escaped = text.replace("<", "&lt;").replace("{", "&quot;");
                     push_text_component(
                         &mut template_results,
@@ -161,8 +160,6 @@ fn get_bit_from_component_stack<'a>(
     }
 }
 
-// https://html.spec.whatwg.org/multipage/syntax.html#attributes-2
-// return error if attributes are not valid
 fn add_attr_inj(
     stack: &mut Vec<TagInfo>,
     template_str: &mut String,
@@ -239,15 +236,16 @@ fn attr_is_valid(attr: &str) -> bool {
     true
 }
 
+// https://html.spec.whatwg.org/multipage/syntax.html#attributes-2
 fn forbidden_attr_glyph(glyph: char) -> bool {
     match glyph {
         '<' => true,
+        '=' => true,
         '"' => true,
         '\'' => true,
-        '>' => true,
         '/' => true,
-        '=' => true,
-        '{' => true, // this onees for coyote, reserved char
+        '>' => true,
+        '{' => true, // this ones for coyote, reserved char
         _ => false,
     }
 }
