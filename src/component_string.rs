@@ -40,6 +40,16 @@ pub fn compose_string(
             // text or list
             StackBit::Cmpnt(cmpnt) => match cmpnt {
                 Component::Text(text) => {
+                    // escape text here
+                    let escaped = text.replace("<", "&lt;");
+                    push_text_component(
+                        &mut template_results,
+                        &mut tag_info_stack,
+                        rules,
+                        &escaped,
+                    );
+                }
+                Component::UnescapedText(text) => {
                     push_text_component(&mut template_results, &mut tag_info_stack, rules, text);
                 }
                 Component::List(list) => {
@@ -94,7 +104,9 @@ pub fn compose_string(
                 {
                     match inj_step.kind {
                         StepKind::AttrMapInjection => {
+                            // should return error
                             add_attr_inj(&mut tag_info_stack, &mut template_results, inj);
+                            // if let Err(e) = sdfsdf { return Err }
                         }
                         // push template back and bail early
                         StepKind::DescendantInjection => {
@@ -150,6 +162,7 @@ fn get_bit_from_component_stack<'a>(
 }
 
 // https://html.spec.whatwg.org/multipage/syntax.html#attributes-2
+// return error if attributes are not valid
 fn add_attr_inj(stack: &mut Vec<TagInfo>, template_str: &mut String, cmpnt: &Component) {
     match cmpnt {
         Component::Attr(attr) => push_attr_component(template_str, stack, attr),
@@ -172,5 +185,37 @@ fn add_attr_inj(stack: &mut Vec<TagInfo>, template_str: &mut String, cmpnt: &Com
             }
         }
         _ => {}
+    }
+}
+
+fn check_attr_validity(attr: &str) -> bool {
+    for glyph in attr.chars() {
+        if forbidden_glyph(glyph) {
+            return false;
+        }
+    }
+    // if attribute does not have
+    // <
+    // "
+    // '
+    // {
+    // >
+    // /
+    // =
+    // is_whitespace
+
+    true
+}
+
+fn forbidden_glyph(glyph: char) -> bool {
+    match glyph {
+        '<' => true,
+        '"' => true,
+        '\'' => true,
+        '{' => true, // this onees for coyote, reserved char
+        '>' => true,
+        '/' => true,
+        '=' => true,
+        _ => false,
     }
 }

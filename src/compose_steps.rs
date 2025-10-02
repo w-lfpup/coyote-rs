@@ -410,7 +410,8 @@ pub fn push_attr_value_component(results: &mut String, stack: &mut Vec<TagInfo>,
     }
 
     results.push_str("=\"");
-    results.push_str(val.trim());
+    let escaped = val.trim().replace("\"", "&quot;");
+    results.push_str(escaped);
     results.push('"');
 }
 
