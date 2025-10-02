@@ -1,4 +1,4 @@
-use coyote::{tmpl, ClientHtml};
+use coyote::{attr, tmpl, ClientHtml};
 
 #[test]
 fn empty_element() {
@@ -12,7 +12,7 @@ fn empty_element() {
 }
 
 #[test]
-fn unbalanced_empty_element() {
+fn unbalanced_empty_element_errors_out() {
     let template = tmpl("<html>", []);
 
     let mut html = ClientHtml::new();
@@ -22,10 +22,21 @@ fn unbalanced_empty_element() {
         return;
     }
 
-    assert_eq!(
-        Err("unbalanced template failed to error".to_string()),
-        results
-    );
+    assert!(false, "unbalanced template failed to error",);
+}
+
+#[test]
+fn forbidden_glyph_in_attribute_injection_errors_out() {
+    let template = tmpl("<p {}></p>", [attr("a<b/c'd=e>f")]);
+
+    let mut html = ClientHtml::new();
+    let results = html.build(&template);
+
+    if let Err(_) = results {
+        return;
+    }
+
+    assert!(false, "forbidden attribute glyph failed to error",);
 }
 
 #[test]

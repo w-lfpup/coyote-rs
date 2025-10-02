@@ -1,7 +1,5 @@
 use crate::components::Component;
-use crate::compose_steps::{
-    compose_steps, push_attr_component, push_attr_value_component, push_text_component,
-};
+use crate::compose_steps::{compose_steps, push_text_component};
 use crate::routes::StepKind;
 use crate::rulesets::RulesetImpl;
 use crate::tag_info::TagInfo;
@@ -40,6 +38,15 @@ pub fn compose_string(
             // text or list
             StackBit::Cmpnt(cmpnt) => match cmpnt {
                 Component::Text(text) => {
+                    let escaped = text.replace("<", "&lt;").replace("{", "&quot;");
+                    push_text_component(
+                        &mut template_results,
+                        &mut tag_info_stack,
+                        rules,
+                        &escaped,
+                    );
+                }
+                Component::UnescapedText(text) => {
                     push_text_component(&mut template_results, &mut tag_info_stack, rules, text);
                 }
                 Component::List(list) => {
@@ -94,7 +101,11 @@ pub fn compose_string(
                 {
                     match inj_step.kind {
                         StepKind::AttrMapInjection => {
-                            add_attr_inj(&mut tag_info_stack, &mut template_results, inj);
+                            if let Err(e) =
+                                add_attr_inj(&mut tag_info_stack, &mut template_results, inj)
+                            {
+                                return Err(e);
+                            };
                         }
                         // push template back and bail early
                         StepKind::DescendantInjection => {
@@ -149,28 +160,108 @@ fn get_bit_from_component_stack<'a>(
     }
 }
 
-// https://html.spec.whatwg.org/multipage/syntax.html#attributes-2
-fn add_attr_inj(stack: &mut Vec<TagInfo>, template_str: &mut String, cmpnt: &Component) {
+fn add_attr_inj(
+    stack: &mut Vec<TagInfo>,
+    template_str: &mut String,
+    cmpnt: &Component,
+) -> Result<(), String> {
     match cmpnt {
-        Component::Attr(attr) => push_attr_component(template_str, stack, attr),
+        Component::Attr(attr) => {
+            if let Err(e) = push_attr_component(template_str, stack, attr) {
+                return Err(e);
+            }
+        }
         Component::AttrVal(attr, val) => {
-            push_attr_component(template_str, stack, attr);
-            push_attr_value_component(template_str, stack, val);
+            if let Err(e) = push_attr_component(template_str, stack, attr) {
+                return Err(e);
+            }
+
+            push_attr_value_component(template_str, stack, val)
         }
         Component::List(attr_list) => {
             for cmpnt in attr_list {
                 match cmpnt {
                     Component::Attr(attr) => {
-                        push_attr_component(template_str, stack, attr);
+                        if let Err(e) = push_attr_component(template_str, stack, attr) {
+                            return Err(e);
+                        }
                     }
                     Component::AttrVal(attr, val) => {
-                        push_attr_component(template_str, stack, attr);
-                        push_attr_value_component(template_str, stack, val);
+                        if let Err(e) = push_attr_component(template_str, stack, attr) {
+                            return Err(e);
+                        }
+                        push_attr_value_component(template_str, stack, val)
                     }
                     _ => {}
                 }
             }
         }
         _ => {}
+    };
+
+    Ok(())
+}
+
+fn push_attr_component(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    attr: &str,
+) -> Result<(), String> {
+    if !attr_is_valid(attr) {
+        return Err("invalid attribute: ".to_string() + attr);
     }
+
+    let tag_info = match stack.last() {
+        Some(curr) => curr,
+        _ => return Ok(()),
+    };
+
+    if tag_info.banned_path {
+        return Ok(());
+    }
+
+    results.push(' ');
+    results.push_str(attr);
+
+    Ok(())
+}
+
+fn attr_is_valid(attr: &str) -> bool {
+    for glyph in attr.chars() {
+        if forbidden_attr_glyph(glyph) {
+            return false;
+        }
+    }
+
+    true
+}
+
+// https://html.spec.whatwg.org/multipage/syntax.html#attributes-2
+fn forbidden_attr_glyph(glyph: char) -> bool {
+    match glyph {
+        '<' => true,
+        '=' => true,
+        '"' => true,
+        '\'' => true,
+        '/' => true,
+        '>' => true,
+        '{' => true, // this ones for coyote, reserved char
+        _ => false,
+    }
+}
+
+fn push_attr_value_component(results: &mut String, stack: &mut Vec<TagInfo>, val: &str) {
+    let tag_info = match stack.last() {
+        Some(curr) => curr,
+        _ => return,
+    };
+
+    if tag_info.banned_path {
+        return;
+    }
+
+    results.push_str("=\"");
+    let escaped = val.replace("\"", "&quot;");
+    results.push_str(&escaped);
+    results.push('"');
 }

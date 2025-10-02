@@ -339,11 +339,6 @@ fn add_text(results: &mut String, text: &str, tag_info: &TagInfo) {
 }
 
 fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
-    let attr = get_text_from_step(template_str, step);
-    push_attr_component(results, stack, attr)
-}
-
-pub fn push_attr_component(results: &mut String, stack: &mut Vec<TagInfo>, attr: &str) {
     let tag_info = match stack.last() {
         Some(curr) => curr,
         _ => return,
@@ -354,6 +349,7 @@ pub fn push_attr_component(results: &mut String, stack: &mut Vec<TagInfo>, attr:
     }
 
     results.push(' ');
+    let attr = get_text_from_step(template_str, step);
     results.push_str(attr.trim());
 }
 
@@ -396,21 +392,6 @@ fn push_attr_value_double_quoted(
     results.push_str("=\"");
     let val = get_text_from_step(template_str, step).trim();
     results.push_str(val);
-    results.push('"');
-}
-
-pub fn push_attr_value_component(results: &mut String, stack: &mut Vec<TagInfo>, val: &str) {
-    let tag_info = match stack.last() {
-        Some(curr) => curr,
-        _ => return,
-    };
-
-    if tag_info.banned_path {
-        return;
-    }
-
-    results.push_str("=\"");
-    results.push_str(val.trim());
     results.push('"');
 }
 
