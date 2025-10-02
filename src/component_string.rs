@@ -231,7 +231,7 @@ fn push_attr_component(
 
 fn attr_is_valid(attr: &str) -> bool {
     for glyph in attr.chars() {
-        if forbidden_glyph(glyph) {
+        if forbidden_attr_glyph(glyph) {
             return false;
         }
     }
@@ -239,7 +239,7 @@ fn attr_is_valid(attr: &str) -> bool {
     true
 }
 
-fn forbidden_glyph(glyph: char) -> bool {
+fn forbidden_attr_glyph(glyph: char) -> bool {
     match glyph {
         '<' => true,
         '"' => true,
