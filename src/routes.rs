@@ -197,6 +197,9 @@ fn get_kind_from_tail_element_space(glyph: char) -> StepKind {
 }
 
 fn get_kind_from_initial(glyph: char) -> StepKind {
+    // is white space
+    // return StepKind::TextSpace
+
     match glyph {
         '<' => StepKind::Element,
         '{' => StepKind::DescendantInjection,
