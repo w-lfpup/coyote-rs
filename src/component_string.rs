@@ -1,7 +1,5 @@
 use crate::components::Component;
-use crate::compose_steps::{
-    compose_steps, push_attr_component, push_attr_value_component, push_text_component,
-};
+use crate::compose_steps::{compose_steps, push_text_component};
 use crate::routes::StepKind;
 use crate::rulesets::RulesetImpl;
 use crate::tag_info::TagInfo;
@@ -218,4 +216,34 @@ fn forbidden_glyph(glyph: char) -> bool {
         '=' => true,
         _ => false,
     }
+}
+
+pub fn push_attr_component(results: &mut String, stack: &mut Vec<TagInfo>, attr: &str) {
+    let tag_info = match stack.last() {
+        Some(curr) => curr,
+        _ => return,
+    };
+
+    if tag_info.banned_path {
+        return;
+    }
+
+    results.push(' ');
+    results.push_str(attr.trim());
+}
+
+pub fn push_attr_value_component(results: &mut String, stack: &mut Vec<TagInfo>, val: &str) {
+    let tag_info = match stack.last() {
+        Some(curr) => curr,
+        _ => return,
+    };
+
+    if tag_info.banned_path {
+        return;
+    }
+
+    results.push_str("=\"");
+    let escaped = val.trim().replace("\"", "&quot;");
+    results.push_str(&escaped);
+    results.push('"');
 }
