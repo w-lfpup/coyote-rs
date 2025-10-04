@@ -39,13 +39,13 @@ pub fn compose(ruleset: &dyn RulesetImpl, template_str: &str) -> Results {
     results
 }
 
+fn push_injection(results: &mut Results, step: Step) {
+    results.steps.push(Vec::new());
+    results.injs.push(step);
+}
+
 fn push_step(results: &mut Results, step: Step) {
     if let Some(last) = results.steps.last_mut() {
         last.push(step);
     }
-}
-
-fn push_injection(results: &mut Results, step: Step) {
-    results.steps.push(Vec::new());
-    results.injs.push(step);
 }
