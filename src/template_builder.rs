@@ -15,7 +15,7 @@ impl Builder {
 
 impl BuilderImpl for Builder {
     fn build(&mut self, rules: &dyn RulesetImpl, template_str: &str) -> TemplateSteps {
-        // chance to cache templates here
+        // cache template steps here
         compose(rules, template_str)
     }
 }
