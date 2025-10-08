@@ -46,7 +46,7 @@ impl TagInfo {
         tag_info.tag = tag.to_string();
         tag_info.void_el = rules.tag_is_void_el(tag);
         tag_info.inline_el = rules.tag_is_inline_el(tag);
-        tag_info.text_format = TextFormat::Initial;
+        // tag_info.text_format = TextFormat::Initial;
 
         if rules.tag_is_namespace_el(tag) {
             tag_info.namespace = tag.to_string();

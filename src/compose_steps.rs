@@ -53,7 +53,7 @@ fn push_text(
         _ => return,
     };
 
-    if tag_info.banned_path || tag_info.inline_el {
+    if tag_info.banned_path {
         return;
     }
 
@@ -72,62 +72,24 @@ fn push_text_space(
     // if preserved space
     // if inline
     // if
-    let text = get_text_from_step(template_str, step);
-    push_text_component(results, stack, rules, text)
-}
-
-fn push_text_component(
-    results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    rules: &dyn RulesetImpl,
-    text: &str,
-) {
-    if all_spaces(text) {
-        return;
-    }
-
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
         // this should never happen
         _ => return,
     };
 
-    if tag_info.banned_path || tag_info.void_el {
+    if tag_info.banned_path {
         return;
     }
 
+    // preserved text
     if tag_info.preserved_text_path {
+        let text = get_text_from_step(template_str, step);
         results.push_str(text);
-        tag_info.text_format = TextFormat::Inline;
         return;
     }
 
-    // if alt text
-    if let Some(_) = rules.get_close_sequence_from_alt_text_tag(&tag_info.tag) {
-        add_alt_element_text(results, text, tag_info);
-        tag_info.text_format = TextFormat::Inline;
-        return;
-    }
-
-    // if unformatted
-    if !rules.respect_indentation() {
-        add_inline_text(results, text, &tag_info);
-        tag_info.text_format = TextFormat::Inline;
-        return;
-    }
-
-    // formatted text
-    if TextFormat::Inline == tag_info.text_format {
-        results.push(' ');
-    }
-
-    if tag_info.inline_el || TextFormat::Inline == tag_info.text_format {
-        add_first_line_text(results, text, tag_info);
-    } else {
-        add_text(results, text, tag_info);
-    }
-
-    tag_info.text_format = TextFormat::Inline;
+    results.push(' ');
 }
 
 fn push_element(
