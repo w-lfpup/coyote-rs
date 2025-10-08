@@ -66,7 +66,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
                     let mut slider = SlidingWindow::new(close_seq);
                     slider.slide(glyph);
                     sliding_window = Some(slider);
-                    curr_kind = StepKind::Text;
+                    curr_kind = StepKind::TextAlt;
                 }
             }
         }
@@ -78,7 +78,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
             let mut slider = SlidingWindow::new(close_seq);
             slider.slide(glyph);
             sliding_window = Some(slider);
-            curr_kind = StepKind::Text;
+            curr_kind = StepKind::TextAlt;
         }
 
         steps.push(Step {

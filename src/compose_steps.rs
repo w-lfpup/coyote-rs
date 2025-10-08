@@ -17,6 +17,7 @@ pub fn compose_steps(
             StepKind::EmptyElementClosed => close_empty_element(results, tag_info_stack),
             StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
             StepKind::Text => push_text(results, tag_info_stack, rules, template_str, step),
+            StepKind::TextAlt => push_alt_text(results, tag_info_stack, rules, template_str, step),
             StepKind::TextSpace => {
                 push_text_space(results, tag_info_stack, rules, template_str, step)
             }
@@ -35,15 +36,31 @@ pub fn compose_steps(
     }
 }
 
-// rules are different
-// we are saying THIS IS NOT SPACE it is text
-// we can add whatever
-// I think for text we can just push text forward
-// what we care about is SPACE
 fn push_text(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
-    rules: &dyn RulesetImpl,
+    _rules: &dyn RulesetImpl,
+    template_str: &str,
+    step: &Step,
+) {
+    let tag_info = match stack.last_mut() {
+        Some(curr) => curr,
+        // this should never happen
+        _ => return,
+    };
+
+    if tag_info.banned_path {
+        return;
+    }
+
+    let text = get_text_from_step(template_str, step);
+    results.push_str(text);
+}
+
+fn push_alt_text(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    _rules: &dyn RulesetImpl,
     template_str: &str,
     step: &Step,
 ) {
@@ -65,13 +82,10 @@ fn push_text(
 fn push_text_space(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
-    rules: &dyn RulesetImpl,
+    _rules: &dyn RulesetImpl,
     template_str: &str,
     step: &Step,
 ) {
-    // if preserved space
-    // if inline
-    // if
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
         // this should never happen
@@ -82,10 +96,16 @@ fn push_text_space(
         return;
     }
 
+    let text = get_text_from_step(template_str, step);
+
     // preserved text
     if tag_info.preserved_text_path {
-        let text = get_text_from_step(template_str, step);
         results.push_str(text);
+        return;
+    }
+
+    if text.contains("\n") {
+        results.push('\n');
         return;
     }
 
@@ -99,52 +119,27 @@ fn push_element(
     template_str: &str,
     step: &Step,
 ) {
-    let prev_tag_info = match stack.last_mut() {
-        Some(pti) => pti,
+    let tag_info = match stack.last_mut() {
+        Some(tag_info) => tag_info,
         _ => {
             // this never happens
-            // always at least len of 1
             return;
         }
     };
 
     let tag = get_text_from_step(template_str, step);
-    let tag_info = TagInfo::from(rules, prev_tag_info, tag);
+    let next_tag_info = TagInfo::from(rules, tag_info, tag);
 
     // banned path
-    if tag_info.banned_path {
-        stack.push(tag_info);
+    if next_tag_info.banned_path {
+        stack.push(next_tag_info);
         return;
-    }
-
-    if !rules.respect_indentation()
-        && TextFormat::Initial != prev_tag_info.text_format
-        && TextFormat::Root != prev_tag_info.text_format
-    {
-        results.push(' ');
-    }
-
-    if rules.respect_indentation() {
-        if !tag_info.inline_el {
-            if TextFormat::Root != prev_tag_info.text_format {
-                results.push('\n');
-                results.push_str(&"\t".repeat(prev_tag_info.indent_count));
-            }
-            prev_tag_info.text_format = TextFormat::Block;
-        }
-
-        if tag_info.inline_el {
-            if TextFormat::Inline == prev_tag_info.text_format {
-                results.push(' ');
-            }
-            prev_tag_info.text_format = TextFormat::Inline;
-        }
     }
 
     results.push('<');
     results.push_str(tag);
 
-    stack.push(tag_info);
+    stack.push(next_tag_info);
 }
 
 fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
@@ -212,27 +207,7 @@ fn pop_element(
         return;
     }
 
-    if tag_info.void_el && "html" == tag_info.namespace {
-        results.push('>');
-        return;
-    }
-
-    let prev_tag_info = match stack.last() {
-        Some(curr) => curr,
-        _ => return,
-    };
-
-    if rules.respect_indentation()
-        && !tag_info.inline_el
-        && !tag_info.preserved_text_path
-        && TextFormat::Initial != tag_info.text_format
-    {
-        results.push('\n');
-        results.push_str(&"\t".repeat(prev_tag_info.indent_count));
-    }
-
-    if let Some(close_seq) = rules.get_close_sequence_from_alt_text_tag(tag) {
-        results.push_str(close_seq);
+    if tag_info.void_el {
         results.push('>');
         return;
     }
@@ -240,97 +215,6 @@ fn pop_element(
     results.push_str("</");
     results.push_str(tag);
     results.push('>');
-}
-
-fn all_spaces(line: &str) -> bool {
-    line.len() == get_index_of_first_char(line)
-}
-
-fn add_alt_element_text(results: &mut String, text: &str, tag_info: &TagInfo) {
-    let common_index = get_most_common_space_index(text);
-
-    for line in text.split("\n") {
-        if all_spaces(line) {
-            continue;
-        }
-
-        results.push('\n');
-        results.push_str(&"\t".repeat(tag_info.indent_count));
-        results.push_str(line[common_index..].trim_end());
-    }
-}
-
-fn add_first_line_text(results: &mut String, text: &str, tag_info: &TagInfo) {
-    let mut text_iter = text.split("\n");
-
-    while let Some(line) = text_iter.next() {
-        if !all_spaces(line) {
-            results.push_str(line.trim());
-            break;
-        }
-    }
-
-    while let Some(line) = text_iter.next() {
-        if all_spaces(line) {
-            continue;
-        }
-
-        results.push('\n');
-        results.push_str(&"\t".repeat(tag_info.indent_count));
-        results.push_str(line.trim());
-    }
-}
-
-fn add_inline_text(results: &mut String, text: &str, tag_info: &TagInfo) {
-    let mut text_iter = text.split("\n");
-
-    while let Some(line) = text_iter.next() {
-        if all_spaces(line) {
-            continue;
-        }
-
-        if TextFormat::Root != tag_info.text_format && TextFormat::Initial != tag_info.text_format {
-            results.push(' ');
-        }
-
-        results.push_str(line.trim());
-        break;
-    }
-
-    while let Some(line) = text_iter.next() {
-        if !all_spaces(line) {
-            results.push(' ');
-            results.push_str(line.trim());
-        }
-    }
-}
-
-fn add_text(results: &mut String, text: &str, tag_info: &TagInfo) {
-    let mut text_iter = text.split("\n");
-
-    while let Some(line) = text_iter.next() {
-        if all_spaces(line) {
-            continue;
-        }
-
-        if TextFormat::Root != tag_info.text_format {
-            results.push('\n');
-        }
-
-        results.push_str(&"\t".repeat(tag_info.indent_count));
-        results.push_str(line.trim());
-        break;
-    }
-
-    while let Some(line) = text_iter.next() {
-        if all_spaces(line) {
-            continue;
-        }
-
-        results.push('\n');
-        results.push_str(&"\t".repeat(tag_info.indent_count));
-        results.push_str(line.trim());
-    }
 }
 
 fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
@@ -364,7 +248,7 @@ fn push_attr_value_single_quoted(
     }
 
     results.push_str("='");
-    let val = get_text_from_step(template_str, step).trim();
+    let val = get_text_from_step(template_str, step);
     results.push_str(val);
     results.push('\'');
 }
@@ -385,7 +269,7 @@ fn push_attr_value_double_quoted(
     }
 
     results.push_str("=\"");
-    let val = get_text_from_step(template_str, step).trim();
+    let val = get_text_from_step(template_str, step);
     results.push_str(val);
     results.push('"');
 }
@@ -408,65 +292,4 @@ fn push_attr_value_unquoted(
     let val = get_text_from_step(template_str, step);
     results.push('=');
     results.push_str(val);
-}
-
-fn get_index_of_first_char(text: &str) -> usize {
-    for (index, glyph) in text.char_indices() {
-        if !glyph.is_whitespace() {
-            return index;
-        }
-    }
-
-    text.len()
-}
-
-fn get_most_common_space_index(text: &str) -> usize {
-    let mut space_index = text.len();
-    let mut prev_line = "";
-
-    let mut texts = text.split("\n");
-
-    while let Some(line) = texts.next() {
-        if all_spaces(line) {
-            continue;
-        };
-
-        space_index = get_index_of_first_char(line);
-        prev_line = line;
-        break;
-    }
-
-    while let Some(line) = texts.next() {
-        if all_spaces(line) {
-            continue;
-        }
-
-        let curr_index = get_most_common_space_index_between_two_strings(prev_line, line);
-        if curr_index < space_index {
-            space_index = curr_index
-        }
-
-        prev_line = line;
-    }
-
-    space_index
-}
-
-fn get_most_common_space_index_between_two_strings(source: &str, target: &str) -> usize {
-    let mut source_chars = source.char_indices();
-    let mut target_chars = target.chars();
-
-    let mut prev_index = 0;
-    while let (Some((src_index, src_chr)), Some(tgt_chr)) =
-        (source_chars.next(), target_chars.next())
-    {
-        if src_chr == tgt_chr && src_chr.is_whitespace() {
-            prev_index = src_index;
-            continue;
-        }
-
-        return src_index;
-    }
-
-    prev_index
 }

@@ -78,7 +78,7 @@ fn inline_element_with_text() {
 		",
         [],
     );
-    let expected = "<b>hello!</b>";
+    let expected = "<b> hello! </b>";
 
     let mut html = Html::new();
     let results = html.build(&template);

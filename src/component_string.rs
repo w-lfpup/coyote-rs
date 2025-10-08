@@ -319,3 +319,155 @@ fn push_text_component(
 
     // tag_info.text_format = TextFormat::Inline;
 }
+
+// fn get_index_of_first_char(text: &str) -> usize {
+//     for (index, glyph) in text.char_indices() {
+//         if !glyph.is_whitespace() {
+//             return index;
+//         }
+//     }
+
+//     text.len()
+// }
+
+// fn get_most_common_space_index(text: &str) -> usize {
+//     let mut space_index = text.len();
+//     let mut prev_line = "";
+
+//     let mut texts = text.split("\n");
+
+//     while let Some(line) = texts.next() {
+//         if all_spaces(line) {
+//             continue;
+//         };
+
+//         space_index = get_index_of_first_char(line);
+//         prev_line = line;
+//         break;
+//     }
+
+//     while let Some(line) = texts.next() {
+//         if all_spaces(line) {
+//             continue;
+//         }
+
+//         let curr_index = get_most_common_space_index_between_two_strings(prev_line, line);
+//         if curr_index < space_index {
+//             space_index = curr_index
+//         }
+
+//         prev_line = line;
+//     }
+
+//     space_index
+// }
+
+// fn get_most_common_space_index_between_two_strings(source: &str, target: &str) -> usize {
+//     let mut source_chars = source.char_indices();
+//     let mut target_chars = target.chars();
+
+//     let mut prev_index = 0;
+//     while let (Some((src_index, src_chr)), Some(tgt_chr)) =
+//         (source_chars.next(), target_chars.next())
+//     {
+//         if src_chr == tgt_chr && src_chr.is_whitespace() {
+//             prev_index = src_index;
+//             continue;
+//         }
+
+//         return src_index;
+//     }
+
+//     prev_index
+// }
+
+// fn all_spaces(line: &str) -> bool {
+//     line.len() == get_index_of_first_char(line)
+// }
+
+// fn add_alt_element_text(results: &mut String, text: &str, tag_info: &TagInfo) {
+//     let common_index = get_most_common_space_index(text);
+
+//     for line in text.split("\n") {
+//         if all_spaces(line) {
+//             continue;
+//         }
+
+//         results.push('\n');
+//         results.push_str(&"\t".repeat(tag_info.indent_count));
+//         results.push_str(line[common_index..].trim_end());
+//     }
+// }
+
+// fn add_first_line_text(results: &mut String, text: &str, tag_info: &TagInfo) {
+//     let mut text_iter = text.split("\n");
+
+//     while let Some(line) = text_iter.next() {
+//         if !all_spaces(line) {
+//             results.push_str(line.trim());
+//             break;
+//         }
+//     }
+
+//     while let Some(line) = text_iter.next() {
+//         if all_spaces(line) {
+//             continue;
+//         }
+
+//         results.push('\n');
+//         results.push_str(&"\t".repeat(tag_info.indent_count));
+//         results.push_str(line.trim());
+//     }
+// }
+
+// fn add_inline_text(results: &mut String, text: &str, tag_info: &TagInfo) {
+//     let mut text_iter = text.split("\n");
+
+//     while let Some(line) = text_iter.next() {
+//         if all_spaces(line) {
+//             continue;
+//         }
+
+//         if TextFormat::Root != tag_info.text_format && TextFormat::Initial != tag_info.text_format {
+//             results.push(' ');
+//         }
+
+//         results.push_str(line.trim());
+//         break;
+//     }
+
+//     while let Some(line) = text_iter.next() {
+//         if !all_spaces(line) {
+//             results.push(' ');
+//             results.push_str(line.trim());
+//         }
+//     }
+// }
+
+// fn add_text(results: &mut String, text: &str, tag_info: &TagInfo) {
+//     let mut text_iter = text.split("\n");
+
+//     while let Some(line) = text_iter.next() {
+//         if all_spaces(line) {
+//             continue;
+//         }
+
+//         if TextFormat::Root != tag_info.text_format {
+//             results.push('\n');
+//         }
+
+//         results.push_str(&"\t".repeat(tag_info.indent_count));
+//         results.push_str(line.trim());
+//         break;
+//     }
+
+//     while let Some(line) = text_iter.next() {
+//         if all_spaces(line) {
+//             continue;
+//         }
+
+//         results.push('\n');
+//         results.push_str(&"\t".repeat(tag_info.indent_count));
+//         results.push_str(line.trim());
+//     }
+// }
