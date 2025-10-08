@@ -27,6 +27,7 @@ pub enum StepKind {
     TailElementSpace,
     TailTag,
     Text,
+    TextSpace,
 }
 
 // Names based roughly on:
@@ -199,6 +200,9 @@ fn get_kind_from_tail_element_space(glyph: char) -> StepKind {
 fn get_kind_from_initial(glyph: char) -> StepKind {
     // is white space
     // return StepKind::TextSpace
+    if glyph.is_whitespace() {
+        return StepKind::TextSpace;
+    }
 
     match glyph {
         '<' => StepKind::Element,

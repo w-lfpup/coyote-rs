@@ -17,6 +17,9 @@ pub fn compose_steps(
             StepKind::EmptyElementClosed => close_empty_element(results, tag_info_stack),
             StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
             StepKind::Text => push_text(results, tag_info_stack, rules, template_str, step),
+            StepKind::TextSpace => {
+                push_text_space(results, tag_info_stack, rules, template_str, step)
+            }
             StepKind::Attr => push_attr(results, tag_info_stack, template_str, step),
             StepKind::AttrValueSingleQuoted => {
                 push_attr_value_single_quoted(results, tag_info_stack, template_str, step)
@@ -32,6 +35,11 @@ pub fn compose_steps(
     }
 }
 
+// rules are different
+// we are saying THIS IS NOT SPACE it is text
+// we can add whatever
+// I think for text we can just push text forward
+// what we care about is SPACE
 fn push_text(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
@@ -39,11 +47,36 @@ fn push_text(
     template_str: &str,
     step: &Step,
 ) {
+    let tag_info = match stack.last_mut() {
+        Some(curr) => curr,
+        // this should never happen
+        _ => return,
+    };
+
+    if tag_info.banned_path || tag_info.inline_el {
+        return;
+    }
+
+    let text = get_text_from_step(template_str, step);
+    results.push_str(text);
+}
+
+// THIS DEPENDS whether the space is INLINE or in an ALT TEXT
+fn push_text_space(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    rules: &dyn RulesetImpl,
+    template_str: &str,
+    step: &Step,
+) {
+    // if preserved space
+    // if inline
+    // if
     let text = get_text_from_step(template_str, step);
     push_text_component(results, stack, rules, text)
 }
 
-pub fn push_text_component(
+fn push_text_component(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
     rules: &dyn RulesetImpl,
