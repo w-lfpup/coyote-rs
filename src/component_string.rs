@@ -18,6 +18,10 @@ enum StackBit<'a> {
     None,
 }
 
+// needs to be a concept of a "remainder"
+// the last empty string of the previous step,
+// provided to the next step
+
 pub fn compose_string(
     builder: &mut dyn BuilderImpl,
     rules: &dyn RulesetImpl,
@@ -39,6 +43,8 @@ pub fn compose_string(
             StackBit::Cmpnt(cmpnt) => match cmpnt {
                 Component::Text(text) => {
                     let escaped = text.replace("<", "&lt;").replace("{", "&quot;");
+                    // returns remainder string
+                    // also takes remainder string as an argument?
                     push_text_component(
                         &mut template_results,
                         &mut tag_info_stack,
@@ -47,6 +53,7 @@ pub fn compose_string(
                     );
                 }
                 Component::UnescapedText(text) => {
+                    // returns remainder string
                     push_text_component(&mut template_results, &mut tag_info_stack, rules, text);
                 }
                 Component::List(list) => {
@@ -76,6 +83,7 @@ pub fn compose_string(
                 // add current template chunk
                 match template.steps.get(index) {
                     Some(chunk) => {
+                        // returns "remainder str"
                         compose_steps(
                             rules,
                             &mut template_results,

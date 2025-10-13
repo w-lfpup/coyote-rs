@@ -36,6 +36,38 @@ pub fn compose_steps(
     }
 }
 
+fn push_initial(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    _rules: &dyn RulesetImpl,
+    template_str: &str,
+    step: &Step,
+) {
+    let tag_info = match stack.last() {
+        Some(curr) => curr,
+        // this should never happen
+        _ => return,
+    };
+
+    if tag_info.banned_path {
+        return;
+    }
+
+    // if respect indendation, then format text and lines in an 80 char box
+
+    let text = get_text_from_step(template_str, step);
+
+    if tag_info.inline_el {
+        results.push(' ')
+    }
+
+    if stack.len() > 1 && !tag_info.inline_el {
+        results.push('\n')
+    }
+    
+    results.push_str(text);
+}
+
 fn push_text(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
@@ -52,6 +84,8 @@ fn push_text(
     if tag_info.banned_path {
         return;
     }
+
+    // if respect indendation, then format text and lines in an 80 char box
 
     let text = get_text_from_step(template_str, step);
     results.push_str(text);
@@ -75,6 +109,7 @@ fn push_alt_text(
     }
 
     let text = get_text_from_step(template_str, step);
+
     results.push_str(text);
 }
 
@@ -104,12 +139,12 @@ fn push_text_space(
         return;
     }
 
-    if text.contains("\n") {
-        results.push('\n');
+    // if respect indendation and has 
+
+    if tag_info.inline_el {
+        results.push(' ');
         return;
     }
-
-    results.push(' ');
 }
 
 fn push_element(
@@ -134,6 +169,10 @@ fn push_element(
     if next_tag_info.banned_path {
         stack.push(next_tag_info);
         return;
+    }
+
+    if stack.len() > 1 && !next_tag_info.inline_el {
+        results.push('\n')
     }
 
     results.push('<');
@@ -292,4 +331,18 @@ fn push_attr_value_unquoted(
     let val = get_text_from_step(template_str, step);
     results.push('=');
     results.push_str(val);
+}
+
+fn all_spaces(line: &str) -> bool {
+    line.len() == get_index_of_first_char(line)
+}
+
+fn get_index_of_first_char(text: &str) -> usize {
+    for (index, glyph) in text.char_indices() {
+        if !glyph.is_whitespace() {
+            return index;
+        }
+    }
+
+    text.len()
 }
