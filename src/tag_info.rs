@@ -3,10 +3,10 @@ use crate::rulesets::RulesetImpl;
 // describes how to handle elements and spacing
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum TextFormat {
-    Block,
     Initial,
-    Inline,
-    Root,
+    Space,
+    LineSpace,
+    Text,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -31,7 +31,7 @@ impl TagInfo {
         TagInfo {
             namespace: namespace.to_string(),
             tag: tag.to_string(),
-            text_format: TextFormat::Root,
+            text_format: TextFormat::Initial,
             indent_count: 0,
             void_el: rules.tag_is_void_el(tag),
             inline_el: rules.tag_is_inline_el(tag),
@@ -46,7 +46,7 @@ impl TagInfo {
         tag_info.tag = tag.to_string();
         tag_info.void_el = rules.tag_is_void_el(tag);
         tag_info.inline_el = rules.tag_is_inline_el(tag);
-        // tag_info.text_format = TextFormat::Initial;
+        tag_info.text_format = TextFormat::Initial;
 
         if rules.tag_is_namespace_el(tag) {
             tag_info.namespace = tag.to_string();
