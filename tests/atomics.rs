@@ -28,7 +28,7 @@ fn empty_element() {
 		",
         [],
     );
-    let expected = "<p></p>";
+    let expected = "<p>\n</p>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -61,7 +61,7 @@ fn element_with_text() {
 		",
         [],
     );
-    let expected = "<p>\n\thello!\n</p>";
+    let expected = "<p>hello!</p>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -78,7 +78,7 @@ fn inline_element_with_text() {
 		",
         [],
     );
-    let expected = "<b> hello! </b>";
+    let expected = "<b> hello!\n</b>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -95,7 +95,7 @@ fn achor_element_with_text() {
 		",
         [],
     );
-    let expected = "<a>\n\thello!\n</a>";
+    let expected = "<a>\n\thello! </a>";
 
     let mut html = Html::new();
     let results = html.build(&template);

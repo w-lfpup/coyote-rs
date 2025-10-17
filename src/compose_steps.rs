@@ -43,6 +43,7 @@ fn push_text(
     template_str: &str,
     step: &Step,
 ) {
+    let stack_len = stack.len();
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
         // this should never happen
@@ -53,8 +54,7 @@ fn push_text(
         return;
     }
 
-    // figure out spacing.
-    // if new line if space initial and inline
+    push_space_acordingly(results, stack_len, tag_info);
 
     tag_info.text_format = TextFormat::Text;
 
@@ -70,7 +70,7 @@ fn push_alt_text(
     template_str: &str,
     step: &Step,
 ) {
-    let tag_info = match stack.last_mut() {
+    let tag_info = match stack.last() {
         Some(curr) => curr,
         // this should never happen
         _ => return,
@@ -81,7 +81,6 @@ fn push_alt_text(
     }
 
     let text = get_text_from_step(template_str, step);
-
     results.push_str(text);
 }
 
@@ -93,6 +92,7 @@ fn push_text_space(
     template_str: &str,
     step: &Step,
 ) {
+    let stack_len = stack.len();
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
         // this should never happen
@@ -103,25 +103,20 @@ fn push_text_space(
         return;
     }
 
+    if stack_len < 2 && TextFormat::Initial == tag_info.text_format {
+        return;
+    }
+
     let text = get_text_from_step(template_str, step);
+
+    tag_info.text_format = TextFormat::Space;
+    if (text.contains("\n")) {
+        tag_info.text_format = TextFormat::LineSpace;
+    }
 
     // preserved text
     if tag_info.preserved_text_path {
         results.push_str(text);
-        return;
-    }
-
-    // if previous text format is Space
-    // return
-    if TextFormat::Space == tag_info.text_format || TextFormat::LineSpace == tag_info.text_format {
-        return;
-    }
-
-    // than if
-    //
-    tag_info.text_format = TextFormat::Space;
-    if text.contains("\n") {
-        tag_info.text_format = TextFormat::LineSpace;
     }
 }
 
@@ -132,7 +127,7 @@ fn push_element(
     template_str: &str,
     step: &Step,
 ) {
-    let tag_info = match stack.last_mut() {
+    let tag_info = match stack.last() {
         Some(tag_info) => tag_info,
         _ => {
             // this never happens
@@ -144,25 +139,18 @@ fn push_element(
     let next_tag_info = TagInfo::from(rules, tag_info, tag);
 
     // banned path
-    if next_tag_info.banned_path {
-        stack.push(next_tag_info);
-        return;
+    if !next_tag_info.banned_path {
+        push_space_acordingly(results, stack.len(), &next_tag_info);
+        results.push('<');
+        results.push_str(tag);
     }
-
-    // text format space and inline element, add a space
-    // if stack.len() > 1 && !next_tag_info.inline_el {
-    //     results.push('\n')
-    // }
-
-    results.push('<');
-    results.push_str(tag);
 
     stack.push(next_tag_info);
 }
 
 fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
-    let tag_info = match stack.last_mut() {
-        Some(prev_tag_info) => prev_tag_info,
+    let tag_info = match stack.last() {
+        Some(tag_info) => tag_info,
         _ => return,
     };
 
@@ -171,11 +159,17 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
     }
 
     // DONT NEED THIS BECAUSE IT"S ALWAYS INITIAL INITIALLY
-    // tag_info.text_format = TextFormat::Initial;
 
     if tag_info.void_el && "html" == tag_info.namespace {
         stack.pop();
     }
+
+    let next_tag_info = match stack.last_mut() {
+        Some(prev_tag_info) => prev_tag_info,
+        _ => return,
+    };
+
+    next_tag_info.text_format = TextFormat::Text;
 }
 
 fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
@@ -199,13 +193,12 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         results.push('>');
     }
 
-    // pop and mutate text_format::Initial
     let next_tag_info = match stack.last_mut() {
         Some(prev_tag_info) => prev_tag_info,
         _ => return,
     };
 
-    next_tag_info.text_format = TextFormat::Initial;
+    next_tag_info.text_format = TextFormat::Text;
 }
 
 fn pop_element(
@@ -236,22 +229,22 @@ fn pop_element(
         return;
     }
 
+    push_space_acordingly(results, stack.len(), &tag_info);
+
+    if !tag_info.void_el {
+        results.push_str("</");
+        results.push_str(tag);
+    }
+
+    results.push('>');
+
     // Reset text formating
     let next_tag_info = match stack.last_mut() {
         Some(prev_tag_info) => prev_tag_info,
         _ => return,
     };
 
-    next_tag_info.text_format = TextFormat::Initial;
-
-    if tag_info.void_el {
-        results.push('>');
-        return;
-    }
-
-    results.push_str("</");
-    results.push_str(tag);
-    results.push('>');
+    next_tag_info.text_format = TextFormat::Text;
 }
 
 fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
@@ -331,9 +324,9 @@ fn push_attr_value_unquoted(
     results.push_str(val);
 }
 
-fn all_spaces(line: &str) -> bool {
-    line.len() == get_index_of_first_char(line)
-}
+// fn all_spaces(line: &str) -> bool {
+//     line.len() == get_index_of_first_char(line)
+// }
 
 fn get_index_of_first_char(text: &str) -> usize {
     for (index, glyph) in text.char_indices() {
@@ -343,4 +336,35 @@ fn get_index_of_first_char(text: &str) -> usize {
     }
 
     text.len()
+}
+
+fn push_space_regardless(results: &mut String, stack_len: usize, tag_info: &TagInfo) {
+    if tag_info.preserved_text_path {
+        return;
+    }
+
+    if TextFormat::Space == tag_info.text_format {
+        results.push(' ');
+    }
+
+    if TextFormat::LineSpace == tag_info.text_format {
+        results.push('\n');
+    }
+}
+
+fn push_space_acordingly(results: &mut String, stack_len: usize, tag_info: &TagInfo) {
+    if tag_info.preserved_text_path {
+        return;
+    }
+
+    if TextFormat::Space == tag_info.text_format {
+        results.push(' ');
+    }
+
+    if TextFormat::LineSpace == tag_info.text_format {
+        results.push('\n');
+        if stack_len > 1 {
+            results.push_str(&"\t".repeat(tag_info.indent_count + 1))
+        }
+    }
 }
