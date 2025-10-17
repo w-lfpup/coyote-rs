@@ -9,6 +9,7 @@ pub trait RulesetImpl {
     fn tag_is_namespace_el(&self, tag: &str) -> bool;
     fn tag_is_preserved_text_el(&self, tag: &str) -> bool;
     fn tag_is_inline_el(&self, tag: &str) -> bool;
+    fn tag_is_comment(&self, tag: &str) -> bool;
 }
 
 pub struct ServerRules {}
@@ -68,6 +69,10 @@ impl RulesetImpl for ServerRules {
 
     fn tag_is_inline_el(&self, tag: &str) -> bool {
         is_inline_el(tag)
+    }
+
+    fn tag_is_comment(&self, tag: &str) -> bool {
+        is_comment(tag)
     }
 }
 
@@ -135,6 +140,10 @@ impl RulesetImpl for ClientRules {
     fn tag_is_inline_el(&self, _tag: &str) -> bool {
         true
     }
+
+    fn tag_is_comment(&self, tag: &str) -> bool {
+        is_comment(tag)
+    }
 }
 
 pub struct XmlRules {}
@@ -197,6 +206,10 @@ impl RulesetImpl for XmlRules {
     fn tag_is_inline_el(&self, _tag: &str) -> bool {
         false
     }
+
+    fn tag_is_comment(&self, tag: &str) -> bool {
+        is_comment(tag)
+    }
 }
 
 // deprecated elements
@@ -256,6 +269,10 @@ fn is_namespace_el(tag: &str) -> bool {
         "svg" => true,
         _ => false,
     }
+}
+
+pub fn is_comment(tag: &str) -> bool {
+    return "!--" == tag;
 }
 
 pub fn is_preserved_text_el(tag: &str) -> bool {

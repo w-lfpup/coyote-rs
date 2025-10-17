@@ -221,18 +221,22 @@ fn pop_element(
     }
 
     let mut tag = get_text_from_step(template_str, step);
+    let mut closed_tag = tag.clone();
     if let Some(close_tag) = rules.get_alt_text_tag_from_close_sequence(tag) {
-        tag = close_tag;
+        closed_tag = close_tag;
     }
 
-    if tag != tag_info.tag {
+    if closed_tag != tag_info.tag {
         return;
     }
 
     push_space_acordingly(results, stack.len(), &tag_info);
 
     if !tag_info.void_el {
-        results.push_str("</");
+        if let None = rules.get_close_sequence_from_alt_text_tag(closed_tag) {
+            results.push_str("</");
+        }
+
         results.push_str(tag);
     }
 
