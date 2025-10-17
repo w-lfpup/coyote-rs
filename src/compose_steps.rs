@@ -54,7 +54,7 @@ fn push_text(
         return;
     }
 
-    push_space_acordingly(results, stack_len, tag_info);
+    // push_space_acordingly(results, stack_len, tag_info);
 
     tag_info.text_format = TextFormat::Text;
 
@@ -110,13 +110,13 @@ fn push_text_space(
 
     let text = get_text_from_step(template_str, step);
 
+    if tag_info.preserved_text_path {
+        results.push_str(text);
+    }
+
     tag_info.text_format = TextFormat::Space;
     if text.contains("\n") {
         tag_info.text_format = TextFormat::LineSpace;
-    }
-
-    if tag_info.preserved_text_path {
-        results.push_str(text);
     }
 }
 
@@ -139,7 +139,8 @@ fn push_element(
     let next_tag_info = TagInfo::from(rules, tag_info, tag);
 
     if !next_tag_info.banned_path {
-        push_space_acordingly(results, stack.len(), &tag_info);
+        // push_space_acordingly(results, stack.len(), &tag_info);
+        // push_space_regardless(results, &tag_info);
         results.push('<');
         results.push_str(tag);
     }
@@ -168,8 +169,12 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         _ => return,
     };
 
-    next_tag_info.text_format = TextFormat::Text;
-    // TextFormat -> Inline Block
+    // push_space_regardless(results, &next_tag_info);
+
+    next_tag_info.text_format = TextFormat::Block;
+    if next_tag_info.inline_el {
+        next_tag_info.text_format = TextFormat::Inline;
+    }
 }
 
 fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
@@ -198,7 +203,11 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         _ => return,
     };
 
-    next_tag_info.text_format = TextFormat::Text;
+    // next_tag_info.text_format = TextFormat::Text;
+    next_tag_info.text_format = TextFormat::Block;
+    if next_tag_info.inline_el {
+        next_tag_info.text_format = TextFormat::Inline;
+    }
 }
 
 fn pop_element(
@@ -230,8 +239,9 @@ fn pop_element(
         return;
     }
 
-    push_space_acordingly(results, stack.len(), &tag_info);
-
+    // push_space_acordingly(results, stack.len(), &tag_info);
+    // push_space_regardless(results, &tag_info);
+    
     if !tag_info.void_el {
         if let None = rules.get_close_sequence_from_alt_text_tag(closed_tag) {
             results.push_str("</");
@@ -248,7 +258,10 @@ fn pop_element(
         _ => return,
     };
 
-    next_tag_info.text_format = TextFormat::Text;
+    next_tag_info.text_format = TextFormat::Block;
+    if next_tag_info.inline_el {
+        next_tag_info.text_format = TextFormat::Inline;
+    }
 }
 
 fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
@@ -333,12 +346,22 @@ fn push_space_regardless(results: &mut String, tag_info: &TagInfo) {
         return;
     }
 
+    // if TextFormat::Inline == tag_info.text_format {
+    //     results.push(' ');
+    // }
+
+    if TextFormat::Block == tag_info.text_format {
+        results.push('\n');
+        results.push_str(&"\t".repeat(tag_info.indent_count))
+    }
+
     if TextFormat::Space == tag_info.text_format {
         results.push(' ');
     }
 
     if TextFormat::LineSpace == tag_info.text_format {
         results.push('\n');
+        results.push_str(&"\t".repeat(tag_info.indent_count))
     }
 }
 
@@ -354,8 +377,6 @@ fn push_space_acordingly(results: &mut String, stack_len: usize, tag_info: &TagI
     if TextFormat::LineSpace == tag_info.text_format {
         results.push('\n');
         // and if rules.respect_indentation
-        if stack_len > 1 {
-            results.push_str(&"\t".repeat(tag_info.indent_count))
-        }
+        results.push_str(&"\t".repeat(tag_info.indent_count))
     }
 }
