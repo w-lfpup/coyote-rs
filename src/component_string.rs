@@ -275,10 +275,10 @@ fn push_attr_value_component(results: &mut String, stack: &mut Vec<TagInfo>, val
 }
 
 fn push_text_component(
-    results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    rules: &dyn RulesetImpl,
-    text: &str,
+    _results: &mut String,
+    _stack: &mut Vec<TagInfo>,
+    _rules: &dyn RulesetImpl,
+    _text: &str,
 ) {
     // if all_spaces(text) {
     //     return;

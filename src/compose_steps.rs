@@ -81,10 +81,11 @@ fn push_alt_text(
     }
 
     let text = get_text_from_step(template_str, step);
-    results.push_str(text);
+    if tag_info.preserved_text_path {
+        results.push_str(text);
+    }
 }
 
-// THIS DEPENDS whether the space is INLINE or in an ALT TEXT
 fn push_text_space(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
@@ -110,11 +111,10 @@ fn push_text_space(
     let text = get_text_from_step(template_str, step);
 
     tag_info.text_format = TextFormat::Space;
-    if (text.contains("\n")) {
+    if text.contains("\n") {
         tag_info.text_format = TextFormat::LineSpace;
     }
 
-    // preserved text
     if tag_info.preserved_text_path {
         results.push_str(text);
     }
@@ -138,9 +138,8 @@ fn push_element(
     let tag = get_text_from_step(template_str, step);
     let next_tag_info = TagInfo::from(rules, tag_info, tag);
 
-    // banned path
     if !next_tag_info.banned_path {
-        push_space_acordingly(results, stack.len(), &next_tag_info);
+        push_space_acordingly(results, stack.len(), &tag_info);
         results.push('<');
         results.push_str(tag);
     }
@@ -170,6 +169,7 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
     };
 
     next_tag_info.text_format = TextFormat::Text;
+    // TextFormat -> Inline Block
 }
 
 fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
@@ -220,8 +220,8 @@ fn pop_element(
         return;
     }
 
-    let mut tag = get_text_from_step(template_str, step);
-    let mut closed_tag = tag.clone();
+    let tag = get_text_from_step(template_str, step);
+    let mut closed_tag = tag;
     if let Some(close_tag) = rules.get_alt_text_tag_from_close_sequence(tag) {
         closed_tag = close_tag;
     }
@@ -328,21 +328,7 @@ fn push_attr_value_unquoted(
     results.push_str(val);
 }
 
-// fn all_spaces(line: &str) -> bool {
-//     line.len() == get_index_of_first_char(line)
-// }
-
-fn get_index_of_first_char(text: &str) -> usize {
-    for (index, glyph) in text.char_indices() {
-        if !glyph.is_whitespace() {
-            return index;
-        }
-    }
-
-    text.len()
-}
-
-fn push_space_regardless(results: &mut String, stack_len: usize, tag_info: &TagInfo) {
+fn push_space_regardless(results: &mut String, tag_info: &TagInfo) {
     if tag_info.preserved_text_path {
         return;
     }
@@ -367,8 +353,9 @@ fn push_space_acordingly(results: &mut String, stack_len: usize, tag_info: &TagI
 
     if TextFormat::LineSpace == tag_info.text_format {
         results.push('\n');
+        // and if rules.respect_indentation
         if stack_len > 1 {
-            results.push_str(&"\t".repeat(tag_info.indent_count + 1))
+            results.push_str(&"\t".repeat(tag_info.indent_count))
         }
     }
 }
