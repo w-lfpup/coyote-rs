@@ -163,6 +163,11 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         Some(prev_tag_info) => prev_tag_info,
         _ => return,
     };
+
+    next_tag_info.text_format = TextFormat::Block;
+    if next_tag_info.inline_el {
+        next_tag_info.text_format = TextFormat::Inline;
+    }
 }
 
 fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
@@ -189,16 +194,16 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
     // inline close
     // block close
 
-    // let next_tag_info = match stack.last_mut() {
-    //     Some(prev_tag_info) => prev_tag_info,
-    //     _ => return,
-    // };
+    let next_tag_info = match stack.last_mut() {
+        Some(prev_tag_info) => prev_tag_info,
+        _ => return,
+    };
 
-    // // next_tag_info.text_format = TextFormat::Text;
-    // next_tag_info.text_format = TextFormat::Block;
-    // if next_tag_info.inline_el {
-    //     next_tag_info.text_format = TextFormat::Inline;
-    // }
+    // next_tag_info.text_format = TextFormat::Text;
+    next_tag_info.text_format = TextFormat::BlockClose;
+    if next_tag_info.inline_el {
+        next_tag_info.text_format = TextFormat::InlineClose;
+    }
 }
 
 fn pop_element(
@@ -245,16 +250,16 @@ fn pop_element(
     // inline close
     // block close
 
-    // // Reset text formating
-    // let next_tag_info = match stack.last_mut() {
-    //     Some(prev_tag_info) => prev_tag_info,
-    //     _ => return,
-    // };
+    // Reset text formating
+    let next_tag_info = match stack.last_mut() {
+        Some(prev_tag_info) => prev_tag_info,
+        _ => return,
+    };
 
-    // next_tag_info.text_format = TextFormat::Block;
-    // if next_tag_info.inline_el {
-    //     next_tag_info.text_format = TextFormat::Inline;
-    // }
+    next_tag_info.text_format = TextFormat::BlockClose;
+    if next_tag_info.inline_el {
+        next_tag_info.text_format = TextFormat::InlineClose;
+    }
 }
 
 fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
@@ -334,61 +339,23 @@ fn push_attr_value_unquoted(
     results.push_str(val);
 }
 
-fn push_space_for_text(results: &mut String, stack_len: usize, tag_info: &TagInfo) {
+fn push_space_accordingly(results: &mut String, stack_len: usize, tag_info: &TagInfo) {
     if tag_info.preserved_text_path {
         return;
     }
 
-    if TextFormat::Space == tag_info.text_format {
-        results.push(' ');
-    }
-
-    if TextFormat::LineSpace == tag_info.text_format || TextFormat::Block == tag_info.text_format {
-        results.push('\n');
-        // and if rules.respect_indentation
-        results.push_str(&"\t".repeat(tag_info.indent_count))
-    }
-}
-
-fn push_space_for_push_element(
-    results: &mut String,
-    stack_len: usize,
-    tag_info: &TagInfo,
-    next_tag_info: &TagInfo,
-) {
-    if tag_info.preserved_text_path {
-        return;
-    }
-
-    if !tag_info.inline_el {
-        results.push('\n');
-        results.push_str(&"\t".repeat(tag_info.indent_count));
-        return;
-    }
-
-    if TextFormat::Space == tag_info.text_format {
-        results.push(' ');
-        return;
-    }
-}
-
-fn push_space_for_pop_element(results: &mut String, stack_len: usize, tag_info: &TagInfo) {
-    if tag_info.preserved_text_path {
-        return;
-    }
-
-    if tag_info.inline_el {
-        if TextFormat::Space == tag_info.text_format {
+    match tag_info.text_format {
+        TextFormat::Space => {
             results.push(' ');
         }
-        if TextFormat::LineSpace == tag_info.text_format {
+        TextFormat::LineSpace => {
             results.push('\n');
-            results.push_str(&"\t".repeat(tag_info.indent_count - 1))
+            results.push_str(&"\t".repeat(tag_info.indent_count))
         }
-    }
-
-    if !tag_info.inline_el {
-        results.push('\n');
-        results.push_str(&"\t".repeat(tag_info.indent_count - 1))
+        TextFormat::Block => {}
+        TextFormat::Inline => {}
+        TextFormat::BlockClose => {}
+        TextFormat::InlineClose => {}
+        _ => {}
     }
 }
