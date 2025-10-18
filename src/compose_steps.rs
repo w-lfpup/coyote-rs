@@ -54,7 +54,7 @@ fn push_text(
         return;
     }
 
-    // push_space_acordingly(results, stack_len, tag_info);
+    // push_space_for_text(results, stack_len, tag_info);
 
     tag_info.text_format = TextFormat::Text;
 
@@ -70,7 +70,7 @@ fn push_alt_text(
     template_str: &str,
     step: &Step,
 ) {
-    let tag_info = match stack.last() {
+    let tag_info = match stack.last_mut() {
         Some(curr) => curr,
         // this should never happen
         _ => return,
@@ -84,6 +84,8 @@ fn push_alt_text(
     if tag_info.preserved_text_path {
         results.push_str(text);
     }
+
+    tag_info.text_format = TextFormat::Text;
 }
 
 fn push_text_space(
@@ -101,10 +103,6 @@ fn push_text_space(
     };
 
     if tag_info.banned_path {
-        return;
-    }
-
-    if stack_len < 2 && TextFormat::Initial == tag_info.text_format {
         return;
     }
 
@@ -127,7 +125,7 @@ fn push_element(
     template_str: &str,
     step: &Step,
 ) {
-    let tag_info = match stack.last() {
+    let tag_info = match stack.last_mut() {
         Some(tag_info) => tag_info,
         _ => {
             // this never happens
@@ -139,10 +137,14 @@ fn push_element(
     let next_tag_info = TagInfo::from(rules, tag_info, tag);
 
     if !next_tag_info.banned_path {
-        // push_space_acordingly(results, stack.len(), &tag_info);
-        // push_space_regardless(results, &tag_info);
+        // push_space_for_push_element(results, stack.len(), &tag_info, &next_tag_info);
         results.push('<');
         results.push_str(tag);
+    }
+
+    tag_info.text_format = TextFormat::Block;
+    if next_tag_info.inline_el {
+        tag_info.text_format = TextFormat::Inline;
     }
 
     stack.push(next_tag_info);
@@ -171,10 +173,10 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
 
     // push_space_regardless(results, &next_tag_info);
 
-    next_tag_info.text_format = TextFormat::Block;
-    if next_tag_info.inline_el {
-        next_tag_info.text_format = TextFormat::Inline;
-    }
+    // next_tag_info.text_format = TextFormat::Block;
+    // if next_tag_info.inline_el {
+    //     next_tag_info.text_format = TextFormat::Inline;
+    // }
 }
 
 fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
@@ -198,16 +200,16 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         results.push('>');
     }
 
-    let next_tag_info = match stack.last_mut() {
-        Some(prev_tag_info) => prev_tag_info,
-        _ => return,
-    };
+    // let next_tag_info = match stack.last_mut() {
+    //     Some(prev_tag_info) => prev_tag_info,
+    //     _ => return,
+    // };
 
-    // next_tag_info.text_format = TextFormat::Text;
-    next_tag_info.text_format = TextFormat::Block;
-    if next_tag_info.inline_el {
-        next_tag_info.text_format = TextFormat::Inline;
-    }
+    // // next_tag_info.text_format = TextFormat::Text;
+    // next_tag_info.text_format = TextFormat::Block;
+    // if next_tag_info.inline_el {
+    //     next_tag_info.text_format = TextFormat::Inline;
+    // }
 }
 
 fn pop_element(
@@ -239,9 +241,8 @@ fn pop_element(
         return;
     }
 
-    // push_space_acordingly(results, stack.len(), &tag_info);
-    // push_space_regardless(results, &tag_info);
-    
+    // push_space_for_pop_element(results, stack.len(), &tag_info);
+
     if !tag_info.void_el {
         if let None = rules.get_close_sequence_from_alt_text_tag(closed_tag) {
             results.push_str("</");
@@ -252,16 +253,16 @@ fn pop_element(
 
     results.push('>');
 
-    // Reset text formating
-    let next_tag_info = match stack.last_mut() {
-        Some(prev_tag_info) => prev_tag_info,
-        _ => return,
-    };
+    // // Reset text formating
+    // let next_tag_info = match stack.last_mut() {
+    //     Some(prev_tag_info) => prev_tag_info,
+    //     _ => return,
+    // };
 
-    next_tag_info.text_format = TextFormat::Block;
-    if next_tag_info.inline_el {
-        next_tag_info.text_format = TextFormat::Inline;
-    }
+    // next_tag_info.text_format = TextFormat::Block;
+    // if next_tag_info.inline_el {
+    //     next_tag_info.text_format = TextFormat::Inline;
+    // }
 }
 
 fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
@@ -341,42 +342,61 @@ fn push_attr_value_unquoted(
     results.push_str(val);
 }
 
-fn push_space_regardless(results: &mut String, tag_info: &TagInfo) {
+fn push_space_for_text(results: &mut String, stack_len: usize, tag_info: &TagInfo) {
     if tag_info.preserved_text_path {
         return;
-    }
-
-    // if TextFormat::Inline == tag_info.text_format {
-    //     results.push(' ');
-    // }
-
-    if TextFormat::Block == tag_info.text_format {
-        results.push('\n');
-        results.push_str(&"\t".repeat(tag_info.indent_count))
     }
 
     if TextFormat::Space == tag_info.text_format {
         results.push(' ');
     }
 
-    if TextFormat::LineSpace == tag_info.text_format {
+    if TextFormat::LineSpace == tag_info.text_format || TextFormat::Block == tag_info.text_format {
         results.push('\n');
+        // and if rules.respect_indentation
         results.push_str(&"\t".repeat(tag_info.indent_count))
     }
 }
 
-fn push_space_acordingly(results: &mut String, stack_len: usize, tag_info: &TagInfo) {
+fn push_space_for_push_element(
+    results: &mut String,
+    stack_len: usize,
+    tag_info: &TagInfo,
+    next_tag_info: &TagInfo,
+) {
     if tag_info.preserved_text_path {
+        return;
+    }
+
+    if !tag_info.inline_el {
+        results.push('\n');
+        results.push_str(&"\t".repeat(tag_info.indent_count));
         return;
     }
 
     if TextFormat::Space == tag_info.text_format {
         results.push(' ');
+        return;
+    }
+}
+
+fn push_space_for_pop_element(results: &mut String, stack_len: usize, tag_info: &TagInfo) {
+    if tag_info.preserved_text_path {
+        return;
     }
 
-    if TextFormat::LineSpace == tag_info.text_format {
+    if tag_info.inline_el {
+        if TextFormat::Space == tag_info.text_format {
+            results.push(' ');
+        }
+        if TextFormat::LineSpace == tag_info.text_format {
+            results.push('\n');
+            results.push_str(&"\t".repeat(tag_info.indent_count - 1))
+        }
+    }
+
+    if !tag_info.inline_el {
         results.push('\n');
-        // and if rules.respect_indentation
-        results.push_str(&"\t".repeat(tag_info.indent_count))
+        results.push_str(&"\t".repeat(tag_info.indent_count - 1))
     }
 }

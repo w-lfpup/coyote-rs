@@ -5,7 +5,9 @@ use crate::rulesets::RulesetImpl;
 pub enum TextFormat {
     Initial,
     Inline,
+    InlineClose,
     Block,
+    BlockClose,
     Space,
     LineSpace,
     Text,
@@ -24,21 +26,16 @@ pub struct TagInfo {
 }
 
 impl TagInfo {
-    pub fn new(rules: &dyn RulesetImpl, tag: &str) -> TagInfo {
-        let mut namespace = rules.get_initial_namespace();
-        if rules.tag_is_namespace_el(tag) {
-            namespace = tag;
-        }
-
+    pub fn get_root(rules: &dyn RulesetImpl) -> TagInfo {
         TagInfo {
-            namespace: namespace.to_string(),
-            tag: tag.to_string(),
-            text_format: TextFormat::Initial,
+            namespace: rules.get_initial_namespace().to_string(),
+            tag: ":root".to_string(),
             indent_count: 0,
-            void_el: rules.tag_is_void_el(tag),
-            inline_el: rules.tag_is_inline_el(tag),
-            preserved_text_path: rules.tag_is_preserved_text_el(tag),
-            banned_path: rules.tag_is_banned_el(tag),
+            void_el: false,
+            inline_el: false,
+            text_format: TextFormat::Initial,
+            preserved_text_path: false,
+            banned_path: false,
         }
     }
 
@@ -48,7 +45,11 @@ impl TagInfo {
         tag_info.tag = tag.to_string();
         tag_info.void_el = rules.tag_is_void_el(tag);
         tag_info.inline_el = rules.tag_is_inline_el(tag);
-        tag_info.text_format = TextFormat::Initial;
+
+        tag_info.text_format = TextFormat::Block;
+        if tag_info.inline_el {
+            tag_info.text_format = TextFormat::Inline;
+        }
 
         if rules.tag_is_namespace_el(tag) {
             tag_info.namespace = tag.to_string();

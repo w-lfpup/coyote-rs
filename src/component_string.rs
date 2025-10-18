@@ -29,7 +29,7 @@ pub fn compose_string(
 ) -> Result<String, String> {
     let mut template_results = "".to_string();
 
-    let mut tag_info_stack: Vec<TagInfo> = Vec::from([TagInfo::new(rules, ":root")]);
+    let mut tag_info_stack: Vec<TagInfo> = Vec::from([TagInfo::get_root(rules)]);
     let mut component_stack: Vec<StackBit> = Vec::from([get_bit_from_component_stack(
         &mut tag_info_stack,
         builder,
