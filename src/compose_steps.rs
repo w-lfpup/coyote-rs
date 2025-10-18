@@ -142,11 +142,6 @@ fn push_element(
         results.push_str(tag);
     }
 
-    tag_info.text_format = TextFormat::Block;
-    if next_tag_info.inline_el {
-        tag_info.text_format = TextFormat::Inline;
-    }
-
     stack.push(next_tag_info);
 }
 
@@ -160,8 +155,6 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         results.push_str(">");
     }
 
-    // DONT NEED THIS BECAUSE IT"S ALWAYS INITIAL INITIALLY
-
     if tag_info.void_el && "html" == tag_info.namespace {
         stack.pop();
     }
@@ -170,13 +163,6 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         Some(prev_tag_info) => prev_tag_info,
         _ => return,
     };
-
-    // push_space_regardless(results, &next_tag_info);
-
-    // next_tag_info.text_format = TextFormat::Block;
-    // if next_tag_info.inline_el {
-    //     next_tag_info.text_format = TextFormat::Inline;
-    // }
 }
 
 fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
@@ -199,6 +185,9 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
 
         results.push('>');
     }
+
+    // inline close
+    // block close
 
     // let next_tag_info = match stack.last_mut() {
     //     Some(prev_tag_info) => prev_tag_info,
@@ -252,6 +241,9 @@ fn pop_element(
     }
 
     results.push('>');
+
+    // inline close
+    // block close
 
     // // Reset text formating
     // let next_tag_info = match stack.last_mut() {
