@@ -30,7 +30,7 @@ impl TagInfo {
         TagInfo {
             banned_path: false,
             indent_count: 0,
-            inline_el: false,
+            inline_el: true,
             namespace: rules.get_initial_namespace().to_string(),
             preserved_text_path: false,
             tag: ":root".to_string(),
@@ -46,10 +46,10 @@ impl TagInfo {
         tag_info.void_el = rules.tag_is_void_el(tag);
 
         tag_info.inline_el = rules.tag_is_inline_el(tag);
-        tag_info.text_format = TextFormat::Block;
-        if tag_info.inline_el {
-            tag_info.text_format = TextFormat::Inline;
-        }
+        // tag_info.text_format = TextFormat::Block;
+        // if tag_info.inline_el {
+        //     tag_info.text_format = TextFormat::Inline;
+        // }
 
         if rules.tag_is_namespace_el(tag) {
             tag_info.namespace = tag.to_string();

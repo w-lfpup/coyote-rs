@@ -142,7 +142,7 @@ fn push_element(
     let next_tag_info = TagInfo::from(rules, tag_info, tag);
 
     if !next_tag_info.banned_path {
-        // push_space_on_push(results, &tag_info);
+        push_space_on_push(results, &next_tag_info);
         results.push('<');
         results.push_str(tag);
     }
@@ -151,7 +151,7 @@ fn push_element(
 }
 
 fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
-    let tag_info = match stack.last() {
+    let tag_info = match stack.last_mut() {
         Some(tag_info) => tag_info,
         _ => return,
     };
@@ -160,11 +160,23 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         results.push_str(">");
     }
 
-    let void_el = tag_info.void_el;
-    let inline_el = tag_info.inline_el;
+    tag_info.text_format = TextFormat::Block;
+    if tag_info.inline_el {
+        tag_info.text_format = TextFormat::Inline;
+    }
 
-    if void_el && "html" == tag_info.namespace {
-        stack.pop();
+    if tag_info.void_el && "html" == tag_info.namespace {
+        if let Some(info) = stack.pop() {
+            let prev_tag_info = match stack.last_mut() {
+                Some(tag_info) => tag_info,
+                _ => return,
+            };
+
+            prev_tag_info.text_format = TextFormat::BlockClose;
+            if info.inline_el {
+                prev_tag_info.text_format = TextFormat::InlineClose;
+            }
+        };
     }
 }
 
@@ -174,12 +186,7 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         _ => return,
     };
 
-    let prev_tag_info = match stack.last_mut() {
-        Some(prev_tag_info) => prev_tag_info,
-        _ => return,
-    };
-
-    if tag_info.banned_path || prev_tag_info.banned_path {
+    if tag_info.banned_path {
         return;
     }
 
@@ -196,6 +203,10 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
 
     // inline close
     // block close
+    let prev_tag_info = match stack.last_mut() {
+        Some(prev_tag_info) => prev_tag_info,
+        _ => return,
+    };
 
     prev_tag_info.text_format = TextFormat::BlockClose;
     if tag_info.inline_el {
@@ -239,7 +250,7 @@ fn pop_element(
     };
 
     if !tag_info.void_el {
-        // push_space_on_pop(results, &tag_info);
+        push_space_on_pop(results, &tag_info);
         if let None = rules.get_close_sequence_from_alt_text_tag(closed_tag) {
             results.push_str("</");
         }
@@ -248,11 +259,6 @@ fn pop_element(
     }
 
     results.push('>');
-
-    // inline close
-    // block close
-
-    // Reset text formating
 
     next_tag_info.text_format = TextFormat::BlockClose;
     if tag_info.inline_el {
@@ -354,12 +360,10 @@ fn push_space_on_text(results: &mut String, tag_info: &TagInfo) {
             results.push('\n');
             results.push_str(&"\t".repeat(tag_info.indent_count))
         }
-        TextFormat::Inline => {}
         TextFormat::BlockClose => {
             results.push('\n');
-            results.push_str(&"\t".repeat(tag_info.indent_count - 1))
+            results.push_str(&"\t".repeat(tag_info.indent_count))
         }
-        TextFormat::InlineClose => {}
         _ => {}
     }
 }
@@ -374,10 +378,10 @@ fn push_space_on_push(results: &mut String, tag_info: &TagInfo) {
             TextFormat::Space => {
                 results.push(' ');
             }
-            // TextFormat::LineSpace => {
-            //     results.push('\n');
-            //     results.push_str(&"\t".repeat(tag_info.indent_count))
-            // }
+            TextFormat::LineSpace => {
+                results.push('\n');
+                results.push_str(&"\t".repeat(tag_info.indent_count))
+            }
             // TextFormat::Block => {
             //     results.push('\n');
             //     results.push_str(&"\t".repeat(tag_info.indent_count))
@@ -393,7 +397,7 @@ fn push_space_on_push(results: &mut String, tag_info: &TagInfo) {
     } else {
         if TextFormat::Initial != tag_info.text_format {
             results.push('\n');
-            results.push_str(&"\t".repeat(tag_info.indent_count))
+            results.push_str(&"\t".repeat(tag_info.indent_count - 1))
         }
     }
 }
@@ -416,18 +420,22 @@ fn push_space_on_pop(results: &mut String, tag_info: &TagInfo) {
                 results.push('\n');
                 results.push_str(&"\t".repeat(tag_info.indent_count))
             }
-            TextFormat::Inline => {}
             TextFormat::BlockClose => {
                 results.push('\n');
                 results.push_str(&"\t".repeat(tag_info.indent_count))
             }
+            TextFormat::Inline => {}
             TextFormat::InlineClose => {}
             _ => {}
         }
     } else {
-        if TextFormat::Initial != tag_info.text_format {
-            results.push('\n');
-            results.push_str(&"\t".repeat(tag_info.indent_count - 1))
+        match tag_info.text_format {
+            TextFormat::Initial => {}
+            TextFormat::Block => {}
+            _ => {
+                results.push('\n');
+                results.push_str(&"\t".repeat(tag_info.indent_count - 1))
+            }
         }
     }
 }
