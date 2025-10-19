@@ -61,20 +61,6 @@ fn all_spaces(line: &str) -> bool {
     line.len() == get_index_of_first_char(line)
 }
 
-fn add_alt_element_text(results: &mut String, text: &str, tag_info: &TagInfo) {
-    let common_index = get_most_common_space_index(text);
-
-    for line in text.split("\n") {
-        if all_spaces(line) {
-            continue;
-        }
-
-        results.push('\n');
-        results.push_str(&"\t".repeat(tag_info.indent_count));
-        results.push_str(line[common_index..].trim_end());
-    }
-}
-
 fn add_text(results: &mut String, text: &str, tag_info: &TagInfo) {
     let mut text_iter = text.split("\n");
 
@@ -91,7 +77,6 @@ fn add_text(results: &mut String, text: &str, tag_info: &TagInfo) {
         }
 
         results.push('\n');
-
         results.push_str(&"\t".repeat(tag_info.indent_count));
         results.push_str(line.trim());
         break;
