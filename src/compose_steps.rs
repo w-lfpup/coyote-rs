@@ -113,7 +113,7 @@ fn push_text_space(
         results.push_str(text);
     }
 
-    if TextFormat::Initial == tag_info.text_format || TextFormat::Block == tag_info.text_format {
+    if TextFormat::Initial == tag_info.text_format {
         return;
     }
 
@@ -142,7 +142,7 @@ fn push_element(
     let next_tag_info = TagInfo::from(rules, tag_info, tag);
 
     if !next_tag_info.banned_path {
-        push_space_on_push(results, &next_tag_info);
+        push_space_on_push(results, &tag_info, &next_tag_info);
         results.push('<');
         results.push_str(tag);
     }
@@ -156,16 +156,18 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         _ => return,
     };
 
-    if !tag_info.banned_path {
-        results.push_str(">");
+    if tag_info.banned_path {
+        return;
     }
+
+    results.push_str(">");
 
     tag_info.text_format = TextFormat::Block;
     if tag_info.inline_el {
         tag_info.text_format = TextFormat::Inline;
     }
 
-    if tag_info.void_el && "html" == tag_info.namespace {
+    if tag_info.void_el {
         if let Some(info) = stack.pop() {
             let prev_tag_info = match stack.last_mut() {
                 Some(tag_info) => tag_info,
@@ -197,7 +199,6 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
             results.push_str("></");
             results.push_str(&tag_info.tag);
         }
-
         results.push('>');
     }
 
@@ -244,13 +245,18 @@ fn pop_element(
     }
 
     // push_space_for_pop_element(results, stack.len(), &tag_info);
-    let next_tag_info = match stack.last_mut() {
+    let prev_tag_info = match stack.last_mut() {
         Some(prev_tag_info) => prev_tag_info,
         _ => return,
     };
 
+    prev_tag_info.text_format = TextFormat::BlockClose;
+    if tag_info.inline_el {
+        prev_tag_info.text_format = TextFormat::InlineClose;
+    }
+
     if !tag_info.void_el {
-        push_space_on_pop(results, &tag_info);
+        push_space_on_pop(results, &prev_tag_info, &tag_info);
         if let None = rules.get_close_sequence_from_alt_text_tag(closed_tag) {
             results.push_str("</");
         }
@@ -259,11 +265,6 @@ fn pop_element(
     }
 
     results.push('>');
-
-    next_tag_info.text_format = TextFormat::BlockClose;
-    if tag_info.inline_el {
-        next_tag_info.text_format = TextFormat::InlineClose;
-    }
 }
 
 fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
@@ -349,6 +350,17 @@ fn push_space_on_text(results: &mut String, tag_info: &TagInfo) {
     }
 
     match tag_info.text_format {
+        TextFormat::Block => {
+            results.push('\n');
+            results.push_str(&"\t".repeat(tag_info.indent_count))
+        }
+        TextFormat::BlockClose => {
+            results.push('\n');
+            results.push_str(&"\t".repeat(tag_info.indent_count))
+        }
+        TextFormat::Initial => {}
+        TextFormat::Inline => {}
+        TextFormat::InlineClose => {}
         TextFormat::Space => {
             results.push(' ');
         }
@@ -356,113 +368,48 @@ fn push_space_on_text(results: &mut String, tag_info: &TagInfo) {
             results.push('\n');
             results.push_str(&"\t".repeat(tag_info.indent_count))
         }
-        TextFormat::Block => {
-            results.push('\n');
-            results.push_str(&"\t".repeat(tag_info.indent_count))
-        }
-        TextFormat::BlockClose => {
-            results.push('\n');
-            results.push_str(&"\t".repeat(tag_info.indent_count - 1))
-        }
-        TextFormat::Block => {}
-        TextFormat::BlockClose => {}
-        TextFormat::Initial => {}
-        TextFormat::Inline => {}
-        TextFormat::InlineClose => {}
-        TextFormat::LineSpace => {}
-        TextFormat::Space => {}
         TextFormat::Text => {}
         _ => {}
     }
 }
 
-fn push_space_on_push(results: &mut String, tag_info: &TagInfo) {
+fn push_space_on_push(results: &mut String, prev_tag_info: &TagInfo, tag_info: &TagInfo) {
     if tag_info.preserved_text_path {
         return;
     }
 
-    if tag_info.inline_el {
-        match tag_info.text_format {
-            TextFormat::Block => {}
-            TextFormat::BlockClose => {}
-            TextFormat::Initial => {}
-            TextFormat::Inline => {}
-            TextFormat::InlineClose => {}
-            TextFormat::LineSpace => {
-                results.push('\n');
-                results.push_str(&"\t".repeat(tag_info.indent_count))
-            }
-            TextFormat::Space => {
-                results.push(' ');
-            }
-            TextFormat::Text => {}
-            _ => {}
-        }
-    } else {
-        match tag_info.text_format {
-            TextFormat::Block => {
-                results.push('\n');
-                results.push_str(&"\t".repeat(tag_info.indent_count))
-            }
-            TextFormat::BlockClose => {
-                results.push('\n');
-                results.push_str(&"\t".repeat(tag_info.indent_count - 1))
-            }
-            TextFormat::Initial => {}
-            TextFormat::Inline => {}
-            TextFormat::InlineClose => {}
-            TextFormat::Space => {
-                results.push('\n');
-                results.push_str(&"\t".repeat(tag_info.indent_count))
-            }
-            TextFormat::LineSpace => {
-                results.push('\n');
-                results.push_str(&"\t".repeat(tag_info.indent_count))
-            }
-            TextFormat::Text => {}
-            _ => {}
-        }
+    match tag_info.text_format {
+        TextFormat::Block => {}
+        TextFormat::BlockClose => {}
+        TextFormat::Initial => {}
+        TextFormat::Inline => {}
+        TextFormat::InlineClose => {}
+        TextFormat::Space => {}
+        TextFormat::LineSpace => {}
+        TextFormat::Text => {}
+        _ => {}
     }
 }
 
-fn push_space_on_pop(results: &mut String, tag_info: &TagInfo) {
+// need popped element
+fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &TagInfo) {
     if tag_info.preserved_text_path {
         return;
     }
 
-    if tag_info.inline_el {
-        match tag_info.text_format {
-            TextFormat::Block => {
-                results.push('\n');
-                results.push_str(&"\t".repeat(tag_info.indent_count))
-            }
-            TextFormat::BlockClose => {
-                results.push('\n');
-                results.push_str(&"\t".repeat(tag_info.indent_count))
-            }
-            TextFormat::Initial => {}
-            TextFormat::Inline => {}
-            TextFormat::InlineClose => {}
-            TextFormat::Space => {
-                results.push(' ');
-            }
-            TextFormat::LineSpace => {
-                results.push('\n');
-                results.push_str(&"\t".repeat(tag_info.indent_count))
-            }
-            TextFormat::Text => {}
-            _ => {}
-        }
-    } else {
-        match tag_info.text_format {
-            TextFormat::Block => {}
-            TextFormat::BlockClose => {}
-            TextFormat::Initial => {}
-            TextFormat::Inline => {}
-            TextFormat::InlineClose => {}
-            TextFormat::LineSpace => {}
-            TextFormat::Space => {}
-            TextFormat::Text => {}
-        }
+    // if popped element is a block
+
+    // if an inline
+
+    match tag_info.text_format {
+        TextFormat::Block => {}
+        TextFormat::BlockClose => {}
+        TextFormat::Initial => {}
+        TextFormat::Inline => {}
+        TextFormat::InlineClose => {}
+        TextFormat::Space => {        }
+        TextFormat::LineSpace => {}
+        TextFormat::Text => {}
+        _ => {}
     }
 }
