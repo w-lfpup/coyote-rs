@@ -337,31 +337,26 @@ fn push_attr_value_unquoted(
     results.push_str(val);
 }
 
+// TextFormat::Block => {}
+// TextFormat::BlockClose => {}
+// TextFormat::Initial => {}
+// TextFormat::Inline => {}
+// TextFormat::InlineClose => {}
+// TextFormat::Space => {}
+// TextFormat::LineSpace => {}
+// TextFormat::Text => {}
+
 fn push_space_on_text(results: &mut String, tag_info: &TagInfo) {
     if tag_info.preserved_text_path {
         return;
     }
 
     match tag_info.text_format {
-        TextFormat::Block => {
-            // results.push('\n');
-            // results.push_str(&"\t".repeat(tag_info.indent_count))
-        }
-        TextFormat::BlockClose => {
-            // results.push('\n');
-            // results.push_str(&"\t".repeat(tag_info.indent_count))
-        }
-        // TextFormat::Initial => {}
-        // TextFormat::Inline => {}
-        // TextFormat::InlineClose => {}
-        TextFormat::Space => {
-            results.push(' ');
-        }
+        TextFormat::Space => results.push(' '),
         TextFormat::LineSpace => {
             results.push('\n');
             results.push_str(&"\t".repeat(tag_info.indent_count))
         }
-        TextFormat::Text => {}
         _ => {}
     }
 }
@@ -373,36 +368,24 @@ fn push_space_on_push(results: &mut String, prev_tag_info: &TagInfo, tag_info: &
 
     if tag_info.inline_el {
         match prev_tag_info.text_format {
-            // TextFormat::Block => {}
-            TextFormat::BlockClose => {
-                // results.push('\n');
-                // results.push_str(&"\t".repeat(prev_tag_info.indent_count))
-            }
-            // TextFormat::Initial => {}
-            // TextFormat::Inline => {}
-            // TextFormat::InlineClose => {}
             TextFormat::Space => results.push(' '),
             TextFormat::LineSpace => {
                 results.push('\n');
                 results.push_str(&"\t".repeat(prev_tag_info.indent_count))
             }
-            // TextFormat::Text => {}
             _ => {}
         }
     } else {
         match prev_tag_info.text_format {
-            TextFormat::Block => {}
-            // TextFormat::BlockClose => {}
-            TextFormat::Initial => {}
-            TextFormat::Inline => {}
-            TextFormat::InlineClose => {}
-            // TextFormat::Space => {}
-            // TextFormat::LineSpace => {}
-            TextFormat::Text => {}
-            _ => {
+            TextFormat::Space => {
                 results.push('\n');
                 results.push_str(&"\t".repeat(prev_tag_info.indent_count))
             }
+            TextFormat::LineSpace => {
+                results.push('\n');
+                results.push_str(&"\t".repeat(prev_tag_info.indent_count))
+            }
+            _ => {}
         }
     }
 }
@@ -415,33 +398,24 @@ fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &T
 
     if tag_info.inline_el {
         match tag_info.text_format {
-            TextFormat::Block => {}
-            TextFormat::BlockClose => {}
-            TextFormat::Initial => {}
-            TextFormat::Inline => {}
-            TextFormat::InlineClose => {}
             TextFormat::Space => results.push(' '),
             TextFormat::LineSpace => {
                 results.push('\n');
                 results.push_str(&"\t".repeat(prev_tag_info.indent_count))
             }
-            TextFormat::Text => {}
             _ => {}
         }
     } else {
         match tag_info.text_format {
-            // TextFormat::Block => {}
-            // TextFormat::BlockClose => {}
-            TextFormat::Initial => {}
-            // TextFormat::Inline => {}
-            // TextFormat::InlineClose => {}
-            // TextFormat::Space => {}
-            // TextFormat::LineSpace => {}
-            // TextFormat::Text => {}
-            _ => {
+            TextFormat::Space => {
                 results.push('\n');
                 results.push_str(&"\t".repeat(prev_tag_info.indent_count))
             }
+            TextFormat::LineSpace => {
+                results.push('\n');
+                results.push_str(&"\t".repeat(prev_tag_info.indent_count))
+            }
+            _ => {}
         }
     }
 }
