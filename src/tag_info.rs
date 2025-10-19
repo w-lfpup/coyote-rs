@@ -46,10 +46,13 @@ impl TagInfo {
         tag_info.void_el = rules.tag_is_void_el(tag);
 
         tag_info.inline_el = rules.tag_is_inline_el(tag);
-        // tag_info.text_format = TextFormat::Block;
-        // if tag_info.inline_el {
-        //     tag_info.text_format = TextFormat::Inline;
-        // }
+
+        // if void el
+        // if void el and inline
+        tag_info.text_format = TextFormat::Block;
+        if tag_info.inline_el {
+            tag_info.text_format = TextFormat::Inline;
+        }
 
         if rules.tag_is_namespace_el(tag) {
             tag_info.namespace = tag.to_string();
