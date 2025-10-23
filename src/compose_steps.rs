@@ -47,7 +47,6 @@ fn push_text(
     template_str: &str,
     step: &Step,
 ) {
-    let stack_len = stack.len();
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
         // this should never happen
@@ -119,8 +118,8 @@ fn push_element_space(
     }
 
     match text.contains("\n") {
-        true => tag_info.text_format = TextFormat::ElementLineSpace,
-        _ => tag_info.text_format = TextFormat::ElementSpace,
+        true => tag_info.text_format = TextFormat::LineSpace,
+        _ => tag_info.text_format = TextFormat::Space,
     }
 }
 
@@ -196,6 +195,7 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
     }
 
     results.push_str(">");
+    tag_info.text_format = TextFormat::BlockClose;
 
     if tag_info.void_el {
         if let Some(info) = stack.pop() {
@@ -306,8 +306,8 @@ fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
     }
 
     match tag_info.text_format {
-        TextFormat::ElementSpace => results.push(' '),
-        TextFormat::ElementLineSpace => {
+        TextFormat::Space => results.push(' '),
+        TextFormat::LineSpace => {
             results.push('\n');
             results.push_str(&"\t".repeat(tag_info.indent_count))
         }

@@ -41,7 +41,6 @@ fn get_most_common_space_index(text: &str) -> usize {
         let mut prev_line_chars = prev_line.char_indices();
         let mut line_chars = line.char_indices();
 
-        let mut found_index = line.len();
         while let (Some((src_index, src_chr)), Some((_, tgt_chr))) =
             (prev_line_chars.next(), line_chars.next())
         {

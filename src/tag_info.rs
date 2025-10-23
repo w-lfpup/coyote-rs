@@ -9,8 +9,6 @@ pub enum TextFormat {
     Inline,
     InlineClose,
     LineSpace,
-    ElementSpace,
-    ElementLineSpace,
     Space,
     Text,
 }
