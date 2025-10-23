@@ -48,7 +48,7 @@ fn mozilla_example() {
         [],
     );
 
-    let expected = "<h1>\n\tHello <span>World!</span>\n</h1>";
+    let expected = "<h1> Hello\n\t<span> World!</span>\n</h1>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -64,7 +64,7 @@ fn void_elements() {
         [],
     );
 
-    let expected = "<input>\n<input>\n<input>\n<input>";
+    let expected = "<input>\n<input>\n<input><input>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -79,7 +79,7 @@ fn text_and_inline_elements() {
         [],
     );
 
-    let expected = "beasts <span>tread</span> softly <span>underfoot</span> .";
+    let expected = "beasts <span> tread </span> softly <span> underfoot </span> .";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -94,7 +94,7 @@ fn text_and_blocks() {
         [],
     );
 
-    let expected = "beasts\n<p>\n\ttread\n</p>\nsoftly\n<p>\n\tunderfoot\n</p>\n.";
+    let expected = "beasts\n<p> tread\n</p> softly\n<p> underfoot\n</p> .";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -111,7 +111,7 @@ fn void_elements_with_attributes() {
         [],
     );
     let expected =
-        "<!DOCTYPE html>\n<input type=checkbox>\n<input woof=\"bark\">\n<input grrr>\n<input>";
+        "<!DOCTYPE html><input type=checkbox>\n<input woof=\"bark\">\n<input grrr><input>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -126,7 +126,7 @@ fn void_element_with_sibling() {
             <input><p>hai :3</p>    ",
         [],
     );
-    let expected = "<input>\n<p>\n\thai :3\n</p>";
+    let expected = "<input><p>hai :3</p>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -145,7 +145,7 @@ fn nested_void_element_with_sibling() {
         [],
     );
 
-    let expected = "<section>\n\t<input>\n\t<p>\n\t\thai :3\n\t</p>\n</section>";
+    let expected = "<section>\n\t<input><p>hai :3</p>\n</section>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -156,7 +156,7 @@ fn nested_void_element_with_sibling() {
 #[test]
 fn nested_elements_and_text() {
     let template = tmpl("<a><label><input type=woofer>bark!</label><img></a>", []);
-    let expected = "<a>\n\t<label>\n\t\t<input type=woofer>\n\t\tbark!\n\t</label>\n\t<img>\n</a>";
+    let expected = "<a><label><input type=woofer>bark!</label><img></a>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -184,7 +184,7 @@ fn document() {
     );
 
     let expected =
-    "<!DOCTYPE>\n<html>\n\t<head></head>\n\t<body>\n\t\t<article>\n\t\t\tYou're a <span>boy kisser</span> aren't you?\n\t\t\tClick\n\t\t\t<a>\n\t\t\t\there\n\t\t\t</a>\n\t\t\tand go somewhere else.\n\t\t</article>\n\t\t<footer></footer>\n\t</body>\n</html>";
+    "<!DOCTYPE>\n<html>\n\t<head>\n\t</head>\n\t<body>\n\t\t<article>\n\t\t\tYou're a <span>boy kisser</span> aren't you?\n\t\t\tClick <a>here</a> and go somewhere else.\n\t\t</article>\n\t\t<footer></footer>\n\t</body>\n</html>";
 
     let mut html = Html::new();
     let results = html.build(&template);

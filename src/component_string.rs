@@ -44,8 +44,6 @@ pub fn compose_string(
             StackBit::Cmpnt(cmpnt) => match cmpnt {
                 Component::Text(text) => {
                     let escaped = text.replace("<", "&lt;").replace("{", "&quot;");
-                    // returns remainder string
-                    // also takes remainder string as an argument?
                     push_text_component(
                         &mut template_results,
                         &mut tag_info_stack,
@@ -54,7 +52,6 @@ pub fn compose_string(
                     );
                 }
                 Component::UnescapedText(text) => {
-                    // returns remainder string
                     push_text_component(&mut template_results, &mut tag_info_stack, rules, text);
                 }
                 Component::List(list) => {

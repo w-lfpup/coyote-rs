@@ -31,7 +31,6 @@ fn get_most_common_space_index(text: &str) -> usize {
         }
     }
 
-
     // then get the most common space prefix in the next lines
     while let Some(line) = texts.next() {
         // combine these two to stop doubling up on text char arrays
@@ -109,22 +108,29 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
 
     let common_space_index = get_most_common_space_index(text);
 
-    // first line in alt text should be zero?
-
     let mut text_iter = text.split("\n");
 
-    let mut empty_lines = 0;
-    while let Some(line) = text_iter.next() {
-        if all_spaces(line) {
-            empty_lines += 1;
-            if 1 < empty_lines {
-                results.push('\n');
+    if let Some(line) = text_iter.next() {
+        if !all_spaces(line) {
+            match tag_info.text_format {
+                TextFormat::LineSpace => {
+                    results.push('\n');
+                    results.push_str(&"\t".repeat(tag_info.indent_count));
+                    results.push_str(line[common_space_index..].trim_end());
+                }
+                _ => {
+                    results.push_str(line.trim());
+                }
             }
+        }
+    }
+
+    while let Some(line) = text_iter.next() {
+        results.push('\n');
+        if all_spaces(line) {
             continue;
         }
 
-        empty_lines = 1;
-        results.push('\n');
         results.push_str(&"\t".repeat(tag_info.indent_count));
         results.push_str(line[common_space_index..].trim_end());
     }

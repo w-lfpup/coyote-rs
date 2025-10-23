@@ -9,6 +9,8 @@ pub enum TextFormat {
     Inline,
     InlineClose,
     LineSpace,
+    ElementSpace,
+    ElementLineSpace,
     Space,
     Text,
 }
@@ -44,18 +46,12 @@ impl TagInfo {
 
         tag_info.tag = tag.to_string();
         tag_info.void_el = rules.tag_is_void_el(tag);
-
         tag_info.inline_el = rules.tag_is_inline_el(tag);
 
-        // if void el
-        // if void el and inline
         tag_info.text_format = TextFormat::Block;
         if tag_info.inline_el {
             tag_info.text_format = TextFormat::Inline;
         }
-        // if let Some(_) = rules.get_close_sequence_from_alt_text_tag(tag) {
-        //     tag_info.text_format = TextFormat::LineSpace;
-        // }
 
         if rules.tag_is_namespace_el(tag) {
             tag_info.namespace = tag.to_string();

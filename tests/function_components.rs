@@ -13,7 +13,14 @@ fn form() -> Component {
     descendants.push(text("you're a boy kisser aren't you >:3"));
     descendants.push(submit_button());
 
-    tmpl("<form {}>{}</form>", [list(attributes), vlist(descendants)])
+    tmpl(
+        "
+        <form {}>
+            {}
+        </form>
+        ",
+        [list(attributes), vlist(descendants)],
+    )
 }
 
 #[test]

@@ -32,6 +32,9 @@ pub fn compose_steps(
             StepKind::AttrValueUnquoted => {
                 push_attr_value_unquoted(results, tag_info_stack, template_str, step)
             }
+            StepKind::ElementSpace => {
+                push_element_space(results, tag_info_stack, rules, template_str, step)
+            }
             _ => {}
         }
     }
@@ -89,6 +92,35 @@ fn push_alt_text(
     // prev_tag_info.text_format = TextFormat::BlockClose;
     if tag_info.inline_el {
         tag_info.text_format = TextFormat::Text;
+    }
+}
+
+fn push_element_space(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    _rules: &dyn RulesetImpl,
+    template_str: &str,
+    step: &Step,
+) {
+    let tag_info = match stack.last_mut() {
+        Some(curr) => curr,
+        // this should never happen
+        _ => return,
+    };
+
+    if tag_info.banned_path {
+        return;
+    }
+
+    let text = get_text_from_step(template_str, step);
+
+    if tag_info.preserved_text_path {
+        results.push_str(text);
+    }
+
+    match text.contains("\n") {
+        true => tag_info.text_format = TextFormat::ElementLineSpace,
+        _ => tag_info.text_format = TextFormat::ElementSpace,
     }
 }
 
@@ -273,7 +305,15 @@ fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
         return;
     }
 
-    results.push(' ');
+    match tag_info.text_format {
+        TextFormat::ElementSpace => results.push(' '),
+        TextFormat::ElementLineSpace => {
+            results.push('\n');
+            results.push_str(&"\t".repeat(tag_info.indent_count))
+        }
+        _ => {}
+    }
+
     let attr = get_text_from_step(template_str, step);
     results.push_str(attr.trim());
 }
@@ -339,15 +379,6 @@ fn push_attr_value_unquoted(
     results.push('=');
     results.push_str(val);
 }
-
-// TextFormat::Block => {}
-// TextFormat::BlockClose => {}
-// TextFormat::Initial => {}
-// TextFormat::Inline => {}
-// TextFormat::InlineClose => {}
-// TextFormat::Space => {}
-// TextFormat::LineSpace => {}
-// TextFormat::Text => {}
 
 fn push_space_on_text(results: &mut String, tag_info: &TagInfo) {
     if tag_info.preserved_text_path {
