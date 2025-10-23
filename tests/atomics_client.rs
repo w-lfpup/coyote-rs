@@ -6,12 +6,12 @@ fn text_element() {
         "
 
             Beasts tread
-            softly underfoot.
-            
+                softly     underfoot.
+
 		",
         [],
     );
-    let expected = "Beasts tread softly underfoot.";
+    let expected = "Beasts tread\nsoftly underfoot.";
 
     let mut html = ClientHtml::new();
     let results = html.build(&template);
@@ -28,7 +28,7 @@ fn empty_element() {
 		",
         [],
     );
-    let expected = "<p></p>";
+    let expected = "<p>\n</p>";
 
     let mut html = ClientHtml::new();
     let results = html.build(&template);
@@ -54,31 +54,16 @@ fn fragment() {
 }
 
 #[test]
-fn achor_element_with_text() {
+fn block_element_with_text() {
     let template = tmpl(
         "
-		<a>
-            hello!    </a>
+		<p>
+            hello!
+        </p>
 		",
         [],
     );
-    let expected = "<a>hello!</a>";
-
-    let mut html = ClientHtml::new();
-    let results = html.build(&template);
-
-    assert_eq!(Ok(expected.to_string()), results);
-}
-
-#[test]
-fn element_with_attribute_with_text() {
-    let template = tmpl(
-        "
-		<p uwu>hello!</p>
-		",
-        [],
-    );
-    let expected = "<p uwu>hello!</p>";
+    let expected = "<p>\nhello!\n</p>";
 
     let mut html = ClientHtml::new();
     let results = html.build(&template);
@@ -90,12 +75,11 @@ fn element_with_attribute_with_text() {
 fn inline_element_with_text() {
     let template = tmpl(
         "
-		<b>   hello!
-            </b>
+		<b> hello! </b>
 		",
         [],
     );
-    let expected = "<b>hello!</b>";
+    let expected = "<b> hello! </b>";
 
     let mut html = ClientHtml::new();
     let results = html.build(&template);
@@ -105,6 +89,22 @@ fn inline_element_with_text() {
 
 #[test]
 fn void_element() {
+    let template = tmpl(
+        "
+		<input>
+		",
+        [],
+    );
+    let expected = "<input>";
+
+    let mut html = ClientHtml::new();
+    let results = html.build(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn void_element_with_self_closing() {
     let template = tmpl(
         "
 		<input />
@@ -135,13 +135,12 @@ fn non_void_element() {
     assert_eq!(Ok(expected.to_string()), results);
 }
 
+// needs updating
 #[test]
 fn comment_element() {
     let template = tmpl(
         "
-		<!-- 
-            Hello!
-        -->
+		<!-- Hello! -->
 		",
         [],
     );
@@ -157,7 +156,7 @@ fn comment_element() {
 fn alt_text_element() {
     let template = tmpl(
         "<style>#woof .bark {
-    color: doggo;
+	color: doggo;
 }</style>",
         [],
     );
@@ -170,7 +169,7 @@ fn alt_text_element() {
 }
 
 #[test]
-fn alt_text_element_no_descendants() {
+fn alt_element_has_no_descendants() {
     let template = tmpl(
         "
 		<script>
@@ -188,7 +187,7 @@ fn alt_text_element_no_descendants() {
 }
 
 #[test]
-fn pretty_preserved_text_elements() {
+fn preserved_text_element_retains_spacing() {
     let template = tmpl(
         "
 <pre>

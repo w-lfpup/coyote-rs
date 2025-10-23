@@ -6,7 +6,7 @@ fn text_element() {
         "
 
             Beasts tread
-            softly underfoot.
+                softly     underfoot.
 
 		",
         [],
@@ -28,7 +28,7 @@ fn empty_element() {
 		",
         [],
     );
-    let expected = "<p></p>";
+    let expected = "<p>\n</p>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -54,10 +54,12 @@ fn fragment() {
 }
 
 #[test]
-fn element_with_text() {
+fn block_element_with_text() {
     let template = tmpl(
         "
-		<p>hello!</p>
+		<p>
+            hello!
+        </p>
 		",
         [],
     );
@@ -73,29 +75,11 @@ fn element_with_text() {
 fn inline_element_with_text() {
     let template = tmpl(
         "
-		<b>   hello!
-            </b>
+		<b> hello! </b>
 		",
         [],
     );
-    let expected = "<b>hello!</b>";
-
-    let mut html = Html::new();
-    let results = html.build(&template);
-
-    assert_eq!(Ok(expected.to_string()), results);
-}
-
-#[test]
-fn achor_element_with_text() {
-    let template = tmpl(
-        "
-		<a>
-            hello!    </a>
-		",
-        [],
-    );
-    let expected = "<a>\n\thello!\n</a>";
+    let expected = "<b> hello! </b>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -151,13 +135,12 @@ fn non_void_element() {
     assert_eq!(Ok(expected.to_string()), results);
 }
 
+// needs updating
 #[test]
 fn comment_element() {
     let template = tmpl(
         "
-		<!--
-            Hello!
-        -->
+		<!-- Hello! -->
 		",
         [],
     );
@@ -173,11 +156,11 @@ fn comment_element() {
 fn alt_text_element() {
     let template = tmpl(
         "<style>#woof .bark {
-    color: doggo;
+	color: doggo;
 }</style>",
         [],
     );
-    let expected = "<style>\n\t#woof .bark {\n\t    color: doggo;\n\t}\n</style>";
+    let expected = "<style>\n\t#woof .bark {\n\t	color: doggo;\n\t}\n</style>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -186,7 +169,7 @@ fn alt_text_element() {
 }
 
 #[test]
-fn alt_element_no_descendants() {
+fn alt_element_has_no_descendants() {
     let template = tmpl(
         "
 		<script>
@@ -204,7 +187,7 @@ fn alt_element_no_descendants() {
 }
 
 #[test]
-fn preserved_text_element() {
+fn preserved_text_element_retains_spacing() {
     let template = tmpl(
         "
 <pre>

@@ -27,6 +27,8 @@ pub enum StepKind {
     TailElementSpace,
     TailTag,
     Text,
+    TextSpace,
+    TextAlt,
 }
 
 // Names based roughly on:
@@ -53,7 +55,7 @@ pub fn route(glyph: char, prev_kind: &StepKind) -> StepKind {
         StepKind::TailElementSolidus => get_kind_from_tail_element_solidus(glyph),
         StepKind::TailElementSpace => get_kind_from_tail_element_space(glyph),
         StepKind::TailTag => get_kind_from_tail_tag(glyph),
-        _ => get_kind_from_initial(glyph),
+        _ => get_kind_from_text(glyph),
     }
 }
 
@@ -196,9 +198,10 @@ fn get_kind_from_tail_element_space(glyph: char) -> StepKind {
     }
 }
 
-fn get_kind_from_initial(glyph: char) -> StepKind {
-    // is white space
-    // return StepKind::TextSpace
+fn get_kind_from_text(glyph: char) -> StepKind {
+    if glyph.is_whitespace() {
+        return StepKind::TextSpace;
+    }
 
     match glyph {
         '<' => StepKind::Element,

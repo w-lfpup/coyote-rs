@@ -9,6 +9,7 @@ mod sliding_window;
 mod tag_info;
 mod template_builder;
 mod template_steps;
+mod text_components;
 
 pub use crate::components::attr;
 pub use crate::components::attr_val;

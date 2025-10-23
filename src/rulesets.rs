@@ -264,6 +264,7 @@ pub fn is_preserved_text_el(tag: &str) -> bool {
 
 pub fn is_inline_el(tag: &str) -> bool {
     match tag {
+        "a" => true,
         "abbr" => true,
         "b" => true,
         "bdi" => true,
