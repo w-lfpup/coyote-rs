@@ -95,7 +95,7 @@ fn achor_element_with_text() {
 		",
         [],
     );
-    let expected = "<a>\n\thello! </a>";
+    let expected = "<a>\nhello! </a>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -156,12 +156,14 @@ fn comment_element() {
     let template = tmpl(
         "
 		<!--
+
             Hello!
+
         -->
 		",
         [],
     );
-    let expected = "<!--\n\tHello!\n-->";
+    let expected = "<!--\n\n\tHello!\n\n-->";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -173,11 +175,11 @@ fn comment_element() {
 fn alt_text_element() {
     let template = tmpl(
         "<style>#woof .bark {
-    color: doggo;
+	color: doggo;
 }</style>",
         [],
     );
-    let expected = "<style>\n\t#woof .bark {\n\t    color: doggo;\n\t}\n</style>";
+    let expected = "<style>\n\t#woof .bark {\n\t	color: doggo;\n\t}\n</style>";
 
     let mut html = Html::new();
     let results = html.build(&template);

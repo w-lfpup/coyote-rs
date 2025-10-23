@@ -2,6 +2,7 @@ use crate::parse::{get_text_from_step, Step};
 use crate::routes::StepKind;
 use crate::rulesets::RulesetImpl;
 use crate::tag_info::{TagInfo, TextFormat};
+use crate::text_components::push_alt_text_component;
 
 pub fn compose_steps(
     rules: &dyn RulesetImpl,
@@ -82,11 +83,9 @@ fn push_alt_text(
     }
 
     let text = get_text_from_step(template_str, step);
-    if tag_info.preserved_text_path {
-        results.push_str(text);
-    }
+    push_alt_text_component(results, text, tag_info);
 
-    tag_info.text_format = TextFormat::Text;
+    // tag_info.text_format = TextFormat::Text;
 }
 
 fn push_text_space(

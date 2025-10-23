@@ -53,6 +53,9 @@ impl TagInfo {
         if tag_info.inline_el {
             tag_info.text_format = TextFormat::Inline;
         }
+        // if let Some(_) = rules.get_close_sequence_from_alt_text_tag(tag) {
+        //     tag_info.text_format = TextFormat::LineSpace;
+        // }
 
         if rules.tag_is_namespace_el(tag) {
             tag_info.namespace = tag.to_string();

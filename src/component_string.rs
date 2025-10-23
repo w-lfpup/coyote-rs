@@ -5,6 +5,7 @@ use crate::rulesets::RulesetImpl;
 use crate::tag_info::TagInfo;
 use crate::template_builder::BuilderImpl;
 use crate::template_steps::Results as TemplateSteps;
+use crate::text_components::push_text_component as push_that_text_component;
 
 #[derive(Debug)]
 struct TemplateBit {
@@ -275,55 +276,15 @@ fn push_attr_value_component(results: &mut String, stack: &mut Vec<TagInfo>, val
 }
 
 fn push_text_component(
-    _results: &mut String,
-    _stack: &mut Vec<TagInfo>,
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
     _rules: &dyn RulesetImpl,
-    _text: &str,
+    text: &str,
 ) {
-    // if all_spaces(text) {
-    //     return;
-    // }
+    let tag_info = match stack.last() {
+        Some(curr) => curr,
+        _ => return,
+    };
 
-    // let tag_info = match stack.last_mut() {
-    //     Some(curr) => curr,
-    //     // this should never happen
-    //     _ => return,
-    // };
-
-    // if tag_info.banned_path || tag_info.void_el {
-    //     return;
-    // }
-
-    // if tag_info.preserved_text_path {
-    //     results.push_str(text);
-    //     tag_info.text_format = TextFormat::Inline;
-    //     return;
-    // }
-
-    // // if alt text
-    // if let Some(_) = rules.get_close_sequence_from_alt_text_tag(&tag_info.tag) {
-    //     add_alt_element_text(results, text, tag_info);
-    //     tag_info.text_format = TextFormat::Inline;
-    //     return;
-    // }
-
-    // // if unformatted
-    // if !rules.respect_indentation() {
-    //     add_inline_text(results, text, &tag_info);
-    //     tag_info.text_format = TextFormat::Inline;
-    //     return;
-    // }
-
-    // // formatted text
-    // if TextFormat::Inline == tag_info.text_format {
-    //     results.push(' ');
-    // }
-
-    // if tag_info.inline_el || TextFormat::Inline == tag_info.text_format {
-    //     add_first_line_text(results, text, tag_info);
-    // } else {
-    //     add_text(results, text, tag_info);
-    // }
-
-    // tag_info.text_format = TextFormat::Inline;
+    push_that_text_component(results, text, tag_info)
 }
