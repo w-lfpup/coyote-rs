@@ -85,7 +85,11 @@ fn push_alt_text(
     let text = get_text_from_step(template_str, step);
     push_alt_text_component(results, text, tag_info);
 
-    // tag_info.text_format = TextFormat::Text;
+    tag_info.text_format = TextFormat::LineSpace;
+    // prev_tag_info.text_format = TextFormat::BlockClose;
+    if tag_info.inline_el {
+        tag_info.text_format = TextFormat::Text;
+    }
 }
 
 fn push_text_space(
