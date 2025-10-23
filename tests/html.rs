@@ -122,7 +122,7 @@ hello
 // }
 
 #[test]
-fn empty_element() {
+fn empty_element_stays_empty() {
     let template = tmpl("<html></html>", []);
     let expected = "<html></html>";
 
@@ -147,7 +147,7 @@ fn unbalanced_empty_elemen_errors_out() {
 }
 
 #[test]
-fn forbidden_glyph_in_attribute_injection_errors_out() {
+fn forbidden_attribute_injection_glyph_errors_out() {
     let template = tmpl("<p {}></p>", [attr("a<b/c'd=e>f")]);
 
     let mut html = Html::new();
@@ -161,7 +161,7 @@ fn forbidden_glyph_in_attribute_injection_errors_out() {
 }
 
 #[test]
-fn mozilla_example() {
+fn mozilla_spacing_example_passes() {
     let template = tmpl(
         "
         <h1>   Hello
@@ -178,7 +178,7 @@ fn mozilla_example() {
 }
 
 #[test]
-fn void_elements() {
+fn void_elements_retain_spacing() {
     let template = tmpl(
         "<input>   <input>
             <input><input> ",
@@ -194,7 +194,7 @@ fn void_elements() {
 }
 
 #[test]
-fn text_and_inline_elements() {
+fn text_with_inline_elements_retain_spacing() {
     let template = tmpl(
         "beasts <span>    tread		</span>     softly <span>    underfoot </span>      .",
         [],
@@ -209,7 +209,7 @@ fn text_and_inline_elements() {
 }
 
 #[test]
-fn text_and_blocks() {
+fn text_with_block_elements_retain_spacing() {
     let template = tmpl(
         "beasts <p>    tread		</p>     softly <p>    underfoot </p>      .",
         [],
@@ -224,7 +224,7 @@ fn text_and_blocks() {
 }
 
 #[test]
-fn void_elements_with_attributes() {
+fn void_elements_can_have_attributes() {
     let template = tmpl(
         "
         <!DOCTYPE html><input type=checkbox>   <input woof=\"bark\">
@@ -256,7 +256,7 @@ fn void_element_with_sibling() {
 }
 
 #[test]
-fn nested_void_element_with_sibling() {
+fn nested_void_element_with_siblings_retains_spacing() {
     let template = tmpl(
         "
         <section>
@@ -275,7 +275,7 @@ fn nested_void_element_with_sibling() {
 }
 
 #[test]
-fn nested_elements_and_text() {
+fn nested_elements_and_text_retain_spacing() {
     let template = tmpl("<a><label><input type=woofer>bark!</label><img></a>", []);
     let expected = "<a><label><input type=woofer>bark!</label><img></a>";
 
@@ -286,7 +286,7 @@ fn nested_elements_and_text() {
 }
 
 #[test]
-fn document() {
+fn document_retains_spacing() {
     let template = tmpl(
         "        <!DOCTYPE>
     <html>
@@ -314,7 +314,7 @@ fn document() {
 }
 
 #[test]
-fn document_with_alt_text_elements() {
+fn document_with_alt_text_elements_retains_spacing() {
     let template = tmpl(
         "        <!DOCTYPE>
     <html>
