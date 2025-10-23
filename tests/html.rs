@@ -48,7 +48,7 @@ fn mozilla_example() {
         [],
     );
 
-    let expected = "<h1> Hello\n\t<span> World!</span>\n</h1>";
+    let expected = "<h1> Hello\n\t<span> World!</span> </h1>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -64,7 +64,7 @@ fn void_elements() {
         [],
     );
 
-    let expected = "<input>\n<input>\n<input><input>";
+    let expected = "<input> <input>\n<input><input>";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -94,7 +94,7 @@ fn text_and_blocks() {
         [],
     );
 
-    let expected = "beasts\n<p> tread\n</p> softly\n<p> underfoot\n</p> .";
+    let expected = "beasts <p> tread </p> softly <p> underfoot </p> .";
 
     let mut html = Html::new();
     let results = html.build(&template);
@@ -111,7 +111,7 @@ fn void_elements_with_attributes() {
         [],
     );
     let expected =
-        "<!DOCTYPE html><input type=checkbox>\n<input woof=\"bark\">\n<input grrr><input>";
+        "<!DOCTYPE html><input type=checkbox> <input woof=\"bark\">\n<input grrr><input>";
 
     let mut html = Html::new();
     let results = html.build(&template);
