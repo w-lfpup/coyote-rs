@@ -1,6 +1,127 @@
 use coyote::{attr, tmpl, Html};
 
 #[test]
+fn empty_element_retains_spacing() {
+    let template = tmpl(
+        "
+        <p></p>
+		<p> </p><p>
+        </p>
+		",
+        [],
+    );
+    let expected = "<p></p>\n<p> </p><p>\n</p>";
+
+    let mut html = Html::new();
+    let results = html.build(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn fragments_dont_exist() {
+    let template = tmpl(
+        "
+		<><>
+        </></>
+		",
+        [],
+    );
+    let expected = "";
+
+    let mut html = Html::new();
+    let results = html.build(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn block_element_with_text_retains_spacing() {
+    let template = tmpl(
+        "
+		<p>hello!</p>
+        <p> hello! </p>
+        <p>
+            hello
+        </p><p>
+hello
+        </p>
+        <p>hello
+        </p>
+        <p>
+        hello</p>
+		",
+        [],
+    );
+    let expected = "<p>hello!</p>\n<p> hello! </p>\n<p>\n\thello\n</p><p>\n\thello\n</p>\n<p>hello\n</p>\n<p>\n\thello</p>";
+
+    let mut html = Html::new();
+    let results = html.build(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn inline_element_with_text_retains_spacing() {
+    let template = tmpl(
+        "
+		<b>hello!</b>
+        <b> hello! </b>
+        <b> hello
+        </b>
+        <b>
+            hello </b>
+        <b>
+hello
+        </b>
+        <b>
+            hello
+        </b>
+        <b>hello
+        </b>
+        <b>
+        hello</b>
+		",
+        [],
+    );
+
+    let expected = "<b>hello!</b>\n<b> hello! </b>\n<b> hello\n</b>\n<b>\nhello </b>\n<b>\nhello\n</b>\n<b>\nhello\n</b>\n<b>hello\n</b>\n<b>\nhello</b>";
+
+    let mut html = Html::new();
+    let results = html.build(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+// #[test]
+// fn comment_element_retains_spacing() {
+//     let template = tmpl(
+//         "
+// 		<!--Hello!-->
+// 		<!-- Hello! -->
+// 		<!--Hello! -->
+//         <!-- Hello!-->
+//         <!--Hello!
+//         -->
+//         <!--
+//         Hello!-->
+//         <!--
+
+//             Hello!
+
+//         -->
+// 		",
+//         [],
+//     );
+//     let expected = "<!--\n\n\tHello!\n\n-->";
+
+//     let mut html = Html::new();
+//     let results = html.build(&template);
+
+//     assert_eq!(Ok(expected.to_string()), results);
+// }
+
+#[test]
 fn empty_element() {
     let template = tmpl("<html></html>", []);
     let expected = "<html></html>";

@@ -2,7 +2,7 @@ use crate::components::Component;
 use crate::compose_steps::compose_steps;
 use crate::routes::StepKind;
 use crate::rulesets::RulesetImpl;
-use crate::tag_info::TagInfo;
+use crate::tag_info::{TagInfo, TextFormat};
 use crate::template_builder::BuilderImpl;
 use crate::template_steps::Results as TemplateSteps;
 use crate::text_components::push_text_component as push_that_text_component;
@@ -171,32 +171,41 @@ fn add_attr_inj(
     template_str: &mut String,
     cmpnt: &Component,
 ) -> Result<(), String> {
+    let tag_info = match stack.last() {
+        Some(curr) => curr,
+        _ => return Ok(()),
+    };
+
+    if tag_info.banned_path {
+        return Ok(());
+    }
+
     match cmpnt {
         Component::Attr(attr) => {
-            if let Err(e) = push_attr_component(template_str, stack, attr) {
+            if let Err(e) = push_attr_component(template_str, tag_info, attr) {
                 return Err(e);
             }
         }
         Component::AttrVal(attr, val) => {
-            if let Err(e) = push_attr_component(template_str, stack, attr) {
+            if let Err(e) = push_attr_component(template_str, tag_info, attr) {
                 return Err(e);
             }
 
-            push_attr_value_component(template_str, stack, val)
+            push_attr_value_component(template_str, val)
         }
         Component::List(attr_list) => {
             for cmpnt in attr_list {
                 match cmpnt {
                     Component::Attr(attr) => {
-                        if let Err(e) = push_attr_component(template_str, stack, attr) {
+                        if let Err(e) = push_attr_component(template_str, tag_info, attr) {
                             return Err(e);
                         }
                     }
                     Component::AttrVal(attr, val) => {
-                        if let Err(e) = push_attr_component(template_str, stack, attr) {
+                        if let Err(e) = push_attr_component(template_str, tag_info, attr) {
                             return Err(e);
                         }
-                        push_attr_value_component(template_str, stack, val)
+                        push_attr_value_component(template_str, val)
                     }
                     _ => {}
                 }
@@ -208,25 +217,20 @@ fn add_attr_inj(
     Ok(())
 }
 
-fn push_attr_component(
-    results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    attr: &str,
-) -> Result<(), String> {
+fn push_attr_component(results: &mut String, tag_info: &TagInfo, attr: &str) -> Result<(), String> {
     if !attr_is_valid(attr) {
         return Err("invalid attribute: ".to_string() + attr);
     }
 
-    let tag_info = match stack.last() {
-        Some(curr) => curr,
-        _ => return Ok(()),
-    };
-
-    if tag_info.banned_path {
-        return Ok(());
+    match tag_info.text_format {
+        TextFormat::Space => results.push(' '),
+        TextFormat::LineSpace => {
+            results.push('\n');
+            results.push_str(&"\t".repeat(tag_info.indent_count));
+        }
+        _ => {}
     }
 
-    results.push(' ');
     results.push_str(attr);
 
     Ok(())
@@ -256,16 +260,7 @@ fn forbidden_attr_glyph(glyph: char) -> bool {
     }
 }
 
-fn push_attr_value_component(results: &mut String, stack: &mut Vec<TagInfo>, val: &str) {
-    let tag_info = match stack.last() {
-        Some(curr) => curr,
-        _ => return,
-    };
-
-    if tag_info.banned_path {
-        return;
-    }
-
+fn push_attr_value_component(results: &mut String, val: &str) {
     results.push_str("=\"");
     let escaped = val.replace("\"", "&quot;");
     results.push_str(&escaped);

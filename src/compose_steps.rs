@@ -268,6 +268,7 @@ fn pop_element(
     let tag = get_text_from_step(template_str, step);
     let mut closed_tag = tag;
     if let Some(close_tag) = rules.get_alt_text_tag_from_close_sequence(tag) {
+        println!("popped alt element: {}", close_tag);
         closed_tag = close_tag;
     }
 

@@ -63,7 +63,10 @@ impl TagInfo {
             tag_info.banned_path = true;
         }
 
-        if !rules.tag_is_void_el(&tag_info.tag) && !rules.tag_is_inline_el(tag) {
+        if rules.respect_indentation()
+            && !rules.tag_is_void_el(&tag_info.tag)
+            && !rules.tag_is_inline_el(tag)
+        {
             tag_info.indent_count += 1;
         }
 
