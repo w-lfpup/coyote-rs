@@ -93,33 +93,33 @@ hello
     assert_eq!(Ok(expected.to_string()), results);
 }
 
-// #[test]
-// fn comment_element_retains_spacing() {
-//     let template = tmpl(
-//         "
-// 		<!--Hello!-->
-// 		<!-- Hello! -->
-// 		<!--Hello! -->
-//         <!-- Hello!-->
-//         <!--Hello!
-//         -->
-//         <!--
-//         Hello!-->
-//         <!--
+#[test]
+fn comment_element_retains_spacing() {
+    let template = tmpl(
+        "
+		<!--Hello!-->
+		<!-- Hello! -->
+		<!--Hello! -->
+        <!-- Hello!-->
+        <!--Hello!
+        -->
+        <!--
+        Hello!-->
+        <!--
 
-//             Hello!
+            Hello!
 
-//         -->
-// 		",
-//         [],
-//     );
-//     let expected = "<!--\n\n\tHello!\n\n-->";
+        -->
+		",
+        [],
+    );
+    let expected = "<!--\n\n\tHello!\n\n-->";
 
-//     let mut html = Html::new();
-//     let results = html.build(&template);
+    let mut html = Html::new();
+    let results = html.build(&template);
 
-//     assert_eq!(Ok(expected.to_string()), results);
-// }
+    assert_eq!(Ok(expected.to_string()), results);
+}
 
 #[test]
 fn empty_element_stays_empty() {

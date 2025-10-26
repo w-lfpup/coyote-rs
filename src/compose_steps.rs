@@ -272,6 +272,11 @@ fn pop_element(
         closed_tag = close_tag;
     }
 
+    if let Some(close_tag) = rules.get_contentless_tag_from_close_sequence(tag) {
+        println!("popped alt element: {}", close_tag);
+        closed_tag = close_tag;
+    }
+
     if closed_tag != tag_info.tag {
         return;
     }
@@ -284,11 +289,12 @@ fn pop_element(
 
     if !tag_info.void_el {
         push_space_on_pop(results, &prev_tag_info, &tag_info);
-        if let None = rules.get_close_sequence_from_alt_text_tag(closed_tag) {
+        if tag == closed_tag {
             results.push_str("</");
+            results.push_str(tag);
+        } else {
+            results.push_str(tag);
         }
-
-        results.push_str(tag);
     }
 
     results.push('>');

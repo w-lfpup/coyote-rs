@@ -1,6 +1,9 @@
 pub trait RulesetImpl {
     fn get_initial_namespace(&self) -> &str;
-    fn tag_is_attributeless(&self, tag: &str) -> bool;
+    fn tag_prefix_of_contentless(&self, tag: &str) -> Option<&str>;
+    fn tag_is_contentless(&self, tag: &str) -> bool;
+    fn get_close_sequence_from_contentless_tag(&self, tag: &str) -> Option<&str>;
+    fn get_contentless_tag_from_close_sequence(&self, tag: &str) -> Option<&str>;
     fn get_close_sequence_from_alt_text_tag(&self, tag: &str) -> Option<&str>;
     fn get_alt_text_tag_from_close_sequence(&self, tag: &str) -> Option<&str>;
     fn respect_indentation(&self) -> bool;
@@ -24,13 +27,37 @@ impl RulesetImpl for ServerRules {
         "html"
     }
 
-    fn tag_is_attributeless(&self, tag: &str) -> bool {
+    fn tag_prefix_of_contentless(&self, tag: &str) -> Option<&str> {
+        if tag.starts_with("!--") {
+            return Some("!--");
+        }
+
+        return None;
+    }
+
+    fn tag_is_contentless(&self, tag: &str) -> bool {
+        // does it start with !-- or CDATA[[
         "!--" == tag
+    }
+
+    fn get_close_sequence_from_contentless_tag(&self, tag: &str) -> Option<&str> {
+        match tag {
+            "!--" => Some("-->"),
+            // "script" => Some("</script"),
+            // "style" => Some("</style"),
+            _ => None,
+        }
+    }
+
+    fn get_contentless_tag_from_close_sequence(&self, tag: &str) -> Option<&str> {
+        match tag {
+            "--" => Some("!--"),
+            _ => None,
+        }
     }
 
     fn get_close_sequence_from_alt_text_tag(&self, tag: &str) -> Option<&str> {
         match tag {
-            "!--" => Some("--"),
             "script" => Some("</script"),
             "style" => Some("</style"),
             _ => None,
@@ -39,7 +66,6 @@ impl RulesetImpl for ServerRules {
 
     fn get_alt_text_tag_from_close_sequence(&self, tag: &str) -> Option<&str> {
         match tag {
-            "--" => Some("!--"),
             "</script" => Some("script"),
             "</style" => Some("style"),
             _ => None,
@@ -84,13 +110,35 @@ impl RulesetImpl for ClientRules {
         "html"
     }
 
-    fn tag_is_attributeless(&self, tag: &str) -> bool {
+    fn tag_is_contentless(&self, tag: &str) -> bool {
         "!--" == tag
+    }
+
+    fn get_close_sequence_from_contentless_tag(&self, tag: &str) -> Option<&str> {
+        match tag {
+            "!--" => Some("-->"),
+            // "script" => Some("</script"),
+            // "style" => Some("</style"),
+            _ => None,
+        }
+    }
+    fn get_contentless_tag_from_close_sequence(&self, tag: &str) -> Option<&str> {
+        match tag {
+            "--" => Some("!--"),
+            _ => None,
+        }
+    }
+
+    fn tag_prefix_of_contentless(&self, tag: &str) -> Option<&str> {
+        if tag.starts_with("!--") {
+            return Some("!--");
+        }
+
+        return None;
     }
 
     fn get_close_sequence_from_alt_text_tag(&self, tag: &str) -> Option<&str> {
         match tag {
-            "!--" => Some("--"),
             "script" => Some("</script"),
             "style" => Some("</style"),
             _ => None,
@@ -99,7 +147,6 @@ impl RulesetImpl for ClientRules {
 
     fn get_alt_text_tag_from_close_sequence(&self, tag: &str) -> Option<&str> {
         match tag {
-            "--" => Some("!--"),
             "</script" => Some("script"),
             "</style" => Some("style"),
             _ => None,
@@ -150,12 +197,36 @@ impl RulesetImpl for XmlRules {
         "xml"
     }
 
-    fn tag_is_attributeless(&self, tag: &str) -> bool {
+    fn tag_is_contentless(&self, tag: &str) -> bool {
         match tag {
             "!--" => true,
             "![CDATA[" => true,
             _ => false,
         }
+    }
+
+    fn get_close_sequence_from_contentless_tag(&self, tag: &str) -> Option<&str> {
+        match tag {
+            "!--" => Some("-->"),
+            // "script" => Some("</script"),
+            // "style" => Some("</style"),
+            _ => None,
+        }
+    }
+
+    fn get_contentless_tag_from_close_sequence(&self, tag: &str) -> Option<&str> {
+        match tag {
+            "--" => Some("!--"),
+            _ => None,
+        }
+    }
+
+    fn tag_prefix_of_contentless(&self, tag: &str) -> Option<&str> {
+        if tag.starts_with("!--") {
+            return Some("!--");
+        }
+
+        return None;
     }
 
     fn get_close_sequence_from_alt_text_tag(&self, tag: &str) -> Option<&str> {
@@ -168,8 +239,8 @@ impl RulesetImpl for XmlRules {
 
     fn get_alt_text_tag_from_close_sequence(&self, tag: &str) -> Option<&str> {
         match tag {
-            "--" => Some("!--"),
-            "]]" => Some("!CDATA[["),
+            "-->" => Some("!--"),
+            "]]>" => Some("!CDATA[["),
             _ => None,
         }
     }
