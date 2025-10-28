@@ -83,29 +83,26 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
                 let diff = &tag[prefix.len()..];
                 tag = prefix;
 
-                println!("found contentless:");
-                println!(
-                    "prefix: {}\ntag: {}\ndiff:{}\nstep: {:?}",
-                    prefix, tag, diff, end_step
-                );
-
                 end_step.target = end_step.origin + prefix.len();
                 next_step_origin = end_step.target;
 
                 if let Some(close_seq) = rules.get_close_sequence_from_contentless_tag(prefix) {
-                    let mut slider = SlidingWindow::new(close_seq);
+                    curr_kind = StepKind::TextAlt;
 
+                    let mut slider = SlidingWindow::new(close_seq);
                     for glypher in diff.chars() {
                         slider.slide(glypher);
                     }
-                    curr_kind = StepKind::TextAlt;
 
-                    if slider.slide(glyph) {
-                        println!("we got a winner");
-                        contentless_edge = true;
-                    } else {
-                        // curr_kind = StepKind::TextAlt;
-                        sliding_window = Some(slider);
+                    match slider.slide(glyph) {
+                        true => {
+                            println!("we got a winner");
+                            contentless_edge = true;
+                        }
+                        _ => {
+                            // curr_kind = StepKind::TextAlt;
+                            sliding_window = Some(slider);
+                        }
                     }
                 }
             }
@@ -191,30 +188,25 @@ fn push_contentless_steps_edge(
         _ => return Err(()),
     };
 
-    println!("last and final step {:?}", step);
     let origin = step.origin;
     let target = step.target;
 
-    // if alt text is non, then change step completely
-
-    if step.target == step.target - closing_sequence.len() {}
-
     step.target = step.target - closing_sequence.len() + 1;
-
     let next_origin = step.target;
-
     let next_target = step.target + closing_sequence.len() - 1;
 
-    if step.target == step.origin {
-        println!("WE GOT AN EMPTY COMMENT");
-        step.kind = StepKind::TailTag;
-        step.target = next_target;
-    } else {
-        steps.push(Step {
-            kind: StepKind::TailTag,
-            origin: next_origin,
-            target: next_target,
-        });
+    match step.target == step.origin {
+        true => {
+            step.kind = StepKind::TailTag;
+            step.target = next_target;
+        }
+        _ => {
+            steps.push(Step {
+                kind: StepKind::TailTag,
+                origin: next_origin,
+                target: next_target,
+            });
+        }
     }
 
     steps.push(Step {
@@ -223,7 +215,6 @@ fn push_contentless_steps_edge(
         target: index,
     });
 
-    println!("{:?}", steps);
     Ok(())
 }
 
@@ -238,7 +229,6 @@ fn push_contentless_steps(
         _ => return Err(()),
     };
 
-    println!("adding a contentless step: {:?}", step);
     let closing_sequence = match rules.get_close_sequence_from_contentless_tag(tag) {
         Some(sequence) => sequence,
         _ => return Ok(()),

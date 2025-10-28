@@ -129,20 +129,6 @@ Hello!-->
 
 -->";
 
-    let found = "<!--Hello!-->
-<!-- Hello! -->
-<!--Hello! 
-<!-- Hello!-->
-<!--Hello!
-
-<!--
-Hello!-->
-<!--
-
-\t\t\tHello!
-
--->";
-
     let mut html = Html::new();
     let results = html.build(&template);
 
