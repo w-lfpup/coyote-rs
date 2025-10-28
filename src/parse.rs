@@ -167,52 +167,6 @@ fn push_alt_element_steps(
     Ok(())
 }
 
-// this needs some logic
-fn push_contentless_steps_edge(
-    rules: &dyn RulesetImpl,
-    steps: &mut Vec<Step>,
-    tag: &str,
-    index: usize,
-) -> Result<(), ()> {
-    let closing_sequence = match rules.get_close_sequence_from_contentless_tag(tag) {
-        Some(sequence) => sequence,
-        _ => return Ok(()),
-    };
-
-    let step = match steps.last_mut() {
-        Some(step) => step,
-        _ => return Err(()),
-    };
-
-    let target = step.target;
-
-    step.target = step.target - closing_sequence.len() + 1;
-    let next_origin = step.target;
-    let next_target = step.target + closing_sequence.len() - 1;
-
-    match step.target == step.origin {
-        true => {
-            step.kind = StepKind::TailTag;
-            step.target = next_target;
-        }
-        _ => {
-            steps.push(Step {
-                kind: StepKind::TailTag,
-                origin: next_origin,
-                target: next_target,
-            });
-        }
-    }
-
-    steps.push(Step {
-        kind: StepKind::TailElementClosed,
-        origin: target,
-        target: index,
-    });
-
-    Ok(())
-}
-
 fn push_contentless_steps(
     rules: &dyn RulesetImpl,
     steps: &mut Vec<Step>,
@@ -238,6 +192,53 @@ fn push_contentless_steps(
     steps.push(Step {
         kind: StepKind::TailElementClosed,
         origin: index,
+        target: index,
+    });
+
+    Ok(())
+}
+
+fn push_contentless_steps_edge(
+    rules: &dyn RulesetImpl,
+    steps: &mut Vec<Step>,
+    tag: &str,
+    index: usize,
+) -> Result<(), ()> {
+    let closing_sequence = match rules.get_close_sequence_from_contentless_tag(tag) {
+        Some(sequence) => sequence,
+        _ => return Ok(()),
+    };
+
+    let step = match steps.last_mut() {
+        Some(step) => step,
+        _ => return Err(()),
+    };
+
+    let target = step.target;
+
+    step.target = step.target - closing_sequence.len() + 1;
+    let next_origin = step.target;
+    let next_target = step.target + closing_sequence.len() - 1;
+
+    match step.target == step.origin {
+        true => {
+            // <!---->
+            step.kind = StepKind::TailTag;
+            step.target = next_target;
+        }
+        _ => {
+            // <!--case-->
+            steps.push(Step {
+                kind: StepKind::TailTag,
+                origin: next_origin,
+                target: next_target,
+            });
+        }
+    }
+
+    steps.push(Step {
+        kind: StepKind::TailElementClosed,
+        origin: target,
         target: index,
     });
 

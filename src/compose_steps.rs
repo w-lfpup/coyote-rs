@@ -35,6 +35,9 @@ pub fn compose_steps(
             StepKind::ElementSpace => {
                 push_element_space(results, tag_info_stack, rules, template_str, step)
             }
+            StepKind::InjectionConfirmed => {
+                push_injection_confirmed(results, tag_info_stack, rules, template_str, step)
+            }
             _ => {}
         }
     }
@@ -87,11 +90,7 @@ fn push_alt_text(
     let text = get_text_from_step(template_str, step);
     push_alt_text_component(results, text, tag_info);
 
-    tag_info.text_format = TextFormat::LineSpace;
-    // prev_tag_info.text_format = TextFormat::BlockClose;
-    if tag_info.inline_el {
-        tag_info.text_format = TextFormat::Text;
-    }
+    tag_info.text_format = TextFormat::Text;
 }
 
 fn push_element_space(
@@ -125,6 +124,26 @@ fn push_element_space(
         true => tag_info.text_format = TextFormat::LineSpace,
         _ => tag_info.text_format = TextFormat::Space,
     }
+}
+
+fn push_injection_confirmed(
+    _results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    _rules: &dyn RulesetImpl,
+    _template_str: &str,
+    _step: &Step,
+) {
+    let tag_info = match stack.last_mut() {
+        Some(curr) => curr,
+        // this should never happen
+        _ => return,
+    };
+
+    if tag_info.banned_path {
+        return;
+    }
+
+    tag_info.text_format = TextFormat::Text;
 }
 
 fn push_text_space(
@@ -318,7 +337,7 @@ fn pop_element(
 }
 
 fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
-    let tag_info = match stack.last() {
+    let tag_info = match stack.last_mut() {
         Some(curr) => curr,
         _ => return,
     };
@@ -340,6 +359,8 @@ fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
 
     let attr = get_text_from_step(template_str, step);
     results.push_str(attr.trim());
+
+    tag_info.text_format = TextFormat::Text
 }
 
 fn push_attr_value_single_quoted(

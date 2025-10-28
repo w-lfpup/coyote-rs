@@ -11,62 +11,6 @@ fn get_index_of_first_char(text: &str) -> usize {
     text.len()
 }
 
-fn get_most_common_space_index(text: &str) -> usize {
-    let mut space_index = 0;
-    let mut prev_line = "";
-
-    let mut texts = text.split("\n");
-
-    // get the first line with spaces that isn't all spaces
-    while let Some(line) = texts.next() {
-        let found_index = get_index_of_first_char(line);
-        if 0 == found_index {
-            continue;
-        }
-        if line.len() == found_index {
-            continue;
-        }
-
-        if found_index < line.len() {
-            space_index = found_index;
-            prev_line = line;
-            break;
-        }
-    }
-
-    // then get the most common space prefix in the next lines
-    while let Some(line) = texts.next() {
-        // combine these two to stop doubling up on text char arrays
-        let found_index = get_index_of_first_char(line);
-        if 0 == found_index {
-            continue;
-        }
-        // if line.len() == found_index {
-        //     continue;
-        // }
-
-        let mut prev_line_chars = prev_line.char_indices();
-        let mut line_chars = line.char_indices();
-
-        while let (Some((src_index, src_chr)), Some((_, tgt_chr))) =
-            (prev_line_chars.next(), line_chars.next())
-        {
-            if src_chr == tgt_chr && src_chr.is_whitespace() {
-                continue;
-            }
-
-            space_index = cmp::min(space_index, src_index);
-
-            break;
-        }
-
-        prev_line = line;
-    }
-
-    println!("space index {}", space_index);
-    space_index
-}
-
 fn get_most_common_middle_space_index(texts: &[&str]) -> usize {
     let mut space_index = 0;
     let mut prev_line = "";
@@ -189,32 +133,47 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
         return;
     }
 
-    let common_space_index = get_most_common_space_index(text);
+    let texts: Vec<&str> = text.split("\n").collect();
+    if 0 == texts.len() {
+        return;
+    }
 
-    let mut text_iter = text.split("\n");
+    let first = texts[0];
+    let middle = &texts[1..texts.len()];
 
-    if let Some(line) = text_iter.next() {
-        if !all_spaces(line) {
-            match tag_info.text_format {
-                TextFormat::LineSpace => {
-                    results.push('\n');
-                    results.push_str(&"\t".repeat(tag_info.indent_count));
-                    results.push_str(line[common_space_index..].trim_end());
-                }
-                _ => {
-                    results.push_str(line.trim());
-                }
+    let first_trimmed = first.trim();
+    match tag_info.text_format {
+        TextFormat::LineSpace => {
+            results.push('\n');
+            if 0 < first_trimmed.len() {
+                results.push_str(&"\t".repeat(tag_info.indent_count));
+                results.push_str(first_trimmed);
             }
+        }
+        TextFormat::Space => {
+            if 0 < first_trimmed.len() {
+                results.push(' ');
+                results.push_str(first_trimmed);
+            }
+        }
+        _ => {
+            results.push_str(first.trim());
         }
     }
 
-    while let Some(line) = text_iter.next() {
+    if 0 == middle.len() {
+        return;
+    }
+
+    let common_middle_space_index = get_most_common_middle_space_index(middle);
+
+    for line in middle {
         results.push('\n');
         if all_spaces(line) {
             continue;
         }
 
         results.push_str(&"\t".repeat(tag_info.indent_count));
-        results.push_str(line[common_space_index..].trim_end());
+        results.push_str(line[common_middle_space_index..].trim_end());
     }
 }
