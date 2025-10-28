@@ -273,10 +273,12 @@ fn push_text_component(
     _rules: &dyn RulesetImpl,
     text: &str,
 ) {
-    let tag_info = match stack.last() {
+    let tag_info = match stack.last_mut() {
         Some(curr) => curr,
         _ => return,
     };
 
-    push_that_text_component(results, text, tag_info)
+    push_that_text_component(results, text, tag_info);
+
+    // tag_info.text_format = TextFormat::Text;
 }

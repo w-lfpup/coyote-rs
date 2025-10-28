@@ -19,19 +19,37 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
 
     // this is the "state" of parsing.
     let mut tag: &str = "";
-    let mut prev_inj_kind = intial_kind;
+    let mut inj_kind = intial_kind;
     let mut sliding_window: Option<SlidingWindow> = None;
+    let mut contentless_edge = false;
 
     for (index, glyph) in template_str.char_indices() {
-        // window-slide through reserved tag
+        let mut next_step_origin = index;
+
+        // <!--edge_case-->
+        if contentless_edge {
+            contentless_edge = false;
+            if let Err(_) = push_contentless_steps_edge(rules, &mut steps, tag, index) {
+                return steps;
+            };
+        }
+
         if let Some(ref mut slider) = sliding_window {
             if !slider.slide(glyph) {
                 continue;
             }
 
-            if let Err(_) = push_alt_element_steps(rules, &mut steps, tag, index) {
-                return steps;
-            };
+            if let Some(_closing_sequence) = rules.get_close_sequence_from_contentless_tag(tag) {
+                if let Err(_) = push_contentless_steps(rules, &mut steps, tag, index) {
+                    return steps;
+                };
+            }
+
+            if let Some(_alt_text_tag) = rules.get_close_sequence_from_alt_text_tag(tag) {
+                if let Err(_) = push_alt_element_steps(rules, &mut steps, tag, index) {
+                    return steps;
+                };
+            }
 
             sliding_window = None;
             continue;
@@ -46,7 +64,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
         end_step.target = index;
 
         let mut curr_kind = match end_step.kind {
-            StepKind::InjectionConfirmed => routes::route(glyph, &prev_inj_kind),
+            StepKind::InjectionConfirmed => routes::route(glyph, &inj_kind),
             _ => routes::route(glyph, &end_step.kind),
         };
         if curr_kind == end_step.kind {
@@ -54,14 +72,12 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
         }
 
         if is_injection_kind(&curr_kind) {
-            prev_inj_kind = end_step.kind.clone();
+            inj_kind = end_step.kind.clone();
         }
 
-        if StepKind::Tag == end_step.kind {
-            tag = get_text_from_step(template_str, &end_step);
-
-            // sliding window for attributeless elements like comments and CDATA
-            if rules.tag_is_attributeless(tag) {
+        match end_step.kind {
+            StepKind::ElementClosed => {
+                // ALT ELEMENTS
                 if let Some(close_seq) = rules.get_close_sequence_from_alt_text_tag(tag) {
                     let mut slider = SlidingWindow::new(close_seq);
                     slider.slide(glyph);
@@ -69,21 +85,39 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
                     curr_kind = StepKind::TextAlt;
                 }
             }
+            StepKind::Tag => {
+                tag = get_text_from_step(template_str, &end_step);
+
+                // COMMENTS
+                if let Some(prefix) = rules.tag_prefix_of_contentless(tag) {
+                    let diff = &tag[prefix.len()..];
+                    tag = prefix;
+
+                    end_step.target = end_step.origin + prefix.len();
+                    next_step_origin = end_step.target;
+
+                    if let Some(close_seq) = rules.get_close_sequence_from_contentless_tag(prefix) {
+                        curr_kind = StepKind::TextAlt;
+
+                        let mut slider = SlidingWindow::new(close_seq);
+                        for glypher in diff.chars() {
+                            slider.slide(glypher);
+                        }
+
+                        match slider.slide(glyph) {
+                            true => contentless_edge = true,
+                            _ => sliding_window = Some(slider),
+                        }
+                    }
+                }
+            }
+            _ => {}
         }
 
-        if let (true, Some(close_seq)) = (
-            StepKind::ElementClosed == end_step.kind,
-            rules.get_close_sequence_from_alt_text_tag(tag),
-        ) {
-            let mut slider = SlidingWindow::new(close_seq);
-            slider.slide(glyph);
-            sliding_window = Some(slider);
-            curr_kind = StepKind::TextAlt;
-        }
-
+        // Add CURRENT STEP
         steps.push(Step {
             kind: curr_kind,
-            origin: index,
+            origin: next_step_origin,
             target: index,
         });
     }
@@ -128,6 +162,84 @@ fn push_alt_element_steps(
         kind: StepKind::TailTag,
         origin: index - (closing_sequence.len() - 1),
         target: index - (closing_sequence.len()),
+    });
+
+    Ok(())
+}
+
+fn push_contentless_steps(
+    rules: &dyn RulesetImpl,
+    steps: &mut Vec<Step>,
+    tag: &str,
+    index: usize,
+) -> Result<(), ()> {
+    let closing_sequence = match rules.get_close_sequence_from_contentless_tag(tag) {
+        Some(sequence) => sequence,
+        _ => return Ok(()),
+    };
+
+    let step = match steps.last_mut() {
+        Some(step) => step,
+        _ => return Err(()),
+    };
+
+    step.target = index - (closing_sequence.len() - 1);
+    steps.push(Step {
+        kind: StepKind::TailTag,
+        origin: index - (closing_sequence.len() - 1),
+        target: index,
+    });
+    steps.push(Step {
+        kind: StepKind::TailElementClosed,
+        origin: index,
+        target: index,
+    });
+
+    Ok(())
+}
+
+fn push_contentless_steps_edge(
+    rules: &dyn RulesetImpl,
+    steps: &mut Vec<Step>,
+    tag: &str,
+    index: usize,
+) -> Result<(), ()> {
+    let closing_sequence = match rules.get_close_sequence_from_contentless_tag(tag) {
+        Some(sequence) => sequence,
+        _ => return Ok(()),
+    };
+
+    let step = match steps.last_mut() {
+        Some(step) => step,
+        _ => return Err(()),
+    };
+
+    let target = step.target;
+
+    step.target = step.target - closing_sequence.len() + 1;
+    let next_origin = step.target;
+    let next_target = step.target + closing_sequence.len() - 1;
+
+    match step.target == step.origin {
+        true => {
+            // <!---->
+            step.kind = StepKind::TailTag;
+            step.target = next_target;
+        }
+        _ => {
+            // <!--case-->
+            steps.push(Step {
+                kind: StepKind::TailTag,
+                origin: next_origin,
+                target: next_target,
+            });
+        }
+    }
+
+    steps.push(Step {
+        kind: StepKind::TailElementClosed,
+        origin: target,
+        target: index,
     });
 
     Ok(())
