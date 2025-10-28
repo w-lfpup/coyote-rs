@@ -279,6 +279,4 @@ fn push_text_component(
     };
 
     push_that_text_component(results, text, tag_info);
-
-    // tag_info.text_format = TextFormat::Text;
 }
