@@ -217,19 +217,16 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
     }
 
     results.push_str(">");
-    tag_info.text_format = TextFormat::BlockClose;
+    tag_info.text_format = TextFormat::Text;
 
     if tag_info.void_el {
-        if let Some(info) = stack.pop() {
+        if let Some(_) = stack.pop() {
             let prev_tag_info = match stack.last_mut() {
                 Some(tag_info) => tag_info,
                 _ => return,
             };
 
-            prev_tag_info.text_format = TextFormat::BlockClose;
-            if info.inline_el {
-                prev_tag_info.text_format = TextFormat::InlineClose;
-            }
+            prev_tag_info.text_format = TextFormat::Text;
         };
     }
 }
@@ -259,10 +256,7 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         _ => return,
     };
 
-    prev_tag_info.text_format = TextFormat::BlockClose;
-    if tag_info.inline_el {
-        prev_tag_info.text_format = TextFormat::InlineClose;
-    }
+    prev_tag_info.text_format = TextFormat::Text;
 }
 
 fn pop_element(
@@ -330,10 +324,7 @@ fn pop_element(
 
     results.push('>');
 
-    prev_tag_info.text_format = TextFormat::BlockClose;
-    if tag_info.inline_el {
-        prev_tag_info.text_format = TextFormat::InlineClose;
-    }
+    prev_tag_info.text_format = TextFormat::Text;
 }
 
 fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {

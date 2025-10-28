@@ -3,11 +3,7 @@ use crate::rulesets::RulesetImpl;
 // describes how to handle elements and spacing
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum TextFormat {
-    Block,
-    BlockClose,
     Initial,
-    Inline,
-    InlineClose,
     LineSpace,
     Space,
     Text,
@@ -46,9 +42,9 @@ impl TagInfo {
         tag_info.void_el = rules.tag_is_void_el(tag);
         tag_info.inline_el = rules.tag_is_inline_el(tag);
 
-        tag_info.text_format = TextFormat::Block;
+        tag_info.text_format = TextFormat::Text;
         if tag_info.inline_el {
-            tag_info.text_format = TextFormat::Inline;
+            tag_info.text_format = TextFormat::Text;
         }
 
         if rules.tag_is_namespace_el(tag) {

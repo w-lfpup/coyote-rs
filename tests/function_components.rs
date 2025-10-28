@@ -200,23 +200,6 @@ fn attributes_retain_spacing() {
     assert_eq!(Ok(expected.to_string()), results);
 }
 
-fn lots_of_attribute_components() -> Component {
-    tmpl(
-        "
-		<p {}></p>
-		<p {}
-		></p>
-		<p
-		{} ></p>
-		<p
-		{}
-		>
-		</p>
-		",
-        [hai(), hai(), hai(), hai()],
-    )
-}
-
 #[test]
 fn attribute_components_retain_spacing() {
     let template = lots_of_attributes();
