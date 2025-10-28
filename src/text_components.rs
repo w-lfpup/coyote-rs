@@ -138,9 +138,6 @@ pub fn push_alt_text_component(results: &mut String, text: &str, tag_info: &TagI
         return;
     }
 
-    let mut text_iter = text.split("\n");
-    let mut empty_lines = 0;
-
     let texts: Vec<&str> = text.split("\n").collect();
     if 0 == texts.len() {
         return;
@@ -155,7 +152,6 @@ pub fn push_alt_text_component(results: &mut String, text: &str, tag_info: &TagI
     let last = texts[texts.len() - 1];
 
     let common_middle_space_index = get_most_common_middle_space_index(middle);
-    let common_space_index = get_most_common_space_index(text);
 
     // first
     results.push_str(first.trim());
@@ -165,7 +161,6 @@ pub fn push_alt_text_component(results: &mut String, text: &str, tag_info: &TagI
         results.push('\n');
 
         let found_index = get_index_of_first_char(line);
-        let len = line.len();
 
         match found_index {
             0 => {

@@ -1,7 +1,6 @@
 pub trait RulesetImpl {
     fn get_initial_namespace(&self) -> &str;
     fn tag_prefix_of_contentless(&self, tag: &str) -> Option<&str>;
-    fn tag_is_contentless(&self, tag: &str) -> bool;
     fn get_close_sequence_from_contentless_tag(&self, tag: &str) -> Option<&str>;
     fn get_contentless_tag_from_close_sequence(&self, tag: &str) -> Option<&str>;
     fn get_close_sequence_from_alt_text_tag(&self, tag: &str) -> Option<&str>;
@@ -35,16 +34,9 @@ impl RulesetImpl for ServerRules {
         return None;
     }
 
-    fn tag_is_contentless(&self, tag: &str) -> bool {
-        // does it start with !-- or CDATA[[
-        "!--" == tag
-    }
-
     fn get_close_sequence_from_contentless_tag(&self, tag: &str) -> Option<&str> {
         match tag {
             "!--" => Some("-->"),
-            // "script" => Some("</script"),
-            // "style" => Some("</style"),
             _ => None,
         }
     }
@@ -108,10 +100,6 @@ impl ClientRules {
 impl RulesetImpl for ClientRules {
     fn get_initial_namespace(&self) -> &str {
         "html"
-    }
-
-    fn tag_is_contentless(&self, tag: &str) -> bool {
-        "!--" == tag
     }
 
     fn get_close_sequence_from_contentless_tag(&self, tag: &str) -> Option<&str> {
@@ -197,19 +185,9 @@ impl RulesetImpl for XmlRules {
         "xml"
     }
 
-    fn tag_is_contentless(&self, tag: &str) -> bool {
-        match tag {
-            "!--" => true,
-            "![CDATA[" => true,
-            _ => false,
-        }
-    }
-
     fn get_close_sequence_from_contentless_tag(&self, tag: &str) -> Option<&str> {
         match tag {
             "!--" => Some("-->"),
-            // "script" => Some("</script"),
-            // "style" => Some("</style"),
             _ => None,
         }
     }

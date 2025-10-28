@@ -19,7 +19,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
 
     // this is the "state" of parsing.
     let mut tag: &str = "";
-    let mut prev_inj_kind = intial_kind;
+    let mut inj_kind = intial_kind;
     let mut sliding_window: Option<SlidingWindow> = None;
     let mut contentless_edge = false;
 
@@ -64,7 +64,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
         end_step.target = index;
 
         let mut curr_kind = match end_step.kind {
-            StepKind::InjectionConfirmed => routes::route(glyph, &prev_inj_kind),
+            StepKind::InjectionConfirmed => routes::route(glyph, &inj_kind),
             _ => routes::route(glyph, &end_step.kind),
         };
         if curr_kind == end_step.kind {
@@ -72,53 +72,49 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
         }
 
         if is_injection_kind(&curr_kind) {
-            prev_inj_kind = end_step.kind.clone();
+            inj_kind = end_step.kind.clone();
         }
 
-        // SPECIFICALLY FOR COMMENTS
-        if StepKind::Tag == end_step.kind {
-            tag = get_text_from_step(template_str, &end_step);
-
-            if let Some(prefix) = rules.tag_prefix_of_contentless(tag) {
-                let diff = &tag[prefix.len()..];
-                tag = prefix;
-
-                end_step.target = end_step.origin + prefix.len();
-                next_step_origin = end_step.target;
-
-                if let Some(close_seq) = rules.get_close_sequence_from_contentless_tag(prefix) {
-                    curr_kind = StepKind::TextAlt;
-
+        match end_step.kind {
+            StepKind::ElementClosed => {
+                // ALT ELEMENTS
+                if let Some(close_seq) = rules.get_close_sequence_from_alt_text_tag(tag) {
                     let mut slider = SlidingWindow::new(close_seq);
-                    for glypher in diff.chars() {
-                        slider.slide(glypher);
-                    }
+                    slider.slide(glyph);
+                    sliding_window = Some(slider);
+                    curr_kind = StepKind::TextAlt;
+                }
+            }
+            StepKind::Tag => {
+                tag = get_text_from_step(template_str, &end_step);
 
-                    match slider.slide(glyph) {
-                        true => {
-                            println!("we got a winner");
-                            contentless_edge = true;
+                // COMMENTS
+                if let Some(prefix) = rules.tag_prefix_of_contentless(tag) {
+                    let diff = &tag[prefix.len()..];
+                    tag = prefix;
+
+                    end_step.target = end_step.origin + prefix.len();
+                    next_step_origin = end_step.target;
+
+                    if let Some(close_seq) = rules.get_close_sequence_from_contentless_tag(prefix) {
+                        curr_kind = StepKind::TextAlt;
+
+                        let mut slider = SlidingWindow::new(close_seq);
+                        for glypher in diff.chars() {
+                            slider.slide(glypher);
                         }
-                        _ => {
-                            // curr_kind = StepKind::TextAlt;
-                            sliding_window = Some(slider);
+
+                        match slider.slide(glyph) {
+                            true => contentless_edge = true,
+                            _ => sliding_window = Some(slider),
                         }
                     }
                 }
             }
+            _ => {}
         }
 
-        // ALT ELEMENTS
-        if StepKind::ElementClosed == end_step.kind {
-            if let Some(close_seq) = rules.get_close_sequence_from_alt_text_tag(tag) {
-                let mut slider = SlidingWindow::new(close_seq);
-                slider.slide(glyph);
-                sliding_window = Some(slider);
-                curr_kind = StepKind::TextAlt;
-            }
-        }
-
-        // Add the current step
+        // Add CURRENT STEP
         steps.push(Step {
             kind: curr_kind,
             origin: next_step_origin,
@@ -188,7 +184,6 @@ fn push_contentless_steps_edge(
         _ => return Err(()),
     };
 
-    let origin = step.origin;
     let target = step.target;
 
     step.target = step.target - closing_sequence.len() + 1;
@@ -224,14 +219,14 @@ fn push_contentless_steps(
     tag: &str,
     index: usize,
 ) -> Result<(), ()> {
-    let mut step = match steps.last_mut() {
-        Some(step) => step,
-        _ => return Err(()),
-    };
-
     let closing_sequence = match rules.get_close_sequence_from_contentless_tag(tag) {
         Some(sequence) => sequence,
         _ => return Ok(()),
+    };
+
+    let step = match steps.last_mut() {
+        Some(step) => step,
+        _ => return Err(()),
     };
 
     step.target = index - (closing_sequence.len() - 1);
