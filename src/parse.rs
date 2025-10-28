@@ -21,9 +21,19 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
     let mut tag: &str = "";
     let mut prev_inj_kind = intial_kind;
     let mut sliding_window: Option<SlidingWindow> = None;
+    let mut contentless_edge = false;
 
     for (index, glyph) in template_str.char_indices() {
-        // window-slide through reserved tag
+        let mut next_step_origin = index;
+
+        // <!--edge_case-->
+        if contentless_edge {
+            contentless_edge = false;
+            if let Err(_) = push_contentless_steps_edge(rules, &mut steps, tag, index) {
+                return steps;
+            };
+        }
+
         if let Some(ref mut slider) = sliding_window {
             if !slider.slide(glyph) {
                 continue;
@@ -68,24 +78,36 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
         // SPECIFICALLY FOR COMMENTS
         if StepKind::Tag == end_step.kind {
             tag = get_text_from_step(template_str, &end_step);
-            println!("TAG: {}", tag);
-            // CASES
-            // !-- --
-            // EDGE CASE <!-- or <![CDATA[]]>
-            // <!--hello
-            // <!---- //  element tag: !--, push step --.=
-
-            // sliding window for attributeless elements like comments and CDATA
-            // if !--
-            if let Some(close_seq) = rules.get_close_sequence_from_contentless_tag(tag) {
-                let mut slider = SlidingWindow::new(close_seq);
-                slider.slide(glyph);
-                sliding_window = Some(slider);
-                curr_kind = StepKind::TextAlt;
-            }
 
             if let Some(prefix) = rules.tag_prefix_of_contentless(tag) {
-                println!("found prefix: {} {}", prefix, tag);
+                let diff = &tag[prefix.len()..];
+                tag = prefix;
+
+                println!("found contentless:");
+                println!(
+                    "prefix: {}\ntag: {}\ndiff:{}\nstep: {:?}",
+                    prefix, tag, diff, end_step
+                );
+
+                end_step.target = end_step.origin + prefix.len();
+                next_step_origin = end_step.target;
+
+                if let Some(close_seq) = rules.get_close_sequence_from_contentless_tag(prefix) {
+                    let mut slider = SlidingWindow::new(close_seq);
+
+                    for glypher in diff.chars() {
+                        slider.slide(glypher);
+                    }
+                    curr_kind = StepKind::TextAlt;
+
+                    if slider.slide(glyph) {
+                        println!("we got a winner");
+                        contentless_edge = true;
+                    } else {
+                        // curr_kind = StepKind::TextAlt;
+                        sliding_window = Some(slider);
+                    }
+                }
             }
         }
 
@@ -99,9 +121,10 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
             }
         }
 
+        // Add the current step
         steps.push(Step {
             kind: curr_kind,
-            origin: index,
+            origin: next_step_origin,
             target: index,
         });
     }
@@ -110,7 +133,6 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
         step.target = template_str.len();
     }
 
-    println!("steps: {:?}", steps);
     steps
 }
 
@@ -152,24 +174,75 @@ fn push_alt_element_steps(
     Ok(())
 }
 
+// this needs some logic
+fn push_contentless_steps_edge(
+    rules: &dyn RulesetImpl,
+    steps: &mut Vec<Step>,
+    tag: &str,
+    index: usize,
+) -> Result<(), ()> {
+    let closing_sequence = match rules.get_close_sequence_from_contentless_tag(tag) {
+        Some(sequence) => sequence,
+        _ => return Ok(()),
+    };
+
+    let step = match steps.last_mut() {
+        Some(step) => step,
+        _ => return Err(()),
+    };
+
+    println!("last and final step {:?}", step);
+    let origin = step.origin;
+    let target = step.target;
+
+    // if alt text is non, then change step completely
+
+    if step.target == step.target - closing_sequence.len() {}
+
+    step.target = step.target - closing_sequence.len() + 1;
+
+    let next_origin = step.target;
+
+    let next_target = step.target + closing_sequence.len() - 1;
+
+    if step.target == step.origin {
+        println!("WE GOT AN EMPTY COMMENT");
+        step.kind = StepKind::TailTag;
+        step.target = next_target;
+    } else {
+        steps.push(Step {
+            kind: StepKind::TailTag,
+            origin: next_origin,
+            target: next_target,
+        });
+    }
+
+    steps.push(Step {
+        kind: StepKind::TailElementClosed,
+        origin: target,
+        target: index,
+    });
+
+    println!("{:?}", steps);
+    Ok(())
+}
+
 fn push_contentless_steps(
     rules: &dyn RulesetImpl,
     steps: &mut Vec<Step>,
     tag: &str,
     index: usize,
 ) -> Result<(), ()> {
-    println!("pushing contentless steps");
-    let step = match steps.last_mut() {
+    let mut step = match steps.last_mut() {
         Some(step) => step,
         _ => return Err(()),
     };
 
+    println!("adding a contentless step: {:?}", step);
     let closing_sequence = match rules.get_close_sequence_from_contentless_tag(tag) {
         Some(sequence) => sequence,
         _ => return Ok(()),
     };
-
-    println!("closing sequence: {}", closing_sequence);
 
     step.target = index - (closing_sequence.len() - 1);
     steps.push(Step {

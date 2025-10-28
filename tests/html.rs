@@ -97,23 +97,51 @@ hello
 fn comment_element_retains_spacing() {
     let template = tmpl(
         "
+		<!---->
 		<!--Hello!-->
 		<!-- Hello! -->
 		<!--Hello! -->
-        <!-- Hello!-->
-        <!--Hello!
-        -->
-        <!--
-        Hello!-->
-        <!--
+		<!-- Hello!-->
+		<!--Hello!
+		-->
+		<!--
+		Hello!-->
+		<!--
 
-            Hello!
+		Hello!
 
-        -->
+		-->
 		",
         [],
     );
-    let expected = "<!--\n\n\tHello!\n\n-->";
+    let expected = "<!---->
+<!--Hello!-->
+<!-- Hello! -->
+<!--Hello! -->
+<!-- Hello!-->
+<!--Hello!
+-->
+<!--
+Hello!-->
+<!--
+
+	Hello!
+
+-->";
+
+    let found = "<!--Hello!-->
+<!-- Hello! -->
+<!--Hello! 
+<!-- Hello!-->
+<!--Hello!
+
+<!--
+Hello!-->
+<!--
+
+\t\t\tHello!
+
+-->";
 
     let mut html = Html::new();
     let results = html.build(&template);

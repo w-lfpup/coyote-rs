@@ -1,6 +1,6 @@
 pub struct SlidingWindow {
     target: Vec<char>,
-    index: usize,
+    pub index: usize,
 }
 
 impl SlidingWindow {
