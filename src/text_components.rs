@@ -139,7 +139,6 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
         }
         _ => {}
     }
-    // results.push_str(first_line);
     push_line_of_text(results, first_line);
 
     let middle_lines = &texts[1..texts.len()];
@@ -152,7 +151,6 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
 
         results.push_str(&"\t".repeat(tag_info.indent_count));
         push_line_of_text(results, &line[common_space_index..]);
-        // results.push_str(line[common_space_index..].trim_end());
     }
 }
 

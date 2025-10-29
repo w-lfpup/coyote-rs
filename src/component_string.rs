@@ -15,6 +15,7 @@ struct TemplateBit {
     pub stack_depth: isize,
 }
 
+// Needed to track iteration across template steps and injections
 enum StackBit<'a> {
     Tmpl(&'a Component, TemplateSteps, TemplateBit),
     Cmpnt(&'a Component),
@@ -83,7 +84,6 @@ pub fn compose_string(
                 // add current template chunk
                 match template.steps.get(index) {
                     Some(chunk) => {
-                        // returns "remainder str"
                         compose_steps(
                             rules,
                             &mut template_results,
@@ -115,7 +115,7 @@ pub fn compose_string(
                                 return Err(e);
                             };
                         }
-                        // push template back and bail early
+                        // push template injection and bail early
                         StepKind::DescendantInjection => {
                             component_stack.push(cmpnt_bit);
 
