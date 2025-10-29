@@ -75,14 +75,12 @@ pub fn push_alt_text_component(results: &mut String, text: &str, tag_info: &TagI
     if 0 == texts.len() {
         return;
     }
-    if 1 == texts.len() {
-        results.push_str(&texts[0]);
-        return;
-    }
 
     // first
-    let first = texts[0];
-    results.push_str(first);
+    results.push_str(&texts[0]);
+    if 1 == texts.len() {
+        return;
+    }
 
     // middle
     let middle = &texts[1..texts.len() - 1];
@@ -141,7 +139,8 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
         }
         _ => {}
     }
-    results.push_str(first_line);
+    // results.push_str(first_line);
+    push_line_of_text(results, first_line);
 
     let middle_lines = &texts[1..texts.len()];
     let common_space_index = get_largest_common_space_index(middle_lines);
@@ -152,7 +151,8 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
         }
 
         results.push_str(&"\t".repeat(tag_info.indent_count));
-        results.push_str(line[common_space_index..].trim_end());
+        push_line_of_text(results, &line[common_space_index..]);
+        // results.push_str(line[common_space_index..].trim_end());
     }
 }
 
@@ -170,14 +170,14 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
     if 0 == texts.len() {
         return;
     }
+
+    // first
+    push_line_of_text(results, texts[0]);
     if 1 == texts.len() {
-        results.push_str(&texts[0]);
         return;
     }
 
-    let first_line = texts[0].trim();
-    results.push_str(first_line);
-
+    // middle
     let middle_lines = &texts[1..texts.len() - 1];
     let common_space_index = get_largest_common_space_index(middle_lines);
     for line in middle_lines {
@@ -190,12 +190,12 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
             0 => {
                 if 0 < line.len() {
                     results.push_str(&"\t".repeat(tag_info.indent_count));
-                    results.push_str(line.trim_end());
+                    push_line_of_text(results, line);
                 }
             }
             _ => {
                 results.push_str(&"\t".repeat(tag_info.indent_count));
-                results.push_str(line[common_space_index..].trim_end());
+                push_line_of_text(results, &line[common_space_index..])
             }
         }
     }
@@ -204,5 +204,23 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
     let last = texts[texts.len() - 1];
     results.push('\n');
     results.push_str(&"\t".repeat(tag_info.indent_count));
-    results.push_str(last.trim())
+    push_line_of_text(results, last.trim())
+}
+
+fn push_line_of_text(results: &mut String, line: &str) {
+    let mut state = TextFormat::Text;
+
+    for glyph in line.chars() {
+        if glyph.is_whitespace() {
+            state = TextFormat::Space;
+            continue;
+        }
+
+        if state == TextFormat::Space {
+            results.push(' ')
+        }
+
+        state = TextFormat::Text;
+        results.push(glyph)
+    }
 }
