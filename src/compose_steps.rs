@@ -60,13 +60,11 @@ fn push_text(
         return;
     }
 
-    // push_space_for_text(results, stack_len, tag_info);
     push_space_on_text(results, &tag_info);
-
-    tag_info.text_format = TextFormat::Text;
-
     let text = get_text_from_step(template_str, step);
     results.push_str(text);
+
+    tag_info.text_format = TextFormat::Text;
 }
 
 // SET SOME KIND OF TEXT FORMAT
@@ -219,16 +217,18 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
     results.push_str(">");
     tag_info.text_format = TextFormat::Text;
 
-    if tag_info.void_el {
-        if let Some(_) = stack.pop() {
-            let prev_tag_info = match stack.last_mut() {
-                Some(tag_info) => tag_info,
-                _ => return,
-            };
-
-            prev_tag_info.text_format = TextFormat::Text;
-        };
+    if !tag_info.void_el {
+        return;
     }
+
+    if let Some(_) = stack.pop() {
+        let prev_tag_info = match stack.last_mut() {
+            Some(tag_info) => tag_info,
+            _ => return,
+        };
+
+        prev_tag_info.text_format = TextFormat::Text;
+    };
 }
 
 fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
@@ -241,14 +241,15 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         return;
     }
 
-    if "html" != tag_info.namespace {
-        results.push_str("/>");
-    } else {
-        if !tag_info.void_el {
-            results.push_str("></");
-            results.push_str(&tag_info.tag);
+    match "html" != tag_info.namespace {
+        true => results.push_str("/>"),
+        _ => {
+            if !tag_info.void_el {
+                results.push_str("></");
+                results.push_str(&tag_info.tag);
+            }
+            results.push('>');
         }
-        results.push('>');
     }
 
     let prev_tag_info = match stack.last_mut() {
@@ -281,19 +282,12 @@ fn pop_element(
     let tag = get_text_from_step(template_str, step);
     let mut closed_tag = tag;
     if let Some(close_tag) = rules.get_alt_text_tag_from_close_sequence(tag) {
-        println!("popped alt element: {}", close_tag);
         closed_tag = close_tag;
     }
 
     if let Some(close_tag) = rules.get_contentless_tag_from_close_sequence(tag) {
-        println!("popped contentless element: {}", close_tag);
         closed_tag = close_tag;
     }
-
-    println!(
-        "starting pop logic with:\ntag_info_tag: {}\ntag: {}\nclose_tag: {}",
-        tag_info.tag, tag, closed_tag
-    );
 
     if closed_tag != tag_info.tag {
         return;
@@ -310,7 +304,6 @@ fn pop_element(
             rules.get_alt_text_tag_from_close_sequence(tag),
             rules.get_contentless_tag_from_close_sequence(tag),
         ) {
-            println!("about to pop an alt tag: {}", tag);
             push_space_on_pop(results, &prev_tag_info, &tag_info);
         }
 
