@@ -5,7 +5,9 @@ use crate::rulesets::RulesetImpl;
 use crate::tag_info::{TagInfo, TextFormat};
 use crate::template_builder::BuilderImpl;
 use crate::template_steps::Results as TemplateSteps;
-use crate::text_components::push_text_component as push_that_text_component;
+use crate::text_components::{
+    push_multiline_attributes, push_text_component as push_that_text_component,
+};
 
 #[derive(Debug)]
 struct TemplateBit {
@@ -191,7 +193,7 @@ fn add_attr_inj(
                 return Err(e);
             }
 
-            push_attr_value_component(template_str, val)
+            push_attr_value_component(template_str, tag_info, val)
         }
         Component::List(attr_list) => {
             for cmpnt in attr_list {
@@ -205,7 +207,7 @@ fn add_attr_inj(
                         if let Err(e) = push_attr_component(template_str, tag_info, attr) {
                             return Err(e);
                         }
-                        push_attr_value_component(template_str, val)
+                        push_attr_value_component(template_str, tag_info, val)
                     }
                     _ => {}
                 }
@@ -260,10 +262,10 @@ fn forbidden_attr_glyph(glyph: char) -> bool {
     }
 }
 
-fn push_attr_value_component(results: &mut String, val: &str) {
+fn push_attr_value_component(results: &mut String, tag_info: &TagInfo, val: &str) {
     results.push_str("=\"");
     let escaped = val.replace("\"", "&quot;");
-    results.push_str(&escaped);
+    push_multiline_attributes(results, &escaped, tag_info);
     results.push('"');
 }
 

@@ -2,7 +2,7 @@ use crate::parse::{get_text_from_step, Step};
 use crate::routes::StepKind;
 use crate::rulesets::RulesetImpl;
 use crate::tag_info::{TagInfo, TextFormat};
-use crate::text_components::push_alt_text_component;
+use crate::text_components::{push_alt_text_component, push_multiline_attributes};
 
 pub fn compose_steps(
     rules: &dyn RulesetImpl,
@@ -363,8 +363,8 @@ fn push_attr_value_single_quoted(
     }
 
     results.push_str("='");
-    let val = get_text_from_step(template_str, step);
-    results.push_str(val);
+    let text = get_text_from_step(template_str, step);
+    push_multiline_attributes(results, &text, tag_info);
     results.push('\'');
 }
 
@@ -384,8 +384,9 @@ fn push_attr_value_double_quoted(
     }
 
     results.push_str("=\"");
-    let val = get_text_from_step(template_str, step);
-    results.push_str(val);
+    let text = get_text_from_step(template_str, step);
+    // results.push_str(val);
+    push_multiline_attributes(results, &text, tag_info);
     results.push('"');
 }
 
@@ -404,9 +405,9 @@ fn push_attr_value_unquoted(
         return;
     }
 
-    let val = get_text_from_step(template_str, step);
+    let text = get_text_from_step(template_str, step);
     results.push('=');
-    results.push_str(val);
+    results.push_str(text);
 }
 
 fn push_space_on_text(results: &mut String, tag_info: &TagInfo) {

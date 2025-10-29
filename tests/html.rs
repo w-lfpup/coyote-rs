@@ -192,6 +192,47 @@ fn mozilla_spacing_example_passes() {
 }
 
 #[test]
+fn attribute_value_retains_spacing() {
+    let template = tmpl(
+        "
+		<h1 wow='People use
+			attributes in some very
+			wild ways but thats okay'>   Hello
+				<span> World!</span>   </h1>
+		<h1 wow='
+
+			People use attributes in some very
+
+			wild ways but thats okay
+	
+			'>
+			Hello! <span> World!</span>
+		</h1>
+		",
+        [],
+    );
+
+    let expected = "<h1 wow='People use
+	attributes in some very
+	wild ways but thats okay'> Hello
+	<span> World!</span> </h1>
+<h1 wow='
+
+	People use attributes in some very
+
+	wild ways but thats okay
+
+	'>
+	Hello! <span> World!</span>
+</h1>";
+
+    let mut html = Html::new();
+    let results = html.build(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
 fn void_elements_retain_spacing() {
     let template = tmpl(
         "<input>   <input>
