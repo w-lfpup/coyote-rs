@@ -71,6 +71,7 @@ pub fn compose_string(
                 _ => {}
             },
             // template chunk and possible injection
+            // could be used for String too
             StackBit::Tmpl(cmpnt, ref template, ref mut bit) => {
                 let index = bit.inj_index;
                 bit.inj_index += 1;
