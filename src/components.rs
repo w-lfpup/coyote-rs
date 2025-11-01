@@ -15,11 +15,13 @@ pub struct Template {
     pub template_str: &'static str,
     pub injections: Vec<Component>,
 }
+
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TemplateString {
     pub template_string: String,
     pub injections: Vec<Component>,
 }
+
 // ergonomic functions to quickly create componets without the typical rust verbosity
 // (considerably improves readability of component code)
 pub fn tmpl<const N: usize>(template_str: &'static str, injections: [Component; N]) -> Component {

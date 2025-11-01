@@ -395,7 +395,6 @@ fn push_space_on_text(results: &mut String, tag_info: &TagInfo) {
     }
 }
 
-// need popped element
 fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &TagInfo) {
     if tag_info.preserved_text_path {
         return;
