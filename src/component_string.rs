@@ -76,9 +76,9 @@ pub fn compose_string(
                 let index = bit.inj_index;
                 bit.inj_index += 1;
 
-                // Should always be a template
-                let tmpl_cmpnt = match cmpnt {
-                    Component::Tmpl(cmpnt) => cmpnt,
+                let tmpl_str = match cmpnt {
+                    Component::Tmpl(cmpnt) => cmpnt.template_str,
+                    Component::TmplString(cmpnt) => &cmpnt.template_string,
                     _ => continue,
                 };
 
@@ -89,7 +89,7 @@ pub fn compose_string(
                             rules,
                             &mut template_results,
                             &mut tag_info_stack,
-                            &tmpl_cmpnt.template_str,
+                            tmpl_str,
                             chunk,
                         );
                     }
@@ -98,15 +98,21 @@ pub fn compose_string(
                             return Err(
                                 "Coyote Err: the following template component is imbalanced:\n{:?}"
                                     .to_string()
-                                    + tmpl_cmpnt.template_str,
+                                    + tmpl_str,
                             );
                         }
                     }
                 }
 
+                let injections = match cmpnt {
+                    Component::Tmpl(cmpnt) => &cmpnt.injections,
+                    Component::TmplString(cmpnt) => &cmpnt.injections,
+                    _ => continue,
+                };
+
                 // add injections
                 if let (Some(inj_step), Some(inj)) =
-                    (template.injs.get(index), tmpl_cmpnt.injections.get(index))
+                    (template.injs.get(index), injections.get(index))
                 {
                     match inj_step.kind {
                         StepKind::AttrMapInjection => {

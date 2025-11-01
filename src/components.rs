@@ -17,7 +17,7 @@ pub struct Template {
 }
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TemplateString {
-    pub template_str: String,
+    pub template_string: String,
     pub injections: Vec<Component>,
 }
 // ergonomic functions to quickly create componets without the typical rust verbosity
@@ -29,9 +29,9 @@ pub fn tmpl<const N: usize>(template_str: &'static str, injections: [Component; 
     })
 }
 
-pub fn tmplString<const N: usize>(template_str: &str, injections: [Component; N]) -> Component {
+pub fn tmpl_str<const N: usize>(template_str: &str, injections: [Component; N]) -> Component {
     Component::TmplString(TemplateString {
-        template_str: template_str.to_string(),
+        template_string: template_str.to_string(),
         injections: Vec::from(injections),
     })
 }
