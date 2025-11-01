@@ -26,7 +26,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
     for (index, glyph) in template_str.char_indices() {
         let mut next_step_origin = index;
 
-        // <!--edge_case-->
+        // <!--comment_edge_case-->
         if contentless_edge {
             contentless_edge = false;
             if let Err(_) = push_contentless_steps_edge(rules, &mut steps, tag, index) {
@@ -39,6 +39,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
                 continue;
             }
 
+            // <-- comment case -->
             if let Some(_closing_sequence) = rules.get_close_sequence_from_contentless_tag(tag) {
                 if let Err(_) = push_contentless_steps(rules, &mut steps, tag, index) {
                     return steps;
@@ -63,6 +64,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
         // mark progression
         end_step.target = index;
 
+        // step kind delta
         let mut curr_kind = match end_step.kind {
             StepKind::InjectionConfirmed => routes::route(glyph, &inj_kind),
             _ => routes::route(glyph, &end_step.kind),
@@ -70,7 +72,6 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
         if curr_kind == end_step.kind {
             continue;
         }
-
         if is_injection_kind(&curr_kind) {
             inj_kind = end_step.kind.clone();
         }

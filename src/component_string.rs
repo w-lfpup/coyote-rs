@@ -5,7 +5,9 @@ use crate::rulesets::RulesetImpl;
 use crate::tag_info::{TagInfo, TextFormat};
 use crate::template_builder::BuilderImpl;
 use crate::template_steps::Results as TemplateSteps;
-use crate::text_components::push_text_component as push_that_text_component;
+use crate::text_components::{
+    push_multiline_attributes, push_text_component as push_that_text_component,
+};
 
 #[derive(Debug)]
 struct TemplateBit {
@@ -13,6 +15,7 @@ struct TemplateBit {
     pub stack_depth: isize,
 }
 
+// Needed to track iteration across template steps and injections
 enum StackBit<'a> {
     Tmpl(&'a Component, TemplateSteps, TemplateBit),
     Cmpnt(&'a Component),
@@ -68,25 +71,25 @@ pub fn compose_string(
                 _ => {}
             },
             // template chunk and possible injection
+            // could be used for String too
             StackBit::Tmpl(cmpnt, ref template, ref mut bit) => {
                 let index = bit.inj_index;
                 bit.inj_index += 1;
 
-                // Should always be a template
-                let tmpl_cmpnt = match cmpnt {
-                    Component::Tmpl(cmpnt) => cmpnt,
+                let tmpl_str = match cmpnt {
+                    Component::Tmpl(cmpnt) => cmpnt.template_str,
+                    Component::TmplString(cmpnt) => &cmpnt.template_string,
                     _ => continue,
                 };
 
                 // add current template chunk
                 match template.steps.get(index) {
                     Some(chunk) => {
-                        // returns "remainder str"
                         compose_steps(
                             rules,
                             &mut template_results,
                             &mut tag_info_stack,
-                            &tmpl_cmpnt.template_str,
+                            tmpl_str,
                             chunk,
                         );
                     }
@@ -95,15 +98,21 @@ pub fn compose_string(
                             return Err(
                                 "Coyote Err: the following template component is imbalanced:\n{:?}"
                                     .to_string()
-                                    + tmpl_cmpnt.template_str,
+                                    + tmpl_str,
                             );
                         }
                     }
                 }
 
+                let injections = match cmpnt {
+                    Component::Tmpl(cmpnt) => &cmpnt.injections,
+                    Component::TmplString(cmpnt) => &cmpnt.injections,
+                    _ => continue,
+                };
+
                 // add injections
                 if let (Some(inj_step), Some(inj)) =
-                    (template.injs.get(index), tmpl_cmpnt.injections.get(index))
+                    (template.injs.get(index), injections.get(index))
                 {
                     match inj_step.kind {
                         StepKind::AttrMapInjection => {
@@ -113,7 +122,7 @@ pub fn compose_string(
                                 return Err(e);
                             };
                         }
-                        // push template back and bail early
+                        // push template injection and bail early
                         StepKind::DescendantInjection => {
                             component_stack.push(cmpnt_bit);
 
@@ -191,7 +200,7 @@ fn add_attr_inj(
                 return Err(e);
             }
 
-            push_attr_value_component(template_str, val)
+            push_attr_value_component(template_str, tag_info, val)
         }
         Component::List(attr_list) => {
             for cmpnt in attr_list {
@@ -205,7 +214,7 @@ fn add_attr_inj(
                         if let Err(e) = push_attr_component(template_str, tag_info, attr) {
                             return Err(e);
                         }
-                        push_attr_value_component(template_str, val)
+                        push_attr_value_component(template_str, tag_info, val)
                     }
                     _ => {}
                 }
@@ -260,10 +269,10 @@ fn forbidden_attr_glyph(glyph: char) -> bool {
     }
 }
 
-fn push_attr_value_component(results: &mut String, val: &str) {
+fn push_attr_value_component(results: &mut String, tag_info: &TagInfo, val: &str) {
     results.push_str("=\"");
     let escaped = val.replace("\"", "&quot;");
-    results.push_str(&escaped);
+    push_multiline_attributes(results, &escaped, tag_info);
     results.push('"');
 }
 
@@ -279,6 +288,4 @@ fn push_text_component(
     };
 
     push_that_text_component(results, text, tag_info);
-
-    // tag_info.text_format = TextFormat::Text;
 }
