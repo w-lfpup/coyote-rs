@@ -17,9 +17,7 @@ pub fn compose_steps(
             StepKind::ElementClosed => close_element(results, tag_info_stack),
             StepKind::EmptyElementClosed => close_empty_element(results, tag_info_stack),
             StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
-            StepKind::TailElementClosed => {
-                // actually pop element, make template balanced
-            }
+            StepKind::TailElementClosed => close_tail_tag(results, tag_info_stack),
             StepKind::Text => push_text(results, tag_info_stack, rules, template_str, step),
             StepKind::TextAlt => push_alt_text(results, tag_info_stack, rules, template_str, step),
             StepKind::TextSpace => {
@@ -237,7 +235,11 @@ fn pop_element(
     template_str: &str,
     step: &Step,
 ) {
-    let tag_info = match stack.pop() {
+    if stack.len() < 2 {
+        return;
+    }
+
+    let tag_info = match stack.last() {
         Some(ti) => ti,
         _ => {
             // never happens
@@ -259,34 +261,50 @@ fn pop_element(
         closed_tag = close_tag;
     }
 
+    // mismatched tags, bail
     if closed_tag != tag_info.tag {
         return;
     }
 
-    // push_space_for_pop_element(results, stack.len(), &tag_info);
-    let prev_tag_info = match stack.last_mut() {
-        Some(prev_tag_info) => prev_tag_info,
+    if tag_info.void_el {
+        return;
+    }
+
+    if let (None, None) = (
+        rules.get_alt_text_tag_from_close_sequence(tag),
+        rules.get_contentless_tag_from_close_sequence(tag),
+    ) {
+        if let Some(prev_tag_info) = stack.get(stack.len() - 2) {
+            push_space_on_pop(results, &prev_tag_info, &tag_info);
+        };
+    }
+
+    // better if else here
+    match tag == closed_tag {
+        true => {
+            results.push_str("</");
+            results.push_str(tag);
+        }
+        _ => results.push_str(tag),
+    }
+}
+
+fn close_tail_tag(results: &mut String, stack: &mut Vec<TagInfo>) {
+    let tag_info = match stack.pop() {
+        Some(tag_info) => tag_info,
         _ => return,
     };
 
-    if !tag_info.void_el {
-        if let (None, None) = (
-            rules.get_alt_text_tag_from_close_sequence(tag),
-            rules.get_contentless_tag_from_close_sequence(tag),
-        ) {
-            push_space_on_pop(results, &prev_tag_info, &tag_info);
-        }
-
-        // better if else here
-        if tag == closed_tag {
-            results.push_str("</");
-            results.push_str(tag);
-        } else {
-            results.push_str(tag);
-        }
+    if tag_info.banned_path {
+        return;
     }
 
-    results.push('>');
+    results.push_str(">");
+
+    let prev_tag_info = match stack.last_mut() {
+        Some(tag_info) => tag_info,
+        _ => return,
+    };
 
     prev_tag_info.text_format = TextFormat::Text;
 }

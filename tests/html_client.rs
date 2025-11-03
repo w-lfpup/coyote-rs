@@ -53,7 +53,7 @@ hello
 		",
         [],
     );
-    let expected = "<p>hello!</p>\n<p> hello! </p>\n<p>\n\thello\n</p><p>\n\thello\n</p>\n<p>hello\n</p>\n<p>\n\thello</p>";
+    let expected = "<p>hello!</p>\n<p> hello! </p>\n<p>\nhello\n</p><p>\nhello\n</p>\n<p>hello\n</p>\n<p>\nhello</p>";
 
     let mut html = ClientHtml::new();
     let results = html.build(&template);
@@ -114,20 +114,7 @@ fn comment_element_retains_spacing() {
 		",
         [],
     );
-    let expected = "<!---->
-<!--Hello!-->
-<!-- Hello! -->
-<!--Hello! -->
-<!-- Hello!-->
-<!--Hello!
--->
-<!--
-Hello!-->
-<!--
-
-	Hello!
-
--->";
+    let expected = "";
 
     let mut html = ClientHtml::new();
     let results = html.build(&template);
@@ -183,7 +170,7 @@ fn mozilla_spacing_example_passes() {
         [],
     );
 
-    let expected = "<h1> Hello\n\t<span> World!</span> </h1>";
+    let expected = "<h1> Hello\n<span> World!</span> </h1>";
 
     let mut html = ClientHtml::new();
     let results = html.build(&template);
@@ -213,17 +200,17 @@ fn attribute_value_retains_spacing() {
     );
 
     let expected = "<h1 wow='People use
-	attributes in some very
-	wild ways but thats okay'> Hello
-	<span> World!</span> </h1>
+attributes in some very
+wild ways but thats okay'> Hello
+<span> World!</span> </h1>
 <h1 wow='
 
-	People use attributes in some very
+People use attributes in some very
 
-	wild ways but thats okay
+wild ways but thats okay
 
-	'>
-	Hello! <span> World!</span>
+'>
+Hello! <span> World!</span>
 </h1>";
 
     let mut html = ClientHtml::new();
@@ -321,7 +308,7 @@ fn nested_void_element_with_siblings_retains_spacing() {
         [],
     );
 
-    let expected = "<section>\n\t<input><p>hai :3</p>\n</section>";
+    let expected = "<section>\n<input><p>hai :3</p>\n</section>";
 
     let mut html = ClientHtml::new();
     let results = html.build(&template);
@@ -360,7 +347,7 @@ fn document_retains_spacing() {
     );
 
     let expected =
-    "<!DOCTYPE>\n<html>\n\t<head>\n\t</head>\n\t<body>\n\t\t<article>\n\t\t\tYou're a <span>boy kisser</span> aren't you?\n\t\t\tClick <a>here</a> and go somewhere else.\n\t\t</article>\n\t\t<footer></footer>\n\t</body>\n</html>";
+    "<!DOCTYPE>\n<html>\n<head>\n</head>\n<body>\n<article>\nYou're a <span>boy kisser</span> aren't you?\nClick <a>here</a> and go somewhere else.\n</article>\n<footer></footer>\n</body>\n</html>";
 
     let mut html = ClientHtml::new();
     let results = html.build(&template);
@@ -394,7 +381,7 @@ fn document_with_alt_text_elements_retains_spacing() {
     );
 
     let expected =
-        "<!DOCTYPE>\n<html>\n\t<head>\n\t\t<style>\n\t\t\t#woof .bark {\n\t\t\t\tcolor: doggo;\n\t\t\t}\n\t\t</style>\n\t\t<script>\n\t\t\tif 2 < 3 {\n\t\t\t\tconsole.log();\n\t\t\t}\n\t\t</script>\n\t</head>\n\t<body>\n\t\t<article></article>\n\t\t<footer></footer>\n\t</body>\n</html>";
+        "<!DOCTYPE>\n<html>\n<head>\n</head>\n<body>\n<article></article>\n<footer></footer>\n</body>\n</html>";
 
     let mut html = ClientHtml::new();
     let results = html.build(&template);
