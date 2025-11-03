@@ -9,8 +9,8 @@ Function components are functions that return components!
 ```rust
 use coyote::components::{Component, tmpl};
 
-fn hai() -> Component {
-    tmpl("<p>omgawsh hai :3</p>", [])
+fn hello_world() -> Component {
+    tmpl("<p>hai :3</p>", [])
 }
 ```
 
@@ -33,13 +33,43 @@ fn hai() -> Component {
 
 The most crtical component, the template component, uses a syntax similar to sql strings.
 
+## Tags, void elements, fragments
+
+`Coyote` templates can use self-closing tags, void elements, and jsx-like fragments:
+
+```rs
+fn syntax_story() -> Component {
+    tmpl("
+        <article>
+            <>
+                <p>no waaaay?</p>
+                <custom-element />
+                <input type=button value=\"high five! \" />
+            </>
+        </article>
+    ", [])
+}
+```
+
+However, `coyote` will only output w3-spec compliant HTML:
+
+```html
+<article>
+    <p>no waaaay?</p>
+    <custom-element></custom-element>
+    <input value=button value="high-five">
+</article>
+```
+
+This provides an robust template syntax while adhering modern HTML standards.
+
 ## Injections
 
-`Injections` create nested templates and attribute assignments.
+`Injections` create more complex components with template nesting and attribute assignments.
 
 There are only two valid _injections_ in a `tmpl` component:
-- attributes
-- descendants
+- attribute injections
+- descendant injections
 
 Likewise there are only two valid injection locations in a `tmpl` component:
 
@@ -60,9 +90,7 @@ Any other instance of `{}` in a template component will not be considered an inj
 
 ### Escape the `{` character
 
-To use a `{` in a template without creating a descendant injection, use the html escape charactor for a left bracket.
-
-It is the only requirement for `Coyote` that is not html standard.
+To use a `{` in a template without creating an injection, use the left-bracket html escape charactor `&123;`.
 
 So ...
 
@@ -76,41 +104,9 @@ in a template would be:
 tmpl("hellooo, &#123; world }"); 
 ```
 
-## Tags, void elements, fragments
+## Nested templates
 
-Speaking of standards, `Coyote-rs` supports self-closing tags, void elements, and fragments in templates:
-
-```rs
-fn syntax_story() -> Component {
-    tmpl("
-        <article>
-            <>
-                <p>no waaaay?</p>
-                <custom-element />
-                <input type=button value=\"high five! \" />
-            </>
-        </article>
-    ", [])
-}
-```
-
-However, `coyote-rs` will only output valid and correct HTML5:
-
-```html
-<article>
-    <p>
-        no waaaay?
-    </p>
-    <custom-element></custom-element>
-    <input value=button value="high-five">
-</article>
-```
-
-This provides an robust template syntax while adhering modern HTML5 standards.
-
-## Nested components
-
-The `list` and `vlist` components reflects the `node -> [node, text, node, ...]` heiarchy of an xml-like document.
+The `list` and `vlist` (vector list) components reflect the `node -> [node, text, node, ...]` heiarchy of an xml-like document.
 
 The example below creates a form defined by lists of attributes, templates, and text.
 

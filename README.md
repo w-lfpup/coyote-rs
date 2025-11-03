@@ -17,7 +17,7 @@ Create document fragments with coyote [components](./components.md).
 ```rust
 use coyote::{Component, tmpl};
 
-fn hai() -> Component {
+fn hello_world() -> Component {
     tmpl("<p>hai :3</p>", [])
 }
 ```
@@ -27,21 +27,13 @@ fn hai() -> Component {
 Render components as `html` with [document builders](./document_builders.md).
 
 ```rust
-use coyote::{Component, Html, tmpl};
+use coyote::Html;
 
-fn hai() -> Component {
-    tmpl("<p>hai :3</p>", [])
-}
+let html = Html::new();
 
-fn main() {
-    let hello_world = hai();
-    
-    let html = Html::new();
-
-    if let Ok(document) = html.build(&hello_world) {
-        println!("{}", document);
-    }; 
-}
+if let Ok(document) = html.build(&hello_world()) {
+    println!("{}", document);
+}; 
 ```
 
 The output will be:
