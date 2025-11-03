@@ -26,12 +26,13 @@ fn hello_world() -> Component {
 | Unescaped text | dangerously unescaped text | `unescaped_text(text_str: &str) -> Component` |
 | List | a list of components | `list(component_list: [Component, ...]) -> Component` |
 | Vector List | a vector of components | `vlist(component_vector_list: Vec<Component>) -> Component` |
-| Template | a document fragment described by a string template and a list or vector of injections | `tmpl(template_str: &str, injections: [Component, ...]) -> Component` |
+| Template | a document fragment described by a static string template and a list of injections | `tmpl(template_str: &'static str, injections: [Component, ...]) -> Component` |
+| Template String | a document fragment described by a string template and a list of injections | `tmpl_str(template_str: &str, injections: [Component, ...]) -> Component` |
 | None | the abscence of a component | `Component::None` |
 
 ## The template component
 
-TThe template component uses a syntax similar to sql string injections.
+The template component uses a syntax similar to sql string injections.
 
 ## Tags, void elements, fragments
 
@@ -152,8 +153,6 @@ Components are not quite HTML or XML.
 Components are an (I)ntermediate (R)endering (F)ormat.
 
 They are the _potential_ for a document like HTML or XML.
-
-`Components` are not coupled to any particular markup language or environment. Which makes `coyote` a particularly expressive way to create custom xml-like languages for custom use-cases.
 
 ## Document builders
 
