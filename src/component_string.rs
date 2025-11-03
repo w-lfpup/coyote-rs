@@ -12,7 +12,7 @@ use crate::text_components::{
 #[derive(Debug)]
 struct TemplateBit {
     pub inj_index: usize,
-    pub stack_depth: isize,
+    pub stack_depth: usize,
 }
 
 // Needed to track iteration across template steps and injections
@@ -94,7 +94,7 @@ pub fn compose_string(
                         );
                     }
                     _ => {
-                        if bit.stack_depth != tag_info_stack.len() as isize {
+                        if bit.stack_depth != tag_info_stack.len() {
                             return Err(
                                 "Coyote Err: the following template component is imbalanced:\n{:?}"
                                     .to_string()
@@ -167,7 +167,18 @@ fn get_bit_from_component_stack<'a>(
                 template_steps,
                 TemplateBit {
                     inj_index: 0,
-                    stack_depth: stack.len() as isize,
+                    stack_depth: stack.len(),
+                },
+            )
+        }
+        Component::TmplString(tmpl) => {
+            let template_steps = builder.build(rules, &tmpl.template_string);
+            StackBit::Tmpl(
+                cmpnt,
+                template_steps,
+                TemplateBit {
+                    inj_index: 0,
+                    stack_depth: stack.len(),
                 },
             )
         }
@@ -257,6 +268,10 @@ fn attr_is_valid(attr: &str) -> bool {
 
 // https://html.spec.whatwg.org/multipage/syntax.html#attributes-2
 fn forbidden_attr_glyph(glyph: char) -> bool {
+    if glyph.is_whitespace() {
+        return true;
+    }
+
     match glyph {
         '<' => true,
         '=' => true,

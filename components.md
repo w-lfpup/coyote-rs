@@ -31,7 +31,7 @@ fn hello_world() -> Component {
 
 ## The template component
 
-The most crtical component, the template component, uses a syntax similar to sql strings.
+TThe template component uses a syntax similar to sql string injections.
 
 ## Tags, void elements, fragments
 
@@ -44,7 +44,7 @@ fn syntax_story() -> Component {
             <>
                 <p>no waaaay?</p>
                 <custom-element />
-                <input type=button value=\"high five! \" />
+                <input type=button value='high five!' />
             </>
         </article>
     ", [])
@@ -114,7 +114,7 @@ The example below creates a form defined by lists of attributes, templates, and 
 use coyote::{Component, attr_val, list, text, tmpl};
 
 fn submit_button() -> Component {
-    tmpl("<input type=submit value=\"yus -_-\">", [])
+    tmpl("<input type=submit value='yus -_-'>", [])
 }
 
 fn form() -> Component {
@@ -128,7 +128,9 @@ fn form() -> Component {
     descendants.push(submit_button());
     
     tmpl(
-        "<form {}>{}</form>",
+        "<form {}>
+            {}
+        </form>",
         [list(attributes), vlist(descendants)],
     )
 }
