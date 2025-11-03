@@ -77,8 +77,8 @@ pub fn compose_string(
                 bit.inj_index += 1;
 
                 let tmpl_str = match cmpnt {
-                    Component::Tmpl(cmpnt) => cmpnt.template_str,
-                    Component::TmplString(cmpnt) => &cmpnt.template_string,
+                    Component::Tmpl(cmpnt) => cmpnt.template,
+                    Component::TmplString(cmpnt) => &cmpnt.template,
                     _ => continue,
                 };
 
@@ -161,7 +161,7 @@ fn get_bit_from_component_stack<'a>(
         Component::Text(_) => StackBit::Cmpnt(cmpnt),
         Component::List(_) => StackBit::Cmpnt(cmpnt),
         Component::Tmpl(tmpl) => {
-            let template_steps = builder.build(rules, &tmpl.template_str);
+            let template_steps = builder.build(rules, &tmpl.template);
             StackBit::Tmpl(
                 cmpnt,
                 template_steps,
@@ -172,7 +172,7 @@ fn get_bit_from_component_stack<'a>(
             )
         }
         Component::TmplString(tmpl) => {
-            let template_steps = builder.build(rules, &tmpl.template_string);
+            let template_steps = builder.build(rules, &tmpl.template);
             StackBit::Tmpl(
                 cmpnt,
                 template_steps,

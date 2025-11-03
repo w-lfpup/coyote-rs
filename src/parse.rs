@@ -352,7 +352,7 @@ mod tests {
         };
 
         if let Component::Tmpl(tmpl) = template {
-            let results = compose(&rules, &tmpl.template_str);
+            let results = compose(&rules, &tmpl.template);
             assert_eq!(expected, results);
         }
     }

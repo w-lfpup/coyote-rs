@@ -12,13 +12,13 @@ pub enum Component {
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Template {
-    pub template_str: &'static str,
+    pub template: &'static str,
     pub injections: Vec<Component>,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TemplateString {
-    pub template_string: String,
+    pub template: String,
     pub injections: Vec<Component>,
 }
 
@@ -26,14 +26,14 @@ pub struct TemplateString {
 // (considerably improves readability of component code)
 pub fn tmpl<const N: usize>(template_str: &'static str, injections: [Component; N]) -> Component {
     Component::Tmpl(Template {
-        template_str: template_str,
+        template: template_str,
         injections: Vec::from(injections),
     })
 }
 
 pub fn tmpl_str<const N: usize>(template_str: &str, injections: [Component; N]) -> Component {
     Component::TmplString(TemplateString {
-        template_string: template_str.to_string(),
+        template: template_str.to_string(),
         injections: Vec::from(injections),
     })
 }
