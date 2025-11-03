@@ -32,7 +32,7 @@ The output will be:
 `Coyote` composes templates with `rulesets`.
 
 The `ruleset` for `ClientHtml` removes elements like `<script>`, `<style>`, and `<link>`.
-It also removes unneccessary spaces.
+It also removes unneccessary tabs.
 
 ### Hello, safer world!
 

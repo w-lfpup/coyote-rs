@@ -26,12 +26,13 @@ fn hello_world() -> Component {
 | Unescaped text | dangerously unescaped text | `unescaped_text(text_str: &str) -> Component` |
 | List | a list of components | `list(component_list: [Component, ...]) -> Component` |
 | Vector List | a vector of components | `vlist(component_vector_list: Vec<Component>) -> Component` |
-| Template | a document fragment described by a string template and a list or vector of injections | `tmpl(template_str: &str, injections: [Component, ...]) -> Component` |
+| Template | a document fragment described by a static string template and a list of injections | `tmpl(template_str: &'static str, injections: [Component, ...]) -> Component` |
+| Template String | a document fragment described by a string template and a list of injections | `tmpl_str(template_str: &str, injections: [Component, ...]) -> Component` |
 | None | the abscence of a component | `Component::None` |
 
 ## The template component
 
-The most crtical component, the template component, uses a syntax similar to sql strings.
+The template component uses a syntax similar to sql string injections.
 
 ## Tags, void elements, fragments
 
@@ -44,7 +45,7 @@ fn syntax_story() -> Component {
             <>
                 <p>no waaaay?</p>
                 <custom-element />
-                <input type=button value=\"high five! \" />
+                <input type=button value='high five!' />
             </>
         </article>
     ", [])
@@ -114,7 +115,7 @@ The example below creates a form defined by lists of attributes, templates, and 
 use coyote::{Component, attr_val, list, text, tmpl};
 
 fn submit_button() -> Component {
-    tmpl("<input type=submit value=\"yus -_-\">", [])
+    tmpl("<input type=submit value='yus -_-'>", [])
 }
 
 fn form() -> Component {
@@ -128,7 +129,9 @@ fn form() -> Component {
     descendants.push(submit_button());
     
     tmpl(
-        "<form {}>{}</form>",
+        "<form {}>
+            {}
+        </form>",
         [list(attributes), vlist(descendants)],
     )
 }
@@ -150,8 +153,6 @@ Components are not quite HTML or XML.
 Components are an (I)ntermediate (R)endering (F)ormat.
 
 They are the _potential_ for a document like HTML or XML.
-
-`Components` are not coupled to any particular markup language or environment. Which makes `coyote` a particularly expressive way to create custom xml-like languages for custom use-cases.
 
 ## Document builders
 

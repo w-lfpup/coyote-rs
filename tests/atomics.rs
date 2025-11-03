@@ -1,4 +1,4 @@
-use coyote::{tmpl, Html};
+use coyote::{tmpl, tmpl_str, Html};
 
 #[test]
 fn text_element() {
@@ -56,6 +56,24 @@ fn fragment() {
 #[test]
 fn block_element_with_text() {
     let template = tmpl(
+        "
+		<p>
+            hello!
+        </p>
+		",
+        [],
+    );
+    let expected = "<p>\n\thello!\n</p>";
+
+    let mut html = Html::new();
+    let results = html.build(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn block_element_with_text_for_string() {
+    let template = tmpl_str(
         "
 		<p>
             hello!
