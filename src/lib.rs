@@ -11,12 +11,9 @@ mod template_builder;
 mod template_steps;
 mod text_components;
 
-pub use crate::components::attr;
-pub use crate::components::attr_val;
-pub use crate::components::list;
-pub use crate::components::text;
-pub use crate::components::tmpl;
-pub use crate::components::unescaped_text;
-pub use crate::components::vlist;
-pub use crate::components::Component;
+pub use rulesets::RulesetImpl;
+
+pub use crate::components::{
+    attr, attr_val, list, text, tmpl, tmpl_str, unescaped_text, vlist, Component,
+};
 pub use crate::document_builders::{ClientHtml, Html, Xml};

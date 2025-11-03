@@ -2,7 +2,7 @@ use crate::parse::{get_text_from_step, Step};
 use crate::routes::StepKind;
 use crate::rulesets::RulesetImpl;
 use crate::tag_info::{TagInfo, TextFormat};
-use crate::text_components::push_alt_text_component;
+use crate::text_components::{push_alt_text_component, push_multiline_attributes};
 
 pub fn compose_steps(
     rules: &dyn RulesetImpl,
@@ -17,6 +17,7 @@ pub fn compose_steps(
             StepKind::ElementClosed => close_element(results, tag_info_stack),
             StepKind::EmptyElementClosed => close_empty_element(results, tag_info_stack),
             StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
+            StepKind::TailElementClosed => close_tail_tag(results, tag_info_stack),
             StepKind::Text => push_text(results, tag_info_stack, rules, template_str, step),
             StepKind::TextAlt => push_alt_text(results, tag_info_stack, rules, template_str, step),
             StepKind::TextSpace => {
@@ -33,7 +34,7 @@ pub fn compose_steps(
                 push_attr_value_unquoted(results, tag_info_stack, template_str, step)
             }
             StepKind::ElementSpace => {
-                push_element_space(results, tag_info_stack, rules, template_str, step)
+                push_text_space(results, tag_info_stack, rules, template_str, step)
             }
             StepKind::InjectionConfirmed => {
                 push_injection_confirmed(results, tag_info_stack, rules, template_str, step)
@@ -60,9 +61,7 @@ fn push_text(
         return;
     }
 
-    // push_space_for_text(results, stack_len, tag_info);
     push_space_on_text(results, &tag_info);
-
     tag_info.text_format = TextFormat::Text;
 
     let text = get_text_from_step(template_str, step);
@@ -91,39 +90,6 @@ fn push_alt_text(
     push_alt_text_component(results, text, tag_info);
 
     tag_info.text_format = TextFormat::Text;
-}
-
-fn push_element_space(
-    results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    _rules: &dyn RulesetImpl,
-    template_str: &str,
-    step: &Step,
-) {
-    let tag_info = match stack.last_mut() {
-        Some(curr) => curr,
-        // this should never happen
-        _ => return,
-    };
-
-    if tag_info.banned_path {
-        return;
-    }
-
-    let text = get_text_from_step(template_str, step);
-
-    if tag_info.preserved_text_path {
-        results.push_str(text);
-    }
-
-    if TextFormat::LineSpace == tag_info.text_format {
-        return;
-    }
-
-    match text.contains("\n") {
-        true => tag_info.text_format = TextFormat::LineSpace,
-        _ => tag_info.text_format = TextFormat::Space,
-    }
 }
 
 fn push_injection_confirmed(
@@ -217,21 +183,20 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
     }
 
     results.push_str(">");
-    tag_info.text_format = TextFormat::BlockClose;
+    tag_info.text_format = TextFormat::Text;
 
-    if tag_info.void_el {
-        if let Some(info) = stack.pop() {
-            let prev_tag_info = match stack.last_mut() {
-                Some(tag_info) => tag_info,
-                _ => return,
-            };
-
-            prev_tag_info.text_format = TextFormat::BlockClose;
-            if info.inline_el {
-                prev_tag_info.text_format = TextFormat::InlineClose;
-            }
-        };
+    if !tag_info.void_el {
+        return;
     }
+
+    if let Some(_) = stack.pop() {
+        let prev_tag_info = match stack.last_mut() {
+            Some(tag_info) => tag_info,
+            _ => return,
+        };
+
+        prev_tag_info.text_format = TextFormat::Text;
+    };
 }
 
 fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
@@ -244,14 +209,15 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         return;
     }
 
-    if "html" != tag_info.namespace {
-        results.push_str("/>");
-    } else {
-        if !tag_info.void_el {
-            results.push_str("></");
-            results.push_str(&tag_info.tag);
+    match "html" != tag_info.namespace {
+        true => results.push_str("/>"),
+        _ => {
+            if !tag_info.void_el {
+                results.push_str("></");
+                results.push_str(&tag_info.tag);
+            }
+            results.push('>');
         }
-        results.push('>');
     }
 
     let prev_tag_info = match stack.last_mut() {
@@ -259,10 +225,7 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         _ => return,
     };
 
-    prev_tag_info.text_format = TextFormat::BlockClose;
-    if tag_info.inline_el {
-        prev_tag_info.text_format = TextFormat::InlineClose;
-    }
+    prev_tag_info.text_format = TextFormat::Text;
 }
 
 fn pop_element(
@@ -272,7 +235,11 @@ fn pop_element(
     template_str: &str,
     step: &Step,
 ) {
-    let tag_info = match stack.pop() {
+    if stack.len() < 2 {
+        return;
+    }
+
+    let tag_info = match stack.last() {
         Some(ti) => ti,
         _ => {
             // never happens
@@ -287,53 +254,59 @@ fn pop_element(
     let tag = get_text_from_step(template_str, step);
     let mut closed_tag = tag;
     if let Some(close_tag) = rules.get_alt_text_tag_from_close_sequence(tag) {
-        println!("popped alt element: {}", close_tag);
         closed_tag = close_tag;
     }
 
     if let Some(close_tag) = rules.get_contentless_tag_from_close_sequence(tag) {
-        println!("popped contentless element: {}", close_tag);
         closed_tag = close_tag;
     }
 
-    println!(
-        "starting pop logic with:\ntag_info_tag: {}\ntag: {}\nclose_tag: {}",
-        tag_info.tag, tag, closed_tag
-    );
-
+    // mismatched tags, bail
     if closed_tag != tag_info.tag {
         return;
     }
 
-    // push_space_for_pop_element(results, stack.len(), &tag_info);
-    let prev_tag_info = match stack.last_mut() {
-        Some(prev_tag_info) => prev_tag_info,
+    if tag_info.void_el {
+        return;
+    }
+
+    if let (None, None) = (
+        rules.get_alt_text_tag_from_close_sequence(tag),
+        rules.get_contentless_tag_from_close_sequence(tag),
+    ) {
+        if let Some(prev_tag_info) = stack.get(stack.len() - 2) {
+            push_space_on_pop(results, &prev_tag_info, &tag_info);
+        };
+    }
+
+    // better if else here
+    match tag == closed_tag {
+        true => {
+            results.push_str("</");
+            results.push_str(tag);
+        }
+        _ => results.push_str(tag),
+    }
+}
+
+fn close_tail_tag(results: &mut String, stack: &mut Vec<TagInfo>) {
+    let tag_info = match stack.pop() {
+        Some(tag_info) => tag_info,
         _ => return,
     };
 
-    if !tag_info.void_el {
-        if let (None, None) = (
-            rules.get_alt_text_tag_from_close_sequence(tag),
-            rules.get_contentless_tag_from_close_sequence(tag),
-        ) {
-            println!("about to pop an alt tag: {}", tag);
-            push_space_on_pop(results, &prev_tag_info, &tag_info);
-        }
-
-        if tag == closed_tag {
-            results.push_str("</");
-            results.push_str(tag);
-        } else {
-            results.push_str(tag);
-        }
+    if tag_info.banned_path {
+        return;
     }
 
-    results.push('>');
+    results.push_str(">");
 
-    prev_tag_info.text_format = TextFormat::BlockClose;
-    if tag_info.inline_el {
-        prev_tag_info.text_format = TextFormat::InlineClose;
-    }
+    let prev_tag_info = match stack.last_mut() {
+        Some(tag_info) => tag_info,
+        _ => return,
+    };
+
+    prev_tag_info.text_format = TextFormat::Text;
 }
 
 fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
@@ -379,8 +352,8 @@ fn push_attr_value_single_quoted(
     }
 
     results.push_str("='");
-    let val = get_text_from_step(template_str, step);
-    results.push_str(val);
+    let text = get_text_from_step(template_str, step);
+    push_multiline_attributes(results, &text, tag_info);
     results.push('\'');
 }
 
@@ -400,8 +373,8 @@ fn push_attr_value_double_quoted(
     }
 
     results.push_str("=\"");
-    let val = get_text_from_step(template_str, step);
-    results.push_str(val);
+    let text = get_text_from_step(template_str, step);
+    push_multiline_attributes(results, &text, tag_info);
     results.push('"');
 }
 
@@ -420,9 +393,9 @@ fn push_attr_value_unquoted(
         return;
     }
 
-    let val = get_text_from_step(template_str, step);
+    let text = get_text_from_step(template_str, step);
     results.push('=');
-    results.push_str(val);
+    results.push_str(text);
 }
 
 fn push_space_on_text(results: &mut String, tag_info: &TagInfo) {
@@ -440,7 +413,6 @@ fn push_space_on_text(results: &mut String, tag_info: &TagInfo) {
     }
 }
 
-// need popped element
 fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &TagInfo) {
     if tag_info.preserved_text_path {
         return;

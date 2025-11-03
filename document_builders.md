@@ -9,16 +9,14 @@ The example below creates an html document from a coyote component function.
 ```rust
 use coyote::{Component, Html, tmpl};
 
-fn hai() -> Component {
+fn hello_world() -> Component {
     tmpl("<p>hai :3</p>", [])
 }
 
 fn main() {
-    let hello_world = hai();
-
     let html = Html::new();
 
-    if let Ok(document) = html.build(&hello_world) {
+    if let Ok(document) = html.build(&hello_world()) {
         println!("{}", document);
     }; 
 }
@@ -55,7 +53,7 @@ fn malicious_component() -> Component {
     ", [])
 }
 
-fn hai() -> Component {
+fn hello_world() -> Component {
     tmpl(
         "{}<p>hai >:3</p>",
         [malicious_component()],
@@ -63,7 +61,7 @@ fn hai() -> Component {
 }
 
 fn main() {
-    let hello_world = hai();
+    let hello_world = hello_world();
     
     let client_html = ClientHtml::new();    
     

@@ -93,33 +93,34 @@ hello
     assert_eq!(Ok(expected.to_string()), results);
 }
 
-// #[test]
-// fn comment_element_retains_spacing() {
-//     let template = tmpl(
-//         "
-// 		<!--Hello!-->
-// 		<!-- Hello! -->
-// 		<!--Hello! -->
-//         <!-- Hello!-->
-//         <!--Hello!
-//         -->
-//         <!--
-//         Hello!-->
-//         <!--
+#[test]
+fn comment_element_retains_spacing() {
+    let template = tmpl(
+        "
+		<!---->
+		<!--Hello!-->
+		<!-- Hello! -->
+		<!--Hello! -->
+		<!-- Hello!-->
+		<!--Hello!
+		-->
+		<!--
+		Hello!-->
+		<!--
 
-//             Hello!
+		Hello!
 
-//         -->
-// 		",
-//         [],
-//     );
-//     let expected = "<!--\n\n\tHello!\n\n-->";
+		-->
+		",
+        [],
+    );
+    let expected = "";
 
-//     let mut html = ClientHtml::new();
-//     let results = html.build(&template);
+    let mut html = ClientHtml::new();
+    let results = html.build(&template);
 
-//     assert_eq!(Ok(expected.to_string()), results);
-// }
+    assert_eq!(Ok(expected.to_string()), results);
+}
 
 #[test]
 fn empty_element_stays_empty() {
@@ -170,6 +171,47 @@ fn mozilla_spacing_example_passes() {
     );
 
     let expected = "<h1> Hello\n<span> World!</span> </h1>";
+
+    let mut html = ClientHtml::new();
+    let results = html.build(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn attribute_value_retains_spacing() {
+    let template = tmpl(
+        "
+		<h1 wow='People use
+			attributes in some very
+			wild ways but thats okay'>   Hello
+				<span> World!</span>   </h1>
+		<h1 wow='
+
+			People use attributes in some very
+
+			wild ways but thats okay
+	
+			'>
+			Hello! <span> World!</span>
+		</h1>
+		",
+        [],
+    );
+
+    let expected = "<h1 wow='People use
+attributes in some very
+wild ways but thats okay'> Hello
+<span> World!</span> </h1>
+<h1 wow='
+
+People use attributes in some very
+
+wild ways but thats okay
+
+'>
+Hello! <span> World!</span>
+</h1>";
 
     let mut html = ClientHtml::new();
     let results = html.build(&template);
