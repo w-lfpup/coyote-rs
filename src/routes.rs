@@ -29,7 +29,7 @@ pub enum StepKind {
     TailTag,
     Text,
     TextSpace,
-    // TextLineSpace,
+    TextLineSpace,
     TextAlt,
 }
 
@@ -201,19 +201,13 @@ fn get_kind_from_tail_element_space(glyph: char) -> StepKind {
 }
 
 fn get_kind_from_text(glyph: char) -> StepKind {
-    // if glyph.is_whitespace() {
-    //     return StepKind::TextSpace;
-    // }
-
     match glyph {
         '<' => StepKind::Element,
         '{' => StepKind::DescendantInjection,
         '\n' => StepKind::TextLineSpace,
-        _ => {
-            match glyph.is_whitespace() {
-                true => StepKind::TextSpace,
-                _ => StepKind::Text,
-            }
+        _ => match glyph.is_whitespace() {
+            true => StepKind::TextSpace,
+            _ => StepKind::Text,
         },
     }
 }
