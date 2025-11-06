@@ -13,8 +13,8 @@ pub enum StepKind {
     DescendantInjection,
     Element,
     ElementClosed,
+    ElementLineSpace,
     ElementSpace,
-    // ElementLineSpace,
     EmptyElement,
     EmptyElementClosed,
     Fragment,
@@ -28,9 +28,9 @@ pub enum StepKind {
     TailElementSpace,
     TailTag,
     Text,
-    TextSpace,
-    TextLineSpace,
     TextAlt,
+    TextLineSpace,
+    TextSpace,
 }
 
 // Names based roughly on:
@@ -50,6 +50,7 @@ pub fn route(glyph: char, prev_kind: &StepKind) -> StepKind {
         StepKind::AttrValueUnquoted => get_kind_from_attribute_value_unquoted(glyph),
         StepKind::DescendantInjection => get_kind_from_injection(glyph),
         StepKind::Element => get_kind_from_element(glyph),
+        StepKind::ElementLineSpace => get_kind_from_element_space(glyph),
         StepKind::ElementSpace => get_kind_from_element_space(glyph),
         StepKind::EmptyElement => get_kind_from_empty_element(glyph),
         StepKind::InjectionSpace => get_kind_from_injection(glyph),
@@ -62,16 +63,16 @@ pub fn route(glyph: char, prev_kind: &StepKind) -> StepKind {
 }
 
 fn get_kind_from_attribute(glyph: char) -> StepKind {
-    if glyph.is_whitespace() {
-        return StepKind::ElementSpace;
-    }
-
     match glyph {
         '=' => StepKind::AttrSetter,
         '>' => StepKind::ElementClosed,
         '/' => StepKind::EmptyElement,
         '{' => StepKind::AttrMapInjection,
-        _ => StepKind::Attr,
+        '\n' => StepKind::ElementLineSpace,
+        _ => match glyph.is_whitespace() {
+            true => StepKind::ElementSpace,
+            _ => StepKind::Attr,
+        },
     }
 }
 
@@ -100,7 +101,11 @@ fn get_kind_from_attribute_quote_closed(glyph: char) -> StepKind {
     match glyph {
         '>' => StepKind::ElementClosed,
         '/' => StepKind::EmptyElement,
-        _ => StepKind::ElementSpace,
+        '\n' => StepKind::ElementLineSpace,
+        _ => match glyph.is_whitespace() {
+            true => StepKind::ElementSpace,
+            _ => StepKind::Attr,
+        },
     }
 }
 
@@ -117,13 +122,13 @@ fn get_kind_from_attribute_setter(glyph: char) -> StepKind {
 }
 
 fn get_kind_from_attribute_value_unquoted(glyph: char) -> StepKind {
-    if glyph.is_whitespace() {
-        return StepKind::ElementSpace;
-    }
-
     match glyph {
         '>' => StepKind::ElementClosed,
-        _ => StepKind::AttrValueUnquoted,
+        '\n' => StepKind::ElementLineSpace,
+        _ => match glyph.is_whitespace() {
+            true => StepKind::ElementSpace,
+            _ => StepKind::AttrValueUnquoted,
+        },
     }
 }
 
@@ -140,15 +145,15 @@ fn get_kind_from_element(glyph: char) -> StepKind {
 }
 
 fn get_kind_from_element_space(glyph: char) -> StepKind {
-    if glyph.is_whitespace() {
-        return StepKind::ElementSpace;
-    }
-
     match glyph {
         '>' => StepKind::ElementClosed,
         '/' => StepKind::EmptyElement,
         '{' => StepKind::AttrMapInjection,
-        _ => StepKind::Attr,
+        '\n' => StepKind::ElementLineSpace,
+        _ => match glyph.is_whitespace() {
+            true => StepKind::ElementSpace,
+            _ => StepKind::Attr,
+        },
     }
 }
 
@@ -160,14 +165,14 @@ fn get_kind_from_empty_element(glyph: char) -> StepKind {
 }
 
 fn get_kind_from_tag(glyph: char) -> StepKind {
-    if glyph.is_whitespace() {
-        return StepKind::ElementSpace;
-    }
-
     match glyph {
         '>' => StepKind::ElementClosed,
         '/' => StepKind::EmptyElement,
-        _ => StepKind::Tag,
+        '\n' => StepKind::ElementLineSpace,
+        _ => match glyph.is_whitespace() {
+            true => StepKind::ElementSpace,
+            _ => StepKind::Tag,
+        },
     }
 }
 
