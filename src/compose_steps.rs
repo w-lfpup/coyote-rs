@@ -67,8 +67,8 @@ fn push_text(
         return;
     }
 
-    push_space_on_text(results, &tag_info);
     let text = get_text_from_step(template_str, step);
+    push_space_on_text(results, &tag_info);
     results.push_str(text);
 
     tag_info.text_format = TextFormat::Text;
@@ -141,11 +141,8 @@ fn push_text_space(
         return;
     }
 
-    if TextFormat::Initial == tag_info.text_format {
-        return;
-    }
-
-    if TextFormat::LineSpace == tag_info.text_format {
+    if TextFormat::Initial == tag_info.text_format || TextFormat::LineSpace == tag_info.text_format
+    {
         return;
     }
 
@@ -178,7 +175,7 @@ fn push_element(
     };
 
     let tag = get_text_from_step(template_str, step);
-    let next_tag_info = TagInfo::from(rules, tag_info, tag);
+    let tag_info = TagInfo::from(rules, tag_info, tag);
 
     if !next_tag_info.banned_path {
         push_space_on_text(results, &tag_info);
@@ -226,13 +223,14 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
 
     match "html" != tag_info.namespace {
         true => results.push_str("/>"),
-        _ => {
-            if !tag_info.void_el {
+        _ => match tag_info.void_el {
+            true => results.push('>'),
+            _ => {
                 results.push_str("></");
                 results.push_str(&tag_info.tag);
+                results.push('>');
             }
-            results.push('>');
-        }
+        },
     }
 
     let prev_tag_info = match stack.last_mut() {
@@ -366,8 +364,8 @@ fn push_attr_value_single_quoted(
         return;
     }
 
-    results.push_str("='");
     let text = get_text_from_step(template_str, step);
+    results.push_str("='");
     push_multiline_attributes(results, &text, tag_info);
     results.push('\'');
 }
@@ -387,8 +385,8 @@ fn push_attr_value_double_quoted(
         return;
     }
 
-    results.push_str("=\"");
     let text = get_text_from_step(template_str, step);
+    results.push_str("=\"");
     push_multiline_attributes(results, &text, tag_info);
     results.push('"');
 }

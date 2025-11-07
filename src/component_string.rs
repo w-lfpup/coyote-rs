@@ -82,7 +82,7 @@ pub fn compose_string(
                     _ => continue,
                 };
 
-                // add current template chunk
+                // template chunk
                 match template.steps.get(index) {
                     Some(chunk) => {
                         compose_steps(
@@ -104,13 +104,13 @@ pub fn compose_string(
                     }
                 }
 
+                // add injections
                 let injections = match cmpnt {
                     Component::Tmpl(cmpnt) => &cmpnt.injections,
                     Component::TmplString(cmpnt) => &cmpnt.injections,
                     _ => continue,
                 };
 
-                // add injections
                 if let (Some(inj_step), Some(inj)) =
                     (template.injs.get(index), injections.get(index))
                 {
@@ -122,6 +122,7 @@ pub fn compose_string(
                                 return Err(e);
                             };
                         }
+
                         // push template injection and bail early
                         StepKind::DescendantInjection => {
                             component_stack.push(cmpnt_bit);
