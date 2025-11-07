@@ -175,7 +175,7 @@ fn push_element(
     };
 
     let tag = get_text_from_step(template_str, step);
-    let tag_info = TagInfo::from(rules, tag_info, tag);
+    let next_tag_info = TagInfo::from(rules, tag_info, tag);
 
     if !next_tag_info.banned_path {
         push_space_on_text(results, &tag_info);

@@ -1,4 +1,4 @@
-use coyote::{tmpl, tmpl_str, Html};
+use coyote::{tmpl, tmpl_string, Html};
 
 #[test]
 fn text_element() {
@@ -73,12 +73,13 @@ fn block_element_with_text() {
 
 #[test]
 fn block_element_with_text_for_string() {
-    let template = tmpl_str(
+    let template = tmpl_string(
         "
 		<p>
             hello!
         </p>
-		",
+		"
+        .to_string(),
         [],
     );
     let expected = "<p>\n\thello!\n</p>";
