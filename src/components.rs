@@ -31,9 +31,9 @@ pub fn tmpl<const N: usize>(template_str: &'static str, injections: [Component; 
     })
 }
 
-pub fn tmpl_str<const N: usize>(template_str: &str, injections: [Component; N]) -> Component {
+pub fn tmpl_string<const N: usize>(template: String, injections: [Component; N]) -> Component {
     Component::TmplString(TemplateString {
-        template: template_str.to_string(),
+        template,
         injections: Vec::from(injections),
     })
 }

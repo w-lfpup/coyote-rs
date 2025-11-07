@@ -20,6 +20,9 @@ pub fn compose_steps(
             StepKind::TailElementClosed => close_tail_tag(results, tag_info_stack),
             StepKind::Text => push_text(results, tag_info_stack, rules, template_str, step),
             StepKind::TextAlt => push_alt_text(results, tag_info_stack, rules, template_str, step),
+            StepKind::TextLineSpace => {
+                push_text_space(results, tag_info_stack, rules, template_str, step)
+            }
             StepKind::TextSpace => {
                 push_text_space(results, tag_info_stack, rules, template_str, step)
             }
@@ -34,6 +37,9 @@ pub fn compose_steps(
                 push_attr_value_unquoted(results, tag_info_stack, template_str, step)
             }
             StepKind::ElementSpace => {
+                push_text_space(results, tag_info_stack, rules, template_str, step)
+            }
+            StepKind::ElementLineSpace => {
                 push_text_space(results, tag_info_stack, rules, template_str, step)
             }
             StepKind::InjectionConfirmed => {
@@ -61,11 +67,11 @@ fn push_text(
         return;
     }
 
-    push_space_on_text(results, &tag_info);
-    tag_info.text_format = TextFormat::Text;
-
     let text = get_text_from_step(template_str, step);
+    push_space_on_text(results, &tag_info);
     results.push_str(text);
+
+    tag_info.text_format = TextFormat::Text;
 }
 
 // SET SOME KIND OF TEXT FORMAT
@@ -129,19 +135,27 @@ fn push_text_space(
         return;
     }
 
-    let text = get_text_from_step(template_str, step);
-
     if tag_info.preserved_text_path {
+        let text = get_text_from_step(template_str, step);
         results.push_str(text);
-    }
-
-    if TextFormat::Initial == tag_info.text_format {
         return;
     }
 
-    tag_info.text_format = TextFormat::Space;
-    if text.contains("\n") {
-        tag_info.text_format = TextFormat::LineSpace;
+    if TextFormat::Initial == tag_info.text_format || TextFormat::LineSpace == tag_info.text_format
+    {
+        return;
+    }
+
+    match step.kind {
+        StepKind::ElementLineSpace => {
+            tag_info.text_format = TextFormat::LineSpace;
+        }
+        StepKind::TextLineSpace => {
+            tag_info.text_format = TextFormat::LineSpace;
+        }
+        _ => {
+            tag_info.text_format = TextFormat::Space;
+        }
     }
 }
 
@@ -178,12 +192,10 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         _ => return,
     };
 
-    if tag_info.banned_path {
-        return;
+    if !tag_info.banned_path {
+        results.push_str(">");
+        tag_info.text_format = TextFormat::Text;
     }
-
-    results.push_str(">");
-    tag_info.text_format = TextFormat::Text;
 
     if !tag_info.void_el {
         return;
@@ -211,13 +223,14 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
 
     match "html" != tag_info.namespace {
         true => results.push_str("/>"),
-        _ => {
-            if !tag_info.void_el {
+        _ => match tag_info.void_el {
+            true => results.push('>'),
+            _ => {
                 results.push_str("></");
                 results.push_str(&tag_info.tag);
+                results.push('>');
             }
-            results.push('>');
-        }
+        },
     }
 
     let prev_tag_info = match stack.last_mut() {
@@ -351,8 +364,8 @@ fn push_attr_value_single_quoted(
         return;
     }
 
-    results.push_str("='");
     let text = get_text_from_step(template_str, step);
+    results.push_str("='");
     push_multiline_attributes(results, &text, tag_info);
     results.push('\'');
 }
@@ -372,8 +385,8 @@ fn push_attr_value_double_quoted(
         return;
     }
 
-    results.push_str("=\"");
     let text = get_text_from_step(template_str, step);
+    results.push_str("=\"");
     push_multiline_attributes(results, &text, tag_info);
     results.push('"');
 }
