@@ -21,14 +21,14 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
     let mut tag: &str = "";
     let mut inj_kind = intial_kind;
     let mut sliding_window: Option<SlidingWindow> = None;
-    let mut contentless_edge = false;
+    let mut contentless = false;
 
     for (index, glyph) in template_str.char_indices() {
         let mut next_step_origin = index;
 
         // <!--comment_edge_case-->
-        if contentless_edge {
-            contentless_edge = false;
+        if contentless {
+            contentless = false;
             if let Err(_) = push_contentless_steps_edge(rules, &mut steps, tag, index) {
                 return steps;
             };
@@ -106,7 +106,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
                         }
 
                         match slider.slide(glyph) {
-                            true => contentless_edge = true,
+                            true => contentless = true,
                             _ => sliding_window = Some(slider),
                         }
                     }
