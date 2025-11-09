@@ -186,6 +186,7 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
     let common_space_index = get_largest_common_space_index(middle_lines);
     for line in middle_lines {
         results.push('\n');
+
         let first_char_index = get_index_of_first_char(line);
         if line.len() == first_char_index {
             continue;
