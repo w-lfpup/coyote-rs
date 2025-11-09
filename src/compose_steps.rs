@@ -274,7 +274,7 @@ fn pop_element(
         closed_tag = close_tag;
     }
 
-    // mismatched tags, bail
+    // mismatched tags? bail
     if closed_tag != tag_info.tag {
         return;
     }
@@ -349,6 +349,26 @@ fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
     tag_info.text_format = TextFormat::Text
 }
 
+fn push_attr_value_unquoted(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    template_str: &str,
+    step: &Step,
+) {
+    let tag_info = match stack.last() {
+        Some(curr) => curr,
+        _ => return,
+    };
+
+    if tag_info.banned_path {
+        return;
+    }
+
+    let text = get_text_from_step(template_str, step);
+    results.push('=');
+    results.push_str(text);
+}
+
 fn push_attr_value_single_quoted(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
@@ -389,26 +409,6 @@ fn push_attr_value_double_quoted(
     results.push_str("=\"");
     push_multiline_attributes(results, &text, tag_info);
     results.push('"');
-}
-
-fn push_attr_value_unquoted(
-    results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    template_str: &str,
-    step: &Step,
-) {
-    let tag_info = match stack.last() {
-        Some(curr) => curr,
-        _ => return,
-    };
-
-    if tag_info.banned_path {
-        return;
-    }
-
-    let text = get_text_from_step(template_str, step);
-    results.push('=');
-    results.push_str(text);
 }
 
 fn push_space_on_text(results: &mut String, tag_info: &TagInfo) {

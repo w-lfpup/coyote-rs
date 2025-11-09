@@ -1,12 +1,12 @@
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Component {
-    UnescapedText(String),
-    Text(String),
     Attr(String),
     AttrVal(String, String),
+    List(Vec<Component>),
+    Text(String),
     Tmpl(Template),
     TmplString(TemplateString),
-    List(Vec<Component>),
+    UnescapedText(String),
     None,
 }
 
