@@ -146,7 +146,6 @@ impl RulesetImpl for HtmlOnlyRules {
 
     fn tag_is_banned_el(&self, tag: &str) -> bool {
         match tag {
-            "!--" => true,
             "link" => true,
             "script" => true,
             "style" => true,

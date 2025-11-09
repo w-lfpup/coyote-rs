@@ -114,7 +114,7 @@ fn comment_element_retains_spacing() {
 		",
         [],
     );
-    let expected = "";
+    let expected = "<!---->\n<!--Hello!-->\n<!-- Hello! -->\n<!--Hello! -->\n<!-- Hello!-->\n<!--Hello!\n-->\n<!--\nHello!-->\n<!--\n\nHello!\n\n-->";
 
     let mut html = HtmlOnly::new();
     let results = html.build(&template);

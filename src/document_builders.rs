@@ -21,8 +21,7 @@ impl Html {
     }
 }
 
-// HTML ONLY
-// "safer" without styles, scripts, or links
+// HTML ONLY without styles, scripts, or links
 pub struct HtmlOnly {
     rules: HtmlOnlyRules,
     builder: Builder,

@@ -144,7 +144,7 @@ fn comment_element() {
 		",
         [],
     );
-    let expected = "";
+    let expected = "<!-- Hello! -->";
 
     let mut html = HtmlOnly::new();
     let results = html.build(&template);
