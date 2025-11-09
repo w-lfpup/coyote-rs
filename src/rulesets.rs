@@ -89,15 +89,15 @@ impl RulesetImpl for ServerRules {
     }
 }
 
-pub struct ClientRules {}
+pub struct HtmlOnlyRules {}
 
-impl ClientRules {
-    pub fn new() -> ClientRules {
-        ClientRules {}
+impl HtmlOnlyRules {
+    pub fn new() -> HtmlOnlyRules {
+        HtmlOnlyRules {}
     }
 }
 
-impl RulesetImpl for ClientRules {
+impl RulesetImpl for HtmlOnlyRules {
     fn get_initial_namespace(&self) -> &str {
         "html"
     }
