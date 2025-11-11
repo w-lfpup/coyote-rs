@@ -78,8 +78,7 @@ fn block_element_with_text_for_string() {
 		<p>
             hello!
         </p>
-		"
-        .to_string(),
+		",
         [],
     );
     let expected = "<p>\n\thello!\n</p>";
