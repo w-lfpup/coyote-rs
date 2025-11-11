@@ -16,4 +16,4 @@ pub use rulesets::RulesetImpl;
 pub use crate::components::{
     attr, attr_val, list, text, tmpl, tmpl_string, unescaped_text, vlist, Component,
 };
-pub use crate::document_builders::{ClientHtml, Html, Xml};
+pub use crate::document_builders::{Html, HtmlOnly, Xml};

@@ -94,6 +94,8 @@ pub fn compose_string(
                         );
                     }
                     _ => {
+                        // at the end of template
+                        // if stack depth does not match tag_infor_stack depth
                         if bit.stack_depth != tag_info_stack.len() {
                             return Err(
                                 "Coyote Err: the following template component is imbalanced:\n{:?}"

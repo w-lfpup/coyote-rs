@@ -89,15 +89,15 @@ impl RulesetImpl for ServerRules {
     }
 }
 
-pub struct ClientRules {}
+pub struct HtmlOnlyRules {}
 
-impl ClientRules {
-    pub fn new() -> ClientRules {
-        ClientRules {}
+impl HtmlOnlyRules {
+    pub fn new() -> HtmlOnlyRules {
+        HtmlOnlyRules {}
     }
 }
 
-impl RulesetImpl for ClientRules {
+impl RulesetImpl for HtmlOnlyRules {
     fn get_initial_namespace(&self) -> &str {
         "html"
     }
@@ -146,7 +146,6 @@ impl RulesetImpl for ClientRules {
 
     fn tag_is_banned_el(&self, tag: &str) -> bool {
         match tag {
-            "!--" => true,
             "link" => true,
             "script" => true,
             "style" => true,

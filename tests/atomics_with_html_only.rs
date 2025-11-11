@@ -1,4 +1,4 @@
-use coyote::{tmpl, ClientHtml};
+use coyote::{tmpl, HtmlOnly};
 
 #[test]
 fn text_element() {
@@ -13,7 +13,7 @@ fn text_element() {
     );
     let expected = "Beasts tread\nsoftly underfoot.";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -30,7 +30,7 @@ fn empty_element() {
     );
     let expected = "<p>\n</p>";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -47,7 +47,7 @@ fn fragment() {
     );
     let expected = "";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -65,7 +65,7 @@ fn block_element_with_text() {
     );
     let expected = "<p>\nhello!\n</p>";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -81,7 +81,7 @@ fn inline_element_with_text() {
     );
     let expected = "<b> hello! </b>";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -97,7 +97,7 @@ fn void_element() {
     );
     let expected = "<input>";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -113,7 +113,7 @@ fn void_element_with_self_closing() {
     );
     let expected = "<input>";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -129,7 +129,7 @@ fn non_void_element() {
     );
     let expected = "<p></p>";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -144,9 +144,9 @@ fn comment_element() {
 		",
         [],
     );
-    let expected = "";
+    let expected = "<!-- Hello! -->";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -162,7 +162,7 @@ fn alt_text_element() {
     );
     let expected = "";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -180,7 +180,7 @@ fn alt_element_has_no_descendants() {
     );
     let expected = "";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -200,7 +200,7 @@ fn preserved_text_element_retains_spacing() {
 
     let expected = "<pre>\n\tU w U\n\t  woof woof!\n</pre>";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -211,7 +211,7 @@ fn attribute() {
     let template = tmpl("<span hai>UwU</span>", []);
     let expected = "<span hai>UwU</span>";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -222,7 +222,7 @@ fn attribute_with_single_quote() {
     let template = tmpl("<span hai=''>UwU</span>", []);
     let expected = "<span hai>UwU</span>";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -233,7 +233,7 @@ fn attribute_with_double_quote() {
     let template = tmpl("<span hai=\"\">UwU</span>", []);
     let expected = "<span hai>UwU</span>";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -244,7 +244,7 @@ fn attribute_with_single_quote_value() {
     let template = tmpl("<span hai='hewoo'>UwU</span>", []);
     let expected = "<span hai='hewoo'>UwU</span>";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
@@ -255,7 +255,7 @@ fn attribute_with_double_quote_value() {
     let template = tmpl("<span hai=\"hewoo\">UwU</span>", []);
     let expected = "<span hai=\"hewoo\">UwU</span>";
 
-    let mut html = ClientHtml::new();
+    let mut html = HtmlOnly::new();
     let results = html.build(&template);
 
     assert_eq!(Ok(expected.to_string()), results);

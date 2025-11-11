@@ -71,7 +71,7 @@ pub fn push_alt_text_component(results: &mut String, text: &str, tag_info: &TagI
         return;
     }
 
-    let texts: Vec<&str> = text.split("\n").collect();
+    let texts: Vec<&str> = text.lines().collect();
     if 0 == texts.len() {
         return;
     }
@@ -105,7 +105,13 @@ pub fn push_alt_text_component(results: &mut String, text: &str, tag_info: &TagI
     // last
     let last = texts[texts.len() - 1];
     results.push('\n');
-    results.push_str(&"\t".repeat(tag_info.indent_count - 1));
+
+    let indent_offset = match tag_info.inline_el {
+        true => 0,
+        _ => 1,
+    };
+
+    results.push_str(&"\t".repeat(tag_info.indent_count - indent_offset));
     results.push_str(last.trim())
 }
 
@@ -119,7 +125,7 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
         return;
     }
 
-    let texts: Vec<&str> = text.split("\n").collect();
+    let texts: Vec<&str> = text.lines().collect();
     if 0 == texts.len() {
         return;
     }
@@ -164,7 +170,7 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
         return;
     }
 
-    let texts: Vec<&str> = text.split("\n").collect();
+    let texts: Vec<&str> = text.lines().collect();
     if 0 == texts.len() {
         return;
     }
@@ -180,11 +186,13 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
     let common_space_index = get_largest_common_space_index(middle_lines);
     for line in middle_lines {
         results.push('\n');
-        if line.len() == get_index_of_first_char(line) {
+
+        let first_char_index = get_index_of_first_char(line);
+        if line.len() == first_char_index {
             continue;
         }
 
-        match get_index_of_first_char(line) {
+        match first_char_index {
             0 => {
                 if 0 < line.len() {
                     results.push_str(&"\t".repeat(tag_info.indent_count));

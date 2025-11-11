@@ -1,5 +1,7 @@
 # Document Builders
 
+`Coyote` renders templates with `rulesets` and `document builders`.
+
 ## Html
 
 ### Hello, world!
@@ -27,21 +29,23 @@ The output will be:
 <p>hai :3</p>
 ```
 
-## Client Html
-
-`Coyote` composes templates with `rulesets`.
-
-The `ruleset` for `ClientHtml` removes elements like `<script>`, `<style>`, and `<link>`.
-It also removes unneccessary tabs.
+## Html Only
 
 ### Hello, safer world!
 
-The example below creates a _safer_ fragment for client-side renders using `ClientHtml`. 
+The example below creates a _safer_ fragment for client-side renders using `HtmlOnly`.
 
 ```rust
-use coyote::{ClientHtml, Component, tmpl};
+use coyote::{HtmlOnly, Component, tmpl};
 
-fn malicious_component() -> Component {
+fn hello_world() -> Component {
+    tmpl(
+        "<p>hai {} >:3</p>",
+        [malicious()],
+    )
+}
+
+fn malicious() -> Component {
     tmpl("
         <link rel=stylesheet href=malicious_stylesheet.css>
         <style>
@@ -53,17 +57,10 @@ fn malicious_component() -> Component {
     ", [])
 }
 
-fn hello_world() -> Component {
-    tmpl(
-        "{}<p>hai >:3</p>",
-        [malicious_component()],
-    )
-}
-
 fn main() {
     let hello_world = hello_world();
     
-    let client_html = ClientHtml::new();    
+    let client_html = HtmlOnly::new();    
     
     if let Ok(document) = client_html.build(&hello_world) {
         println!("{}", document);

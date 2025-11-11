@@ -1,12 +1,12 @@
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Component {
-    UnescapedText(String),
-    Text(String),
     Attr(String),
     AttrVal(String, String),
+    List(Vec<Component>),
+    Text(String),
     Tmpl(Template),
     TmplString(TemplateString),
-    List(Vec<Component>),
+    UnescapedText(String),
     None,
 }
 
@@ -31,9 +31,9 @@ pub fn tmpl<const N: usize>(template_str: &'static str, injections: [Component; 
     })
 }
 
-pub fn tmpl_string<const N: usize>(template: String, injections: [Component; N]) -> Component {
+pub fn tmpl_string<const N: usize>(template: &str, injections: [Component; N]) -> Component {
     Component::TmplString(TemplateString {
-        template,
+        template: template.to_string(),
         injections: Vec::from(injections),
     })
 }
