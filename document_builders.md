@@ -38,7 +38,14 @@ The example below creates a _safer_ fragment for client-side renders using `Html
 ```rust
 use coyote::{HtmlOnly, Component, tmpl};
 
-fn malicious_component() -> Component {
+fn hello_world() -> Component {
+    tmpl(
+        "<p>hai {} >:3</p>",
+        [malicious()],
+    )
+}
+
+fn malicious() -> Component {
     tmpl("
         <link rel=stylesheet href=malicious_stylesheet.css>
         <style>
@@ -48,13 +55,6 @@ fn malicious_component() -> Component {
             console.log('malicious! rawr!');
         </script>
     ", [])
-}
-
-fn hello_world() -> Component {
-    tmpl(
-        "{}<p>hai >:3</p>",
-        [malicious_component()],
-    )
 }
 
 fn main() {
