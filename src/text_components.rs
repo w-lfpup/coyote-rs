@@ -125,12 +125,12 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
     match tag_info.text_format {
         TextFormat::LineSpace => {
             results.push('\n');
-            if 0 < first_line.len() {
+            if 0 != first_line.len() {
                 results.push_str(&"\t".repeat(tag_info.indent_count));
             }
         }
         TextFormat::Space => {
-            if 0 < first_line.len() {
+            if 0 != first_line.len() {
                 results.push(' ');
             }
         }
@@ -182,19 +182,8 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
         if line.len() == first_char_index {
             continue;
         }
-
-        match first_char_index {
-            0 => {
-                if 0 < line.len() {
-                    results.push_str(&"\t".repeat(tag_info.indent_count));
-                    push_line_of_text(results, line);
-                }
-            }
-            _ => {
-                results.push_str(&"\t".repeat(tag_info.indent_count));
-                push_line_of_text(results, &line[common_space_index..])
-            }
-        }
+        results.push_str(&"\t".repeat(tag_info.indent_count));
+        push_line_of_text(results, &line[common_space_index..])
     }
 
     // last
