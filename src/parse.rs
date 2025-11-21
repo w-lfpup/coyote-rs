@@ -253,7 +253,7 @@ mod tests {
 
     use crate::components::{attr_val, list, text, tmpl, Component};
     use crate::routes::StepKind;
-    use crate::rulesets::ServerRules;
+    use crate::rulesets::HtmlRules;
     use crate::template_steps::{compose, Results};
 
     fn woof() -> Component {
@@ -270,7 +270,7 @@ mod tests {
 
     #[test]
     fn test_parse_str() {
-        let rules = ServerRules::new();
+        let rules = HtmlRules::new();
 
         let template = woof_woof();
         let expected = Results {

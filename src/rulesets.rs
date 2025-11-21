@@ -1,3 +1,6 @@
+// What if Enums
+//
+
 pub trait RulesetImpl {
     fn get_initial_namespace(&self) -> &str;
     fn tag_prefix_of_contentless(&self, tag: &str) -> Option<&str>;
@@ -13,15 +16,15 @@ pub trait RulesetImpl {
     fn tag_is_inline_el(&self, tag: &str) -> bool;
 }
 
-pub struct ServerRules {}
+pub struct HtmlRules {}
 
-impl ServerRules {
-    pub fn new() -> ServerRules {
-        ServerRules {}
+impl HtmlRules {
+    pub fn new() -> HtmlRules {
+        HtmlRules {}
     }
 }
 
-impl RulesetImpl for ServerRules {
+impl RulesetImpl for HtmlRules {
     fn get_initial_namespace(&self) -> &str {
         "html"
     }

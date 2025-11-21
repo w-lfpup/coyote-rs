@@ -1,17 +1,32 @@
 use crate::component_string::compose_string;
 use crate::components::Component;
-use crate::rulesets::{HtmlOnlyRules, ServerRules, XmlRules};
+use crate::rulesets::{HtmlOnlyRules, HtmlRules, XmlRules};
 use crate::template_builder::Builder;
 
+// Enum
+// Html::default()
+// Html::with_cache
+// html::html_only()
+// html::html_only_with_cache()
+// html::html_with_styles()
+//
+
+/*
+Naw that sucks.
+
+
+
+*/
 pub struct Html {
-    rules: ServerRules,
+    rules: HtmlRules,
     builder: Builder,
+    // template_builder: TemplateBuilder,
 }
 
 impl Html {
     pub fn new() -> Html {
         Html {
-            rules: ServerRules::new(),
+            rules: HtmlRules::new(),
             builder: Builder::new(),
         }
     }

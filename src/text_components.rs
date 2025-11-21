@@ -23,9 +23,6 @@ fn get_largest_common_space_index(texts: &[&str]) -> usize {
         if line.len() == found_index {
             continue;
         }
-        if 0 == found_index {
-            continue;
-        }
 
         space_index = found_index;
         prev_line = line;
@@ -39,7 +36,7 @@ fn get_largest_common_space_index(texts: &[&str]) -> usize {
             continue;
         }
         if 0 == found_index {
-            continue;
+            return 0;
         }
 
         let mut prev_line_chars = prev_line.char_indices();
@@ -85,21 +82,15 @@ pub fn push_alt_text_component(results: &mut String, text: &str, tag_info: &TagI
     // middle
     let middle = &texts[1..texts.len() - 1];
     let common_space_index = get_largest_common_space_index(middle);
+
     for line in middle {
         results.push('\n');
-
-        match get_index_of_first_char(line) {
-            0 => {
-                if 0 < line.len() {
-                    results.push_str(&"\t".repeat(tag_info.indent_count));
-                    results.push_str(line.trim_end());
-                }
-            }
-            _ => {
-                results.push_str(&"\t".repeat(tag_info.indent_count));
-                results.push_str(line[common_space_index..].trim_end());
-            }
+        if 0 == line.len() {
+            continue;
         }
+
+        results.push_str(&"\t".repeat(tag_info.indent_count));
+        results.push_str(line[common_space_index..].trim_end());
     }
 
     // last
