@@ -32,7 +32,7 @@ fn get_largest_common_space_index(texts: &[&str]) -> usize {
     // then get the most common space prefix in the next lines
     while let Some(line) = text_iter.next() {
         let found_index = get_index_of_first_char(line);
-        if line.len() == found_index {
+        if line.len() == 0 {
             continue;
         }
         if 0 == found_index {
@@ -53,6 +53,7 @@ fn get_largest_common_space_index(texts: &[&str]) -> usize {
         }
 
         prev_line = line;
+        space_index = cmp::min(space_index, line.len());
     }
 
     space_index
@@ -121,28 +122,40 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
         return;
     }
 
-    let first_line = texts[0];
-    match tag_info.text_format {
-        TextFormat::LineSpace => {
-            results.push('\n');
-            if 0 != first_line.len() {
-                results.push_str(&"\t".repeat(tag_info.indent_count));
-            }
-        }
-        TextFormat::Space => {
-            if 0 != first_line.len() {
-                results.push(' ');
-            }
-        }
-        _ => {}
-    }
-    push_line_of_text(results, first_line);
+    let common_space_index = get_largest_common_space_index(&texts);
+    println!("common_space_index: {}", common_space_index);
+    // let first_line = texts[0];
 
-    let middle_lines = &texts[1..texts.len()];
-    let common_space_index = get_largest_common_space_index(middle_lines);
-    for line in middle_lines {
+    let mut text_iter = texts.iter();
+
+    // first line
+    if let Some(first_line) = text_iter.next() {
+        match tag_info.text_format {
+            TextFormat::LineSpace => {
+                results.push('\n');
+                if 0 != first_line.len() {
+                    results.push_str(&"\t".repeat(tag_info.indent_count));
+                }
+            }
+            TextFormat::Space => {
+                if 0 != first_line.len() {
+                    results.push(' ');
+                }
+            }
+            _ => {}
+        }
+        push_line_of_text(results, first_line);
+    }
+
+    let mut count = 1;
+    for line in text_iter {
+        count += 1;
         results.push('\n');
-        if line.len() == get_index_of_first_char(line) {
+        // if line.len() == get_index_of_first_char(line) {
+        //     continue;
+        // }
+
+        if 0 == line.len() {
             continue;
         }
 
