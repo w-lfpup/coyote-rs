@@ -31,10 +31,11 @@ fn get_largest_common_space_index(texts: &[&str]) -> usize {
 
     // then get the most common space prefix in the next lines
     while let Some(line) = text_iter.next() {
-        let found_index = get_index_of_first_char(line);
         if line.len() == 0 {
             continue;
         }
+
+        let found_index = get_index_of_first_char(line);
         if 0 == found_index {
             return 0;
         }
@@ -122,7 +123,7 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
         return;
     }
 
-    let common_space_index = get_largest_common_space_index(&texts);
+    let common_space_index = get_largest_common_space_index(&texts[1..]);
     println!("common_space_index: {}", common_space_index);
     // let first_line = texts[0];
 
@@ -188,6 +189,8 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
     // middle
     let middle_lines = &texts[1..texts.len() - 1];
     let common_space_index = get_largest_common_space_index(middle_lines);
+    println!("common_space_index: {}", common_space_index);
+
     for line in middle_lines {
         results.push('\n');
 
@@ -208,6 +211,24 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
 
 fn push_line_of_text(results: &mut String, line: &str) {
     let mut state = TextFormat::Text;
+
+    for glyph in line.chars() {
+        if glyph.is_whitespace() {
+            state = TextFormat::Space;
+            continue;
+        }
+
+        if state == TextFormat::Space {
+            results.push(' ')
+        }
+
+        state = TextFormat::Text;
+        results.push(glyph)
+    }
+}
+
+fn push_line_of_text2(results: &mut String, line: &str, intial_state: TextFormat) {
+    let mut state = intial_state;
 
     for glyph in line.chars() {
         if glyph.is_whitespace() {
