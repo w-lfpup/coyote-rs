@@ -107,7 +107,11 @@ fn elememt_and_text_components_retains_spacing() {
 }
 
 fn spacey_hai() -> Component {
-    text("hai :3")
+    text(
+        "
+		hai :3
+	",
+    )
 }
 
 #[test]
@@ -155,6 +159,22 @@ fn element_and_text_components_retain_extra_spacey_spacing() {
 
 </div>";
 
+    let expected2 = "<div>hai :3hai :3</div>
+<div>
+    hai :3hai :3
+</div>
+<div>hai :3 hai :3</div>
+<div>
+    hai :3 hai :3
+</div>
+<div>
+    hai :3
+    hai :3
+</div>
+<div>
+    hai :3
+    hai :3
+</div>";
     let mut html = Html::new();
     let results = html.build(&template);
 

@@ -34,18 +34,15 @@ fn get_largest_common_space_index(texts: &[&str]) -> usize {
             continue;
         }
 
-        let found_index = get_index_of_first_char(line);
-        if 0 == found_index {
-            return 0;
-        }
-
-        println!("prev line: {}\n{}", prev_line.len(), prev_line);
-        println!("line: {}\n{}", line.len(), line);
         let mut prev_line_chars = prev_line.char_indices();
-        let mut line_chars = line.char_indices();
-        while let (Some((src_index, src_chr)), Some((_, tgt_chr))) =
-            (prev_line_chars.next(), line_chars.next())
-        {
+        let mut line_chars = line.chars();
+
+        while let Some((src_index, src_chr)) = prev_line_chars.next() {
+            let tgt_chr = match line_chars.next() {
+                Some(tgt_chr) => tgt_chr,
+                _ => break,
+            };
+
             if src_chr == tgt_chr && src_chr.is_whitespace() {
                 continue;
             }
@@ -92,7 +89,7 @@ pub fn push_alt_text_component(results: &mut String, text: &str, tag_info: &TagI
         }
 
         results.push_str(&"\t".repeat(tag_info.indent_count));
-        results.push_str(line[common_space_index..].trim_end());
+        results.push_str(&line[common_space_index..]);
     }
 
     // last
@@ -123,8 +120,7 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
         return;
     }
 
-    let common_space_index = get_largest_common_space_index(&texts[1..]);
-    println!("common_space_index: {}", common_space_index);
+    let common_space_index = get_largest_common_space_index(&texts);
 
     let mut text_iter = texts.iter();
 
@@ -147,9 +143,7 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
         push_line_of_text(results, first_line);
     }
 
-    let mut count = 1;
     for line in text_iter {
-        count += 1;
         results.push('\n');
 
         if 0 == line.len() {
@@ -183,26 +177,31 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
     }
 
     // middle
-    let middle_lines = &texts[1..texts.len() - 1];
+    let middle_lines = &texts[1..texts.len()];
     let common_space_index = get_largest_common_space_index(middle_lines);
     println!("common_space_index: {}", common_space_index);
 
     for line in middle_lines {
         results.push('\n');
+        println!("line: {}\n*{}*", line.len(), line);
 
-        let first_char_index = get_index_of_first_char(line);
-        if line.len() == first_char_index {
+        if 0 == line.len() {
             continue;
         }
+
+        // let first_char_index = get_index_of_first_char(line);
+        // if line.len() == first_char_index {
+        //     continue;
+        // }
         results.push_str(&"\t".repeat(tag_info.indent_count));
         push_line_of_text(results, &line[common_space_index..])
     }
 
     // last
-    let last = texts[texts.len() - 1];
-    results.push('\n');
-    results.push_str(&"\t".repeat(tag_info.indent_count));
-    push_line_of_text(results, last.trim())
+    // let last = texts[texts.len() - 1];
+    // results.push('\n');
+    // results.push_str(&"\t".repeat(tag_info.indent_count));
+    // push_line_of_text(results, last.trim())
 }
 
 fn push_line_of_text(results: &mut String, line: &str) {
