@@ -205,7 +205,7 @@ fn attribute_value_retains_spacing() {
 
 			wild ways but thats okay
 
-		'>
+			'>
 			Hello! <span> World!</span>
 		</h1>
 		",
