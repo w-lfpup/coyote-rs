@@ -110,7 +110,7 @@ fn spacey_hai() -> Component {
     text(
         "
 		hai :3
-		",
+	",
     )
 }
 

@@ -12,12 +12,11 @@ fn get_index_of_first_char(text: &str) -> usize {
 }
 
 fn get_largest_common_space_index(texts: &[&str]) -> usize {
-    let mut space_index = 0;
-    let mut prev_line = "";
-
     let mut text_iter = texts.iter();
 
     // get the first line with spaces that isn't all spaces
+    let mut space_index = 0;
+    let mut prev_line = "";
     while let Some(line) = text_iter.next() {
         if 0 == line.len() {
             continue;
@@ -30,7 +29,7 @@ fn get_largest_common_space_index(texts: &[&str]) -> usize {
 
     // then get the most common space prefix in the next lines
     while let Some(line) = text_iter.next() {
-        if line.len() == 0 {
+        if 0 == line.len() {
             continue;
         }
 
@@ -84,12 +83,11 @@ pub fn push_alt_text_component(results: &mut String, text: &str, tag_info: &TagI
 
     for line in middle {
         results.push('\n');
-        if 0 == line.len() {
-            continue;
-        }
 
-        results.push_str(&"\t".repeat(tag_info.indent_count));
-        results.push_str(&line[common_space_index..]);
+        if 0 != line.len() {
+            results.push_str(&"\t".repeat(tag_info.indent_count));
+            results.push_str(&line[common_space_index..]);
+        }
     }
 
     // last
@@ -124,7 +122,6 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
 
     let mut text_iter = texts.iter();
 
-    // first line
     if let Some(first_line) = text_iter.next() {
         match tag_info.text_format {
             TextFormat::LineSpace => {
@@ -146,7 +143,10 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
     for line in text_iter {
         results.push('\n');
 
-        if 0 == line.len() {
+        // either accept extra spacing in text components
+        // or you need to iterate across string to find out if it's "empty";
+        let found_index = get_index_of_first_char(line);
+        if line.len() == found_index {
             continue;
         }
 
@@ -172,6 +172,12 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
 
     // first
     push_line_of_text(results, texts[0]);
+    println!(
+        "first_line: {:?} {}\n*{}*",
+        tag_info.text_format,
+        texts[0].len(),
+        texts[0]
+    );
     if 1 == texts.len() {
         return;
     }
@@ -179,11 +185,18 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
     // middle
     let middle_lines = &texts[1..texts.len()];
     let common_space_index = get_largest_common_space_index(middle_lines);
-    println!("common_space_index: {}", common_space_index);
+    // println!("common_space_index: {}", common_space_index);
 
     for line in middle_lines {
         results.push('\n');
-        println!("line: {}\n*{}*", line.len(), line);
+        println!(
+            "line: {:?} {}\n*{}*",
+            tag_info.text_format,
+            line.len(),
+            line
+        );
+
+        // println!("line: {}\n*{}*", line.len(), line);
 
         if 0 == line.len() {
             continue;
