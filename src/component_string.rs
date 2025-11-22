@@ -1,10 +1,8 @@
 use crate::components::Component;
 use crate::compose_steps::compose_steps;
-use crate::routes::StepKind;
-use crate::rulesets::RulesetImpl;
 use crate::tag_info::{TagInfo, TextFormat};
 use crate::template_builder::BuilderImpl;
-use crate::template_steps::Results as TemplateSteps;
+use crate::template_steps::{RulesetImpl, StepKind, TemplateSteps};
 use crate::text_components::{
     push_multiline_attributes, push_text_component as push_that_text_component,
 };

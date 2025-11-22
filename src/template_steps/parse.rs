@@ -1,7 +1,7 @@
-use crate::routes;
-use crate::routes::StepKind;
-use crate::rulesets::RulesetImpl;
-use crate::sliding_window::SlidingWindow;
+use crate::template_steps::routes;
+use crate::template_steps::routes::StepKind;
+use crate::template_steps::rulesets::RulesetImpl;
+use crate::template_steps::sliding_window::SlidingWindow;
 
 #[derive(Debug, Eq, Clone, PartialEq)]
 pub struct Step {
@@ -252,9 +252,8 @@ mod tests {
     use super::*;
 
     use crate::components::{attr_val, list, text, tmpl, Component};
-    use crate::routes::StepKind;
     use crate::rulesets::HtmlRules;
-    use crate::template_steps::{compose, Results};
+    use crate::template_steps::{compose, StepKind, TemplateSteps};
 
     fn woof() -> Component {
         tmpl("<input type=submit value=\"yus -_-\">", [])
@@ -273,7 +272,7 @@ mod tests {
         let rules = HtmlRules::new();
 
         let template = woof_woof();
-        let expected = Results {
+        let expected = TemplateSteps {
             steps: Vec::from([
                 Vec::from([
                     Step {

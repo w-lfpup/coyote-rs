@@ -1,5 +1,4 @@
-use crate::rulesets::RulesetImpl;
-use crate::template_steps::{compose, Results as TemplateSteps};
+use crate::template_steps::{compose, RulesetImpl, TemplateSteps};
 use std::collections::HashMap;
 
 // Build Enum

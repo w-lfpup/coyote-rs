@@ -1,7 +1,5 @@
-use crate::parse::{get_text_from_step, Step};
-use crate::routes::StepKind;
-use crate::rulesets::RulesetImpl;
 use crate::tag_info::{TagInfo, TextFormat};
+use crate::template_steps::{get_text_from_step, RulesetImpl, Step, StepKind};
 use crate::text_components::{push_alt_text_component, push_multiline_attributes};
 
 pub fn compose_steps(
