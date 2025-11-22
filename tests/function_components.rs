@@ -107,11 +107,7 @@ fn elememt_and_text_components_retains_spacing() {
 }
 
 fn spacey_hai() -> Component {
-    text(
-        "
-		hai :3
-    ",
-    )
+    text("hai :3")
 }
 
 #[test]

@@ -19,12 +19,11 @@ fn get_largest_common_space_index(texts: &[&str]) -> usize {
 
     // get the first line with spaces that isn't all spaces
     while let Some(line) = text_iter.next() {
-        let found_index = get_index_of_first_char(line);
-        if line.len() == found_index {
+        if 0 == line.len() {
             continue;
         }
 
-        space_index = found_index;
+        space_index = get_index_of_first_char(line);
         prev_line = line;
         break;
     }
@@ -40,6 +39,8 @@ fn get_largest_common_space_index(texts: &[&str]) -> usize {
             return 0;
         }
 
+        println!("prev line: {}\n{}", prev_line.len(), prev_line);
+        println!("line: {}\n{}", line.len(), line);
         let mut prev_line_chars = prev_line.char_indices();
         let mut line_chars = line.char_indices();
         while let (Some((src_index, src_chr)), Some((_, tgt_chr))) =
@@ -54,7 +55,6 @@ fn get_largest_common_space_index(texts: &[&str]) -> usize {
         }
 
         prev_line = line;
-        space_index = cmp::min(space_index, line.len());
     }
 
     space_index
@@ -125,7 +125,6 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
 
     let common_space_index = get_largest_common_space_index(&texts[1..]);
     println!("common_space_index: {}", common_space_index);
-    // let first_line = texts[0];
 
     let mut text_iter = texts.iter();
 
@@ -152,9 +151,6 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
     for line in text_iter {
         count += 1;
         results.push('\n');
-        // if line.len() == get_index_of_first_char(line) {
-        //     continue;
-        // }
 
         if 0 == line.len() {
             continue;
