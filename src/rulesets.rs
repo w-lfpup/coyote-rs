@@ -1,27 +1,17 @@
-pub trait RulesetImpl {
-    fn get_initial_namespace(&self) -> &str;
-    fn tag_prefix_of_contentless(&self, tag: &str) -> Option<&str>;
-    fn get_close_sequence_from_contentless_tag(&self, tag: &str) -> Option<&str>;
-    fn get_contentless_tag_from_close_sequence(&self, tag: &str) -> Option<&str>;
-    fn get_close_sequence_from_alt_text_tag(&self, tag: &str) -> Option<&str>;
-    fn get_alt_text_tag_from_close_sequence(&self, tag: &str) -> Option<&str>;
-    fn respect_indentation(&self) -> bool;
-    fn tag_is_banned_el(&self, tag: &str) -> bool;
-    fn tag_is_void_el(&self, tag: &str) -> bool;
-    fn tag_is_namespace_el(&self, tag: &str) -> bool;
-    fn tag_is_preserved_text_el(&self, tag: &str) -> bool;
-    fn tag_is_inline_el(&self, tag: &str) -> bool;
-}
+// What if Enums
+//
 
-pub struct ServerRules {}
+use crate::template_steps::RulesetImpl;
 
-impl ServerRules {
-    pub fn new() -> ServerRules {
-        ServerRules {}
+pub struct HtmlRules {}
+
+impl HtmlRules {
+    pub fn new() -> HtmlRules {
+        HtmlRules {}
     }
 }
 
-impl RulesetImpl for ServerRules {
+impl RulesetImpl for HtmlRules {
     fn get_initial_namespace(&self) -> &str {
         "html"
     }

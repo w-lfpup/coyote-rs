@@ -1,4 +1,4 @@
-use crate::rulesets::RulesetImpl;
+use crate::template_steps::RulesetImpl;
 
 // describes how to handle elements and spacing
 #[derive(Debug, Clone, Eq, PartialEq)]

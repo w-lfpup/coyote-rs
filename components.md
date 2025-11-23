@@ -14,29 +14,11 @@ fn hello_world() -> Component {
 }
 ```
 
-## Types of components
-
-`Components` are used to build documents:
-
-| Component | Description | Type |
-| --------- | ---- | ----------- |
-| Attribute | an element attribute | `attr(name: &str) -> Component` |
-| Attribute with value | an element and attribute and value pair | `attr_val(name: &str, value: &str) -> Component` | 
-| Text | text with the HTML glyphs `<` and `"` escaped | `text(text_str: &str) -> Component` |
-| Unescaped text | dangerously unescaped text | `unescaped_text(text_str: &str) -> Component` |
-| List | a list of components | `list(component_list: [Component, ...]) -> Component` |
-| Vector List | a vector of components | `vlist(component_vector_list: Vec<Component>) -> Component` |
-| Template | a document fragment described by a static string template and a list of injections | `tmpl(template_str: &'static str, injections: [Component, ...]) -> Component` |
-| Template String | a document fragment described by a string template and a list of injections | `tmpl_str(template_str: &str, injections: [Component, ...]) -> Component` |
-| None | the abscence of a component | `Component::None` |
-
 ## The template component
-
-The template component uses a syntax similar to sql string injections.
 
 ## Tags, void elements, fragments
 
-`Coyote` templates can use self-closing tags, void elements, and jsx-like fragments:
+`Coyote` templates support self-closing tags, void elements, and jsx-like fragments:
 
 ```rs
 fn syntax_story() -> Component {
@@ -45,7 +27,7 @@ fn syntax_story() -> Component {
             <>
                 <p>no waaaay?</p>
                 <custom-element />
-                <input type=button value='high five!' />
+                <input type=button value='high-five!' />
             </>
         </article>
     ", [])
@@ -58,7 +40,7 @@ However, `coyote` will only output w3-spec compliant HTML:
 <article>
     <p>no waaaay?</p>
     <custom-element></custom-element>
-    <input value=button value="high-five">
+    <input value=button value="high-five!">
 </article>
 ```
 
@@ -99,7 +81,7 @@ So ...
 helloooo { world }
 ```
 
-in a template would be:
+would look like the following as a template:
 
 ```rust
 tmpl("hellooo, &#123; world }"); 
@@ -107,7 +89,7 @@ tmpl("hellooo, &#123; world }");
 
 ## Nested templates
 
-The `list` and `vlist` (vector list) components reflect the `node -> [node, text, node, ...]` heiarchy of an xml-like document.
+The `list` and `vlist` (vector list) components immitate the `node -> [node, text, node, ...]` heiarchy of an xml-like document.
 
 The example below creates a form defined by lists of attributes, templates, and text.
 
@@ -137,7 +119,7 @@ fn form() -> Component {
 }
 ```
 
-And the output will something like:
+And the output will be:
 
 ```html
 <form action="/uwu" method="post">
@@ -145,6 +127,22 @@ And the output will something like:
     <input type=submit value="yus -_-">
 </form>
 ```
+
+## Types of components
+
+`Components` are the atomic chunks used to build documents:
+
+| Component | Description | Type |
+| --------- | ---- | ----------- |
+| Attribute | an element attribute | `attr(name: &str) -> Component` |
+| Attribute with value | an element and attribute and value pair | `attr_val(name: &str, value: &str) -> Component` | 
+| Text | text with the HTML-safe escaped text | `text(text_str: &str) -> Component` |
+| Unescaped text | dangerously unescaped text | `unescaped_text(text_str: &str) -> Component` |
+| List | a list of components | `list(component_list: [Component, ...]) -> Component` |
+| Vector List | a vector of components | `vlist(component_vector_list: Vec<Component>) -> Component` |
+| Template | a document fragment described by a static string template and a list of injections | `tmpl(template_str: &'static str, injections: [Component, ...]) -> Component` |
+| Template String | a document fragment described by a string template and a list of injections | `tmpl_str(template_str: &str, injections: [Component, ...]) -> Component` |
+| None | the abscence of a component | `Component::None` |
 
 ## Components as an IMR
 
