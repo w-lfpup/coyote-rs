@@ -1,15 +1,11 @@
-// mod component_string;
-mod components;
-// mod compose_steps;
-mod document_builders;
-mod rulesets;
-// mod tag_info;
-// mod template_builder;
-// mod text_components;
-
 mod documents;
 mod template_steps;
 
+mod components;
+mod document_builders;
+mod rulesets;
+
+pub use documents::{compose_string, BuilderImpl};
 pub use template_steps::RulesetImpl;
 
 pub use crate::components::{

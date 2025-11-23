@@ -4,22 +4,12 @@ use crate::rulesets::{HtmlOnlyRules, HtmlRules, XmlRules};
 use crate::template_steps::{compose, RulesetImpl, TemplateSteps};
 use std::collections::HashMap;
 
-// Enum
-// Html::default()
-// Html::with_cache
-// html::html_only()
-// html::html_only_with_cache()
-// html::html_with_styles()
-//
+// default cache params
+struct BuilderParams {
+    max_memory: usize,
+}
 
-/*
-Naw that sucks.
-
-
-
-*/
-
-pub struct Builder {
+struct Builder {
     step_count: usize,
     results_cache: HashMap<String, TemplateSteps>,
 }
@@ -40,6 +30,16 @@ impl BuilderImpl for Builder {
         if let Some(steps) = self.results_cache.get(template_str) {
             return steps.clone();
         }
+
+        // sizeof step * len of steps
+        // + len of template string
+        //
+        // = memory footprint
+
+        // += curr_bytes
+
+        // if bytes is > max memory
+        // create new cache
 
         let steps = compose(rules, template_str);
 
