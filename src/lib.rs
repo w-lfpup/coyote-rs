@@ -1,12 +1,13 @@
-mod component_string;
+// mod component_string;
 mod components;
-mod compose_steps;
+// mod compose_steps;
 mod document_builders;
 mod rulesets;
-mod tag_info;
-mod template_builder;
-mod text_components;
+// mod tag_info;
+// mod template_builder;
+// mod text_components;
 
+mod documents;
 mod template_steps;
 
 pub use template_steps::RulesetImpl;

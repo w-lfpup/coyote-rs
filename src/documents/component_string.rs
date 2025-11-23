@@ -1,11 +1,11 @@
 use crate::components::Component;
-use crate::compose_steps::compose_steps;
-use crate::tag_info::{TagInfo, TextFormat};
-use crate::template_builder::BuilderImpl;
-use crate::template_steps::{RulesetImpl, StepKind, TemplateSteps};
-use crate::text_components::{
+use crate::documents::compose_steps::compose_steps;
+use crate::documents::tag_info::{TagInfo, TextFormat};
+use crate::documents::template_builder::BuilderImpl;
+use crate::documents::text_components::{
     push_multiline_attributes, push_text_component as push_that_text_component,
 };
+use crate::template_steps::{RulesetImpl, StepKind, TemplateSteps};
 
 #[derive(Debug)]
 struct TemplateBit {

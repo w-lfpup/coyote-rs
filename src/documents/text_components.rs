@@ -1,4 +1,4 @@
-use crate::tag_info::{TagInfo, TextFormat};
+use crate::documents::tag_info::{TagInfo, TextFormat};
 use std::cmp;
 
 fn get_index_of_first_char(text: &str) -> usize {
