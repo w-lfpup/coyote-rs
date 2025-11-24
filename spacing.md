@@ -1,10 +1,10 @@
 # Spaces
 
-Spaces have meaning and weight in HTML. They are a part of the composition of an HTML document.
+Spaces have weight and meaning in HTML. They are a part of the composition of an HTML document.
 
 `Coyote` _never_ adds spaces or new lines.
 
-Developers can write HTML components that render with browser parity. As in their HTML will render without any side-effects.
+Developers can write HTML components expecting browser parity. As in, their HTML will render without any unexpected new lines or spaces.
 
 HTML in, HTML out. No suprises. No mental overhead.
 
@@ -14,12 +14,14 @@ HTML in, HTML out. No suprises. No mental overhead.
 
 ### No spaces
 
-A template with no spaces:
+A template without spaces:
+
 ```rust
 tmpl("<span>hai :3</span>", [])
 ```
 
-Will output:
+Will output without spaces:
+
 ```html
 <p>hai :3</p>
 ```
@@ -27,11 +29,13 @@ Will output:
 ### Trailing spaces
 
 A template with trailing spaces:
+
 ```rust
 tmpl("<p> hai :3 </p>", [])
 ```
 
-Will output:
+Will output trailing spaces:
+
 ```html
 <p> hai :3 </p>
 ```
@@ -39,6 +43,7 @@ Will output:
 ### New lines
 
 A template with new lines and block elements:
+
 ```rust
 tmpl("
 	<p>
@@ -49,7 +54,7 @@ tmpl("
 )
 ```
 
-Will output
+Will output new lines.
 ```html
 <p>
 	hai :3
@@ -57,6 +62,7 @@ Will output
 ```
 
 A template with new lines and inline elements:
+
 ```rust
 tmpl("
 	<span>
@@ -67,7 +73,8 @@ tmpl("
 )
 ```
 
-Will output without indentation:
+Will output new lines without indentation:
+
 ```html
 <span>
 hai :3
@@ -96,7 +103,7 @@ tmpl("
 )
 ```
 
-Will output html with extra new lines but spaces collapsed:
+Will output html with extra new lines with spaces collapsed:
 
 ```html
 <p>
