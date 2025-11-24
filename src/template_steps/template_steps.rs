@@ -6,7 +6,7 @@
     Coyote is focused on text / strings
 */
 
-use crate::template_steps::parse::{parse_str, Step};
+use crate::template_steps::parse::{Step, parse_str};
 use crate::template_steps::routes::StepKind;
 use crate::template_steps::rulesets::RulesetImpl;
 

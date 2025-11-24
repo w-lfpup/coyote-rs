@@ -1,6 +1,6 @@
 // Test will not build if function components do not build
 
-use coyote::{attr_val, list, text, tmpl, vlist, Component, Html};
+use coyote::{Component, Html, attr_val, list, text, tmpl, vlist};
 
 fn submit_button() -> Component {
     tmpl("<input type=submit value=\"yus -_-\">", [])

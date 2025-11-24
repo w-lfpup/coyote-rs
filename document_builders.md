@@ -18,7 +18,7 @@ fn hello_world() -> Component {
 fn main() {
     let html = Html::new();
 
-    if let Ok(document) = html.build(&hello_world()) {
+    if let Ok(document) = html.render(&hello_world()) {
         println!("{}", document);
     }; 
 }
@@ -57,12 +57,10 @@ fn malicious() -> Component {
     ", [])
 }
 
-fn main() {
-    let hello_world = hello_world();
+fn main() {    
+    let html_only = HtmlOnly::new();    
     
-    let client_html = HtmlOnly::new();    
-    
-    if let Ok(document) = client_html.build(&hello_world) {
+    if let Ok(document) = html_only.render(&hello_world()) {
         println!("{}", document);
     }; 
 }

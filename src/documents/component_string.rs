@@ -44,7 +44,7 @@ pub fn compose_string(
             // text or list
             StackBit::Cmpnt(cmpnt) => match cmpnt {
                 Component::Text(text) => {
-                    let escaped = text.replace("<", "&lt;").replace("{", "&quot;");
+                    let escaped = text.replace("<", "&lt;").replace("{", "&123;");
                     push_text_component(
                         &mut template_results,
                         &mut tag_info_stack,

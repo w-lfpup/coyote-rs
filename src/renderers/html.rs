@@ -1,3 +1,8 @@
+// Just make a BuilderImpl so others downstream can use it
+
+pub trait RenderImpl {
+    fn render(&mut self, component: &Component) -> Result<String, String>;
+}
 
 use crate::template_steps::RulesetImpl;
 
@@ -195,7 +200,6 @@ impl RulesetImpl for HtmlOnlyRules {
         true
     }
 }
-
 
 // deprecated elements
 fn is_banned_el(tag: &str) -> bool {

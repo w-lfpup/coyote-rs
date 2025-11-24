@@ -1,7 +1,7 @@
 use crate::components::Component;
-use crate::documents::{compose_string, BuilderImpl};
+use crate::documents::{BuilderImpl, compose_string};
 use crate::rulesets::{HtmlOnlyRules, HtmlRules, XmlRules};
-use crate::template_steps::{compose, RulesetImpl, TemplateSteps};
+use crate::template_steps::{RulesetImpl, TemplateSteps, compose};
 use std::collections::HashMap;
 
 // default cache params

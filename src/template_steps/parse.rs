@@ -142,6 +142,8 @@ fn is_injection_kind(step_kind: &StepKind) -> bool {
     }
 }
 
+// WWE DONT NEED TO RETURN ERRORS HERE
+
 fn push_alt_element_steps(
     rules: &dyn RulesetImpl,
     steps: &mut Vec<Step>,
@@ -251,9 +253,9 @@ mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
 
-    use crate::components::{attr_val, list, text, tmpl, Component};
+    use crate::components::{Component, attr_val, list, text, tmpl};
     use crate::rulesets::HtmlRules;
-    use crate::template_steps::{compose, StepKind, TemplateSteps};
+    use crate::template_steps::{StepKind, TemplateSteps, compose};
 
     fn woof() -> Component {
         tmpl("<input type=submit value=\"yus -_-\">", [])

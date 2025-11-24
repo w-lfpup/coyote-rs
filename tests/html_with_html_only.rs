@@ -1,4 +1,4 @@
-use coyote::{attr, tmpl, HtmlOnly};
+use coyote::{HtmlOnly, attr, tmpl};
 
 #[test]
 fn empty_element_retains_spacing() {
@@ -346,8 +346,7 @@ fn document_retains_spacing() {
         [],
     );
 
-    let expected =
-    "<!DOCTYPE>\n<html>\n<head>\n</head>\n<body>\n<article>\nYou're a <span>boy kisser</span> aren't you?\nClick <a>here</a> and go somewhere else.\n</article>\n<footer></footer>\n</body>\n</html>";
+    let expected = "<!DOCTYPE>\n<html>\n<head>\n</head>\n<body>\n<article>\nYou're a <span>boy kisser</span> aren't you?\nClick <a>here</a> and go somewhere else.\n</article>\n<footer></footer>\n</body>\n</html>";
 
     let mut html = HtmlOnly::new();
     let results = html.build(&template);
@@ -380,8 +379,7 @@ fn document_with_alt_text_elements_retains_spacing() {
         [],
     );
 
-    let expected =
-        "<!DOCTYPE>\n<html>\n<head>\n</head>\n<body>\n<article></article>\n<footer></footer>\n</body>\n</html>";
+    let expected = "<!DOCTYPE>\n<html>\n<head>\n</head>\n<body>\n<article></article>\n<footer></footer>\n</body>\n</html>";
 
     let mut html = HtmlOnly::new();
     let results = html.build(&template);
