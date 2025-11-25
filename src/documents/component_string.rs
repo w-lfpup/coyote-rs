@@ -5,7 +5,9 @@ use crate::documents::template_builder::TemplateBuilderImpl;
 use crate::documents::text_components::{
     push_multiline_attributes, push_text_component as push_that_text_component,
 };
+use crate::errors::Errors;
 use crate::template_steps::{RulesetImpl, StepKind, TemplateSteps};
+use std::error::Error;
 
 #[derive(Debug)]
 struct TemplateBit {
@@ -28,7 +30,7 @@ pub fn compose_string(
     builder: &mut dyn TemplateBuilderImpl,
     rules: &dyn RulesetImpl,
     component: &Component,
-) -> Result<String, String> {
+) -> Result<String, Errors> {
     let mut template_results = "".to_string();
 
     let mut tag_info_stack: Vec<TagInfo> = Vec::from([TagInfo::get_root(rules)]);
@@ -95,11 +97,7 @@ pub fn compose_string(
                         // at the end of template
                         // if stack depth does not match tag_infor_stack depth
                         if bit.stack_depth != tag_info_stack.len() {
-                            return Err(
-                                "Coyote Err: the following template component is imbalanced:\n{:?}"
-                                    .to_string()
-                                    + tmpl_str,
-                            );
+                            return Err(Errors::UnbalancedTemplate(tmpl_str.to_string()));
                         }
                     }
                 }
@@ -191,7 +189,7 @@ fn add_attr_inj(
     stack: &mut Vec<TagInfo>,
     template_str: &mut String,
     cmpnt: &Component,
-) -> Result<(), String> {
+) -> Result<(), Errors> {
     let tag_info = match stack.last() {
         Some(curr) => curr,
         _ => return Ok(()),
@@ -238,9 +236,9 @@ fn add_attr_inj(
     Ok(())
 }
 
-fn push_attr_component(results: &mut String, tag_info: &TagInfo, attr: &str) -> Result<(), String> {
-    if !attr_is_valid(attr) {
-        return Err("invalid attribute: ".to_string() + attr);
+fn push_attr_component(results: &mut String, tag_info: &TagInfo, attr: &str) -> Result<(), Errors> {
+    if let Err(e) = attr_is_valid(attr) {
+        return Err(e);
     }
 
     match tag_info.text_format {
@@ -257,14 +255,14 @@ fn push_attr_component(results: &mut String, tag_info: &TagInfo, attr: &str) -> 
     Ok(())
 }
 
-fn attr_is_valid(attr: &str) -> bool {
-    for glyph in attr.chars() {
+fn attr_is_valid(attr: &str) -> Result<(), Errors> {
+    for (index, glyph) in attr.char_indices() {
         if forbidden_attr_glyph(glyph) {
-            return false;
+            return Err(Errors::InvalidAttribute(attr.to_string(), index, glyph));
         }
     }
 
-    true
+    Ok(())
 }
 
 // https://html.spec.whatwg.org/multipage/syntax.html#attributes-2
