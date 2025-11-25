@@ -1,5 +1,6 @@
 mod components;
 mod documents;
+mod errors;
 mod renderers;
 mod template_steps;
 
