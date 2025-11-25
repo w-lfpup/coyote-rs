@@ -1,5 +1,6 @@
 use crate::components::Component;
 use crate::documents::compose_string;
+use crate::errors::Errors;
 use crate::renderers::template_builder::Builder;
 use crate::template_steps::RulesetImpl;
 
@@ -17,7 +18,7 @@ impl Html {
         }
     }
 
-    pub fn build(&mut self, component: &Component) -> Result<String, String> {
+    pub fn build(&mut self, component: &Component) -> Result<String, Errors> {
         compose_string(&mut self.builder, &self.rules, component)
     }
 }
@@ -36,7 +37,7 @@ impl HtmlOnly {
         }
     }
 
-    pub fn build(&mut self, component: &Component) -> Result<String, String> {
+    pub fn build(&mut self, component: &Component) -> Result<String, Errors> {
         compose_string(&mut self.builder, &self.rules, component)
     }
 }
