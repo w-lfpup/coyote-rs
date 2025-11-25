@@ -8,5 +8,5 @@ pub use components::{
     Component, attr, attr_val, list, text, tmpl, tmpl_string, unescaped_text, vlist,
 };
 pub use documents::{TemplateBuilderImpl, compose_string};
-pub use renderers::{Html, HtmlOnly, HtmlOnlyRules, HtmlRules, RendererImpl, Xml};
+pub use renderers::{Html, HtmlOnly, HtmlOnlyRules, HtmlRules, RendererImpl, Xml, XmlRules};
 pub use template_steps::RulesetImpl;

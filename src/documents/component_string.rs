@@ -7,7 +7,6 @@ use crate::documents::text_components::{
 };
 use crate::errors::Errors;
 use crate::template_steps::{RulesetImpl, StepKind, TemplateSteps};
-use std::error::Error;
 
 #[derive(Debug)]
 struct TemplateBit {
