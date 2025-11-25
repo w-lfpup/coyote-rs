@@ -254,7 +254,7 @@ mod tests {
     use super::*;
 
     use crate::components::{Component, attr_val, list, text, tmpl};
-    use crate::rulesets::HtmlRules;
+    use crate::renderers::HtmlRules;
     use crate::template_steps::{StepKind, TemplateSteps, compose};
 
     fn woof() -> Component {

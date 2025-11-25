@@ -1,29 +1,27 @@
-use crate::components::Component;
-use crate::documents::{BuilderImpl, compose_string};
-use crate::rulesets::{HtmlOnlyRules, HtmlRules, XmlRules};
+use crate::documents::TemplateBuilderImpl;
 use crate::template_steps::{RulesetImpl, TemplateSteps, compose};
 use std::collections::HashMap;
 
 // default cache params
-struct BuilderParams {
+pub struct BuilderParams {
     max_memory: usize,
 }
 
-struct Builder {
-    step_count: usize,
+pub struct Builder {
+    memory_footprint: usize,
     results_cache: HashMap<String, TemplateSteps>,
 }
 
 impl Builder {
     pub fn new() -> Builder {
         Builder {
-            step_count: 0,
+            memory_footprint: 0,
             results_cache: HashMap::new(),
         }
     }
 }
 
-impl BuilderImpl for Builder {
+impl TemplateBuilderImpl for Builder {
     fn build(&mut self, rules: &dyn RulesetImpl, template_str: &str) -> TemplateSteps {
         // cache template steps here
 

@@ -1,3 +1,8 @@
+use crate::components::Component;
+use crate::documents::compose_string;
+use crate::renderers::template_builder::Builder;
+use crate::template_steps::RulesetImpl;
+
 pub struct Xml {
     rules: XmlRules,
     builder: Builder,

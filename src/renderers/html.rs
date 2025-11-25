@@ -1,9 +1,6 @@
-// Just make a BuilderImpl so others downstream can use it
-
-pub trait RenderImpl {
-    fn render(&mut self, component: &Component) -> Result<String, String>;
-}
-
+use crate::components::Component;
+use crate::documents::compose_string;
+use crate::renderers::template_builder::Builder;
 use crate::template_steps::RulesetImpl;
 
 pub struct Html {

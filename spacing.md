@@ -1,16 +1,14 @@
 # Spaces
 
-Spaces have weight and meaning in HTML. They are a part of the composition of an HTML document.
-
 `Coyote` _never_ adds spaces or new lines.
-
-Developers can write HTML components expecting browser parity. As in, their HTML will render without any unexpected new lines or spaces.
 
 HTML in, HTML out. No suprises. No mental overhead.
 
 ## No additive mutations
 
-`Coyote` will output w3 spec-compliant HTML while respecting the lines and spaces defined in a template. So every new line and space is intentionally composed by the developer.
+Spaces have weight and meaning in HTML. They are a part of the composition of an HTML document.
+
+`Coyote` will output w3 spec-compliant HTML while respecting the lines and spaces defined in a template. So every new line and space is intentional.
 
 ### No spaces
 
