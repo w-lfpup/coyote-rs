@@ -1,13 +1,11 @@
 use crate::components::Component;
-use crate::compose_steps::compose_steps;
-use crate::routes::StepKind;
-use crate::rulesets::RulesetImpl;
-use crate::tag_info::{TagInfo, TextFormat};
-use crate::template_builder::BuilderImpl;
-use crate::template_steps::Results as TemplateSteps;
-use crate::text_components::{
+use crate::documents::compose_steps::compose_steps;
+use crate::documents::tag_info::{TagInfo, TextFormat};
+use crate::documents::template_builder::TemplateBuilderImpl;
+use crate::documents::text_components::{
     push_multiline_attributes, push_text_component as push_that_text_component,
 };
+use crate::template_steps::{RulesetImpl, StepKind, TemplateSteps};
 
 #[derive(Debug)]
 struct TemplateBit {
@@ -27,7 +25,7 @@ enum StackBit<'a> {
 // provided to the next step
 
 pub fn compose_string(
-    builder: &mut dyn BuilderImpl,
+    builder: &mut dyn TemplateBuilderImpl,
     rules: &dyn RulesetImpl,
     component: &Component,
 ) -> Result<String, String> {
@@ -46,7 +44,7 @@ pub fn compose_string(
             // text or list
             StackBit::Cmpnt(cmpnt) => match cmpnt {
                 Component::Text(text) => {
-                    let escaped = text.replace("<", "&lt;").replace("{", "&quot;");
+                    let escaped = text.replace("<", "&lt;").replace("{", "&123;");
                     push_text_component(
                         &mut template_results,
                         &mut tag_info_stack,
@@ -156,7 +154,7 @@ pub fn compose_string(
 
 fn get_bit_from_component_stack<'a>(
     stack: &mut Vec<TagInfo>,
-    builder: &mut dyn BuilderImpl,
+    builder: &mut dyn TemplateBuilderImpl,
     rules: &dyn RulesetImpl,
     cmpnt: &'a Component,
 ) -> StackBit<'a> {

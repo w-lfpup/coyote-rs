@@ -1,7 +1,7 @@
-use crate::routes;
-use crate::routes::StepKind;
-use crate::rulesets::RulesetImpl;
-use crate::sliding_window::SlidingWindow;
+use crate::template_steps::routes;
+use crate::template_steps::routes::StepKind;
+use crate::template_steps::rulesets::RulesetImpl;
+use crate::template_steps::sliding_window::SlidingWindow;
 
 #[derive(Debug, Eq, Clone, PartialEq)]
 pub struct Step {
@@ -142,6 +142,8 @@ fn is_injection_kind(step_kind: &StepKind) -> bool {
     }
 }
 
+// WWE DONT NEED TO RETURN ERRORS HERE
+
 fn push_alt_element_steps(
     rules: &dyn RulesetImpl,
     steps: &mut Vec<Step>,
@@ -251,10 +253,9 @@ mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
 
-    use crate::components::{attr_val, list, text, tmpl, Component};
-    use crate::routes::StepKind;
-    use crate::rulesets::ServerRules;
-    use crate::template_steps::{compose, Results};
+    use crate::components::{Component, attr_val, list, text, tmpl};
+    use crate::renderers::HtmlRules;
+    use crate::template_steps::{StepKind, TemplateSteps, compose};
 
     fn woof() -> Component {
         tmpl("<input type=submit value=\"yus -_-\">", [])
@@ -270,10 +271,10 @@ mod tests {
 
     #[test]
     fn test_parse_str() {
-        let rules = ServerRules::new();
+        let rules = HtmlRules::new();
 
         let template = woof_woof();
-        let expected = Results {
+        let expected = TemplateSteps {
             steps: Vec::from([
                 Vec::from([
                     Step {

@@ -1,19 +1,11 @@
-mod component_string;
 mod components;
-mod compose_steps;
-mod document_builders;
-mod parse;
-mod routes;
-mod rulesets;
-mod sliding_window;
-mod tag_info;
-mod template_builder;
+mod documents;
+mod renderers;
 mod template_steps;
-mod text_components;
 
-pub use rulesets::RulesetImpl;
-
-pub use crate::components::{
-    attr, attr_val, list, text, tmpl, tmpl_string, unescaped_text, vlist, Component,
+pub use components::{
+    Component, attr, attr_val, list, text, tmpl, tmpl_string, unescaped_text, vlist,
 };
-pub use crate::document_builders::{Html, HtmlOnly, Xml};
+pub use documents::{TemplateBuilderImpl, compose_string};
+pub use renderers::{Html, HtmlOnly, HtmlOnlyRules, HtmlRules, RendererImpl, Xml};
+pub use template_steps::RulesetImpl;

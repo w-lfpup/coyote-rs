@@ -31,9 +31,9 @@ use coyote::Html;
 
 let html = Html::new();
 
-if let Ok(document) = html.build(&hello_world()) {
+if let Ok(document) = html.render(&hello_world()) {
     println!("{}", document);
-}; 
+};
 ```
 
 The output will be:

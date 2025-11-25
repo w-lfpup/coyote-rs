@@ -1,4 +1,4 @@
-use crate::tag_info::{TagInfo, TextFormat};
+use crate::documents::tag_info::{TagInfo, TextFormat};
 use std::cmp;
 
 fn get_index_of_first_char(text: &str) -> usize {
@@ -12,49 +12,45 @@ fn get_index_of_first_char(text: &str) -> usize {
 }
 
 fn get_largest_common_space_index(texts: &[&str]) -> usize {
-    let mut space_index = 0;
-    let mut prev_line = "";
-
     let mut text_iter = texts.iter();
 
     // get the first line with spaces that isn't all spaces
+    let mut space_index = 0;
+    let mut prev_line = "";
     while let Some(line) = text_iter.next() {
-        let found_index = get_index_of_first_char(line);
-        if line.len() == found_index {
-            continue;
-        }
-        if 0 == found_index {
+        if 0 == line.len() {
             continue;
         }
 
-        space_index = found_index;
+        space_index = get_index_of_first_char(line);
         prev_line = line;
         break;
     }
 
     // then get the most common space prefix in the next lines
     while let Some(line) = text_iter.next() {
-        let found_index = get_index_of_first_char(line);
-        if line.len() == found_index {
-            continue;
-        }
-        if 0 == found_index {
+        if 0 == line.len() {
             continue;
         }
 
         let mut prev_line_chars = prev_line.char_indices();
-        let mut line_chars = line.char_indices();
-        while let (Some((src_index, src_chr)), Some((_, tgt_chr))) =
-            (prev_line_chars.next(), line_chars.next())
-        {
-            if src_chr == tgt_chr && src_chr.is_whitespace() {
-                continue;
-            }
+        let mut line_chars = line.chars();
 
-            space_index = cmp::min(space_index, src_index);
-            break;
+        let mut next_space_index = 0;
+        while let Some((src_index, src_chr)) = prev_line_chars.next() {
+            next_space_index = src_index;
+
+            let tgt_chr = match line_chars.next() {
+                Some(tgt_chr) => tgt_chr,
+                _ => break,
+            };
+
+            if src_chr != tgt_chr || !src_chr.is_whitespace() {
+                break;
+            }
         }
 
+        space_index = cmp::min(next_space_index, space_index);
         prev_line = line;
     }
 
@@ -85,20 +81,13 @@ pub fn push_alt_text_component(results: &mut String, text: &str, tag_info: &TagI
     // middle
     let middle = &texts[1..texts.len() - 1];
     let common_space_index = get_largest_common_space_index(middle);
+
     for line in middle {
         results.push('\n');
 
-        match get_index_of_first_char(line) {
-            0 => {
-                if 0 < line.len() {
-                    results.push_str(&"\t".repeat(tag_info.indent_count));
-                    results.push_str(line.trim_end());
-                }
-            }
-            _ => {
-                results.push_str(&"\t".repeat(tag_info.indent_count));
-                results.push_str(line[common_space_index..].trim_end());
-            }
+        if 0 != line.len() {
+            results.push_str(&"\t".repeat(tag_info.indent_count));
+            results.push_str(&line[common_space_index..]);
         }
     }
 
@@ -130,28 +119,35 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
         return;
     }
 
-    let first_line = texts[0];
-    match tag_info.text_format {
-        TextFormat::LineSpace => {
-            results.push('\n');
-            if 0 < first_line.len() {
-                results.push_str(&"\t".repeat(tag_info.indent_count));
-            }
-        }
-        TextFormat::Space => {
-            if 0 < first_line.len() {
-                results.push(' ');
-            }
-        }
-        _ => {}
-    }
-    push_line_of_text(results, first_line);
+    let common_space_index = get_largest_common_space_index(&texts);
 
-    let middle_lines = &texts[1..texts.len()];
-    let common_space_index = get_largest_common_space_index(middle_lines);
-    for line in middle_lines {
+    let mut text_iter = texts.iter();
+
+    if let Some(first_line) = text_iter.next() {
+        match tag_info.text_format {
+            TextFormat::LineSpace => {
+                results.push('\n');
+                if 0 != first_line.len() {
+                    results.push_str(&"\t".repeat(tag_info.indent_count));
+                }
+            }
+            TextFormat::Space => {
+                if 0 != first_line.len() {
+                    results.push(' ');
+                }
+            }
+            _ => {}
+        }
+        push_line_of_text(results, first_line);
+    }
+
+    for line in text_iter {
         results.push('\n');
-        if line.len() == get_index_of_first_char(line) {
+
+        // either accept extra spacing in text components
+        // or you need to iterate across string to find out if it's "empty";
+        let found_index = get_index_of_first_char(line);
+        if line.len() == found_index {
             continue;
         }
 
@@ -182,35 +178,19 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
     }
 
     // middle
-    let middle_lines = &texts[1..texts.len() - 1];
+    let middle_lines = &texts[1..texts.len()];
     let common_space_index = get_largest_common_space_index(middle_lines);
+
     for line in middle_lines {
         results.push('\n');
 
-        let first_char_index = get_index_of_first_char(line);
-        if line.len() == first_char_index {
+        if 0 == line.len() {
             continue;
         }
 
-        match first_char_index {
-            0 => {
-                if 0 < line.len() {
-                    results.push_str(&"\t".repeat(tag_info.indent_count));
-                    push_line_of_text(results, line);
-                }
-            }
-            _ => {
-                results.push_str(&"\t".repeat(tag_info.indent_count));
-                push_line_of_text(results, &line[common_space_index..])
-            }
-        }
+        results.push_str(&"\t".repeat(tag_info.indent_count));
+        push_line_of_text(results, &line[common_space_index..])
     }
-
-    // last
-    let last = texts[texts.len() - 1];
-    results.push('\n');
-    results.push_str(&"\t".repeat(tag_info.indent_count));
-    push_line_of_text(results, last.trim())
 }
 
 fn push_line_of_text(results: &mut String, line: &str) {
