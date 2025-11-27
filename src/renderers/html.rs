@@ -62,7 +62,7 @@ impl RulesetImpl for HtmlRules {
         "html"
     }
 
-    fn tag_is_prefix_of_contentless(&self, tag: &str) -> Option<&str> {
+    fn tag_is_prefix_of_contentless_el(&self, tag: &str) -> Option<&str> {
         if tag.starts_with("!--") {
             return Some("!--");
         }
@@ -152,7 +152,7 @@ impl RulesetImpl for HtmlOnlyRules {
         }
     }
 
-    fn tag_is_prefix_of_contentless(&self, tag: &str) -> Option<&str> {
+    fn tag_is_prefix_of_contentless_el(&self, tag: &str) -> Option<&str> {
         if tag.starts_with("!--") {
             return Some("!--");
         }
