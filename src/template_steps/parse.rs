@@ -90,7 +90,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
                 tag = get_text_from_step(template_str, &end_step);
 
                 // COMMENTS
-                if let Some(prefix) = rules.tag_prefix_of_contentless(tag) {
+                if let Some(prefix) = rules.tag_is_prefix_of_contentless(tag) {
                     let diff = &tag[prefix.len()..];
                     tag = prefix;
 

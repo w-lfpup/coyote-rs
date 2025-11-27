@@ -4,6 +4,13 @@ use crate::errors::Errors;
 use crate::renderers::template_builder::Builder;
 use crate::template_steps::RulesetImpl;
 
+// params
+pub struct Params {
+    respect_indentation: bool,
+    max_cache_memory: usize,
+    max_document_memory: usize,
+}
+
 pub struct Html {
     rules: HtmlRules,
     builder: Builder,
@@ -55,7 +62,7 @@ impl RulesetImpl for HtmlRules {
         "html"
     }
 
-    fn tag_prefix_of_contentless(&self, tag: &str) -> Option<&str> {
+    fn tag_is_prefix_of_contentless(&self, tag: &str) -> Option<&str> {
         if tag.starts_with("!--") {
             return Some("!--");
         }
@@ -145,7 +152,7 @@ impl RulesetImpl for HtmlOnlyRules {
         }
     }
 
-    fn tag_prefix_of_contentless(&self, tag: &str) -> Option<&str> {
+    fn tag_is_prefix_of_contentless(&self, tag: &str) -> Option<&str> {
         if tag.starts_with("!--") {
             return Some("!--");
         }

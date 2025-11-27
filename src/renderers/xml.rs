@@ -53,7 +53,7 @@ impl RulesetImpl for XmlRules {
         }
     }
 
-    fn tag_prefix_of_contentless(&self, tag: &str) -> Option<&str> {
+    fn tag_is_prefix_of_contentless(&self, tag: &str) -> Option<&str> {
         if tag.starts_with("?") {
             return Some("?");
         }

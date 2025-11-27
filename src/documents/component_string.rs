@@ -41,6 +41,8 @@ pub fn compose_string(
     )]);
 
     while let Some(mut cmpnt_bit) = component_stack.pop() {
+        // results over len / bytes
+
         match cmpnt_bit {
             // text or list
             StackBit::Cmpnt(cmpnt) => match cmpnt {
