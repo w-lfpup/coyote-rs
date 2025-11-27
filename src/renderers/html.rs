@@ -1,20 +1,17 @@
 use crate::components::Component;
 use crate::documents::compose_string;
 use crate::errors::Errors;
+use crate::renderers::renderer::{RendererImpl, RendererParams};
 use crate::renderers::template_builder::Builder;
 use crate::template_steps::RulesetImpl;
 
-// params
-pub struct Params {
-    respect_indentation: bool,
-    max_cache_memory: usize,
-    max_document_memory: usize,
-}
+const MEGABYTE: usize = 1048576;
+const FALLBACK_CACHE_MEMORY_LIMIT: usize = 16 * MEGABYTE;
+const FALLBACK_DOCUMENT_MEMORY_LIMIT: usize = 32 * MEGABYTE;
 
 pub struct Html {
     rules: HtmlRules,
     builder: Builder,
-    // template_builder: TemplateBuilder,
 }
 
 impl Html {
@@ -25,7 +22,16 @@ impl Html {
         }
     }
 
-    pub fn build(&mut self, component: &Component) -> Result<String, Errors> {
+    pub fn from(params: &RendererParams) -> Html {
+        Html {
+            rules: HtmlRules::new(),
+            builder: Builder::new(),
+        }
+    }
+}
+
+impl RendererImpl for Html {
+    fn render(&mut self, component: &Component) -> Result<String, Errors> {
         compose_string(&mut self.builder, &self.rules, component)
     }
 }
@@ -44,16 +50,39 @@ impl HtmlOnly {
         }
     }
 
-    pub fn build(&mut self, component: &Component) -> Result<String, Errors> {
+    pub fn from(params: &RendererParams) -> HtmlOnly {
+        HtmlOnly {
+            rules: HtmlOnlyRules::new(),
+            builder: Builder::new(),
+        }
+    }
+}
+
+impl RendererImpl for HtmlOnly {
+    fn render(&mut self, component: &Component) -> Result<String, Errors> {
         compose_string(&mut self.builder, &self.rules, component)
     }
 }
 
-pub struct HtmlRules {}
+pub struct HtmlRules {
+    params: RendererParams,
+}
 
 impl HtmlRules {
     pub fn new() -> HtmlRules {
-        HtmlRules {}
+        let params = RendererParams {
+            cache_memory_limit: FALLBACK_CACHE_MEMORY_LIMIT,
+            document_memory_limit: FALLBACK_DOCUMENT_MEMORY_LIMIT,
+            respect_indentation: false,
+        };
+
+        HtmlRules { params }
+    }
+
+    pub fn from(params: RendererParams) -> HtmlRules {
+        HtmlRules {
+            params: params.clone(),
+        }
     }
 }
 
@@ -125,11 +154,25 @@ impl RulesetImpl for HtmlRules {
     }
 }
 
-pub struct HtmlOnlyRules {}
+pub struct HtmlOnlyRules {
+    params: RendererParams,
+}
 
 impl HtmlOnlyRules {
     pub fn new() -> HtmlOnlyRules {
-        HtmlOnlyRules {}
+        let params = RendererParams {
+            cache_memory_limit: FALLBACK_CACHE_MEMORY_LIMIT,
+            document_memory_limit: FALLBACK_DOCUMENT_MEMORY_LIMIT,
+            respect_indentation: false,
+        };
+
+        HtmlOnlyRules { params }
+    }
+
+    pub fn from(params: RendererParams) -> HtmlOnlyRules {
+        HtmlOnlyRules {
+            params: params.clone(),
+        }
     }
 }
 

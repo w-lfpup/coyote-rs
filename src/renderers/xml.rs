@@ -1,8 +1,13 @@
 use crate::components::Component;
 use crate::documents::compose_string;
 use crate::errors::Errors;
+use crate::renderers::renderer::{RendererImpl, RendererParams};
 use crate::renderers::template_builder::Builder;
 use crate::template_steps::RulesetImpl;
+
+const MEGABYTE: usize = 1048576;
+const FALLBACK_CACHE_MEMORY_LIMIT: usize = 16 * MEGABYTE;
+const FALLBACK_DOCUMENT_MEMORY_LIMIT: usize = 32 * MEGABYTE;
 
 pub struct Xml {
     rules: XmlRules,
@@ -16,17 +21,33 @@ impl Xml {
             builder: Builder::new(),
         }
     }
+}
 
-    pub fn build(&mut self, component: &Component) -> Result<String, Errors> {
+impl RendererImpl for Xml {
+    fn render(&mut self, component: &Component) -> Result<String, Errors> {
         compose_string(&mut self.builder, &self.rules, component)
     }
 }
 
-pub struct XmlRules {}
+pub struct XmlRules {
+    params: RendererParams,
+}
 
 impl XmlRules {
     pub fn new() -> XmlRules {
-        XmlRules {}
+        let params = RendererParams {
+            cache_memory_limit: FALLBACK_CACHE_MEMORY_LIMIT,
+            document_memory_limit: FALLBACK_DOCUMENT_MEMORY_LIMIT,
+            respect_indentation: false,
+        };
+
+        XmlRules { params }
+    }
+
+    pub fn from(params: RendererParams) -> XmlRules {
+        XmlRules {
+            params: params.clone(),
+        }
     }
 }
 
