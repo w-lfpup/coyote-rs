@@ -2,20 +2,13 @@ use crate::documents::TemplateBuilderImpl;
 use crate::template_steps::{RulesetImpl, TemplateSteps, compose};
 use std::collections::HashMap;
 
-// default cache params
-pub struct BuilderParams {
-    max_memory: usize,
-}
-
 pub struct Builder {
-    memory_footprint: usize,
     results_cache: HashMap<String, TemplateSteps>,
 }
 
 impl Builder {
     pub fn new() -> Builder {
         Builder {
-            memory_footprint: 0,
             results_cache: HashMap::new(),
         }
     }

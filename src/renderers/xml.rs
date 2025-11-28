@@ -52,6 +52,14 @@ impl XmlRules {
 }
 
 impl RulesetImpl for XmlRules {
+    fn get_document_memory_limit(&self) -> usize {
+        self.params.document_memory_limit
+    }
+
+    fn get_cache_memory_limit(&self) -> usize {
+        self.params.cache_memory_limit
+    }
+
     fn get_initial_namespace(&self) -> &str {
         "xml"
     }

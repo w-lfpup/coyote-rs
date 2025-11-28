@@ -24,7 +24,7 @@ impl Html {
 
     pub fn from(params: &RendererParams) -> Html {
         Html {
-            rules: HtmlRules::new(),
+            rules: HtmlRules::from(params),
             builder: Builder::new(),
         }
     }
@@ -52,7 +52,7 @@ impl HtmlOnly {
 
     pub fn from(params: &RendererParams) -> HtmlOnly {
         HtmlOnly {
-            rules: HtmlOnlyRules::new(),
+            rules: HtmlOnlyRules::from(params),
             builder: Builder::new(),
         }
     }
@@ -79,7 +79,7 @@ impl HtmlRules {
         HtmlRules { params }
     }
 
-    pub fn from(params: RendererParams) -> HtmlRules {
+    pub fn from(params: &RendererParams) -> HtmlRules {
         HtmlRules {
             params: params.clone(),
         }
@@ -87,6 +87,14 @@ impl HtmlRules {
 }
 
 impl RulesetImpl for HtmlRules {
+    fn get_document_memory_limit(&self) -> usize {
+        self.params.document_memory_limit
+    }
+
+    fn get_cache_memory_limit(&self) -> usize {
+        self.params.cache_memory_limit
+    }
+
     fn get_initial_namespace(&self) -> &str {
         "html"
     }
@@ -169,7 +177,7 @@ impl HtmlOnlyRules {
         HtmlOnlyRules { params }
     }
 
-    pub fn from(params: RendererParams) -> HtmlOnlyRules {
+    pub fn from(params: &RendererParams) -> HtmlOnlyRules {
         HtmlOnlyRules {
             params: params.clone(),
         }
@@ -177,6 +185,14 @@ impl HtmlOnlyRules {
 }
 
 impl RulesetImpl for HtmlOnlyRules {
+    fn get_document_memory_limit(&self) -> usize {
+        self.params.document_memory_limit
+    }
+
+    fn get_cache_memory_limit(&self) -> usize {
+        self.params.cache_memory_limit
+    }
+
     fn get_initial_namespace(&self) -> &str {
         "html"
     }
