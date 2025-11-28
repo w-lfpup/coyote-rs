@@ -17,7 +17,3 @@ impl RendererParams {
         }
     }
 }
-
-pub trait RendererImpl {
-    fn render(&mut self, component: &Component) -> Result<String, Errors>;
-}

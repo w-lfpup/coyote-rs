@@ -1,11 +1,11 @@
 use crate::components::Component;
 use crate::documents::compose_string;
 use crate::errors::Errors;
-use crate::renderers::renderer::{RendererImpl, RendererParams};
+use crate::renderers::renderer::RendererParams;
 use crate::renderers::template_builder::Builder;
 use crate::template_steps::RulesetImpl;
 
-const MEGABYTE: usize = 1048576;
+const MEGABYTE: usize = 1024 * 1024;
 const FALLBACK_CACHE_MEMORY_LIMIT: usize = 16 * MEGABYTE;
 const FALLBACK_DOCUMENT_MEMORY_LIMIT: usize = 32 * MEGABYTE;
 
@@ -28,10 +28,8 @@ impl Html {
             builder: Builder::new(),
         }
     }
-}
 
-impl RendererImpl for Html {
-    fn render(&mut self, component: &Component) -> Result<String, Errors> {
+    pub fn render(&mut self, component: &Component) -> Result<String, Errors> {
         compose_string(&mut self.builder, &self.rules, component)
     }
 }
@@ -56,10 +54,8 @@ impl HtmlOnly {
             builder: Builder::new(),
         }
     }
-}
 
-impl RendererImpl for HtmlOnly {
-    fn render(&mut self, component: &Component) -> Result<String, Errors> {
+    pub fn render(&mut self, component: &Component) -> Result<String, Errors> {
         compose_string(&mut self.builder, &self.rules, component)
     }
 }
@@ -73,7 +69,7 @@ impl HtmlRules {
         let params = RendererParams {
             cache_memory_limit: FALLBACK_CACHE_MEMORY_LIMIT,
             document_memory_limit: FALLBACK_DOCUMENT_MEMORY_LIMIT,
-            respect_indentation: false,
+            respect_indentation: true,
         };
 
         HtmlRules { params }
@@ -138,7 +134,7 @@ impl RulesetImpl for HtmlRules {
     }
 
     fn respect_indentation(&self) -> bool {
-        true
+        self.params.respect_indentation
     }
 
     fn tag_is_banned_el(&self, tag: &str) -> bool {
@@ -236,7 +232,7 @@ impl RulesetImpl for HtmlOnlyRules {
     }
 
     fn respect_indentation(&self) -> bool {
-        false
+        self.params.respect_indentation
     }
 
     fn tag_is_banned_el(&self, tag: &str) -> bool {

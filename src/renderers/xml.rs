@@ -107,7 +107,7 @@ impl RulesetImpl for XmlRules {
     }
 
     fn respect_indentation(&self) -> bool {
-        true
+        self.params.respect_indentation
     }
 
     fn tag_is_banned_el(&self, _tag: &str) -> bool {
