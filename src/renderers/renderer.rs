@@ -4,13 +4,3 @@ pub struct RendererParams {
     pub document_memory_limit: usize,
     pub respect_indentation: bool,
 }
-
-impl RendererParams {
-    pub fn default() -> RendererParams {
-        RendererParams {
-            cache_memory_limit: 32 * 1024 * 1024,
-            document_memory_limit: 32 * 1024 * 1024,
-            respect_indentation: true,
-        }
-    }
-}

@@ -5,7 +5,7 @@ use crate::renderers::RendererParams;
 use crate::renderers::template_builder::Builder;
 use crate::template_steps::RulesetImpl;
 
-const MEGABYTE: usize = 1048576;
+const MEGABYTE: usize = 1024 * 1024;
 const FALLBACK_CACHE_MEMORY_LIMIT: usize = 16 * MEGABYTE;
 const FALLBACK_DOCUMENT_MEMORY_LIMIT: usize = 32 * MEGABYTE;
 
@@ -18,6 +18,13 @@ impl Xml {
     pub fn new() -> Xml {
         Xml {
             rules: XmlRules::new(),
+            builder: Builder::new(),
+        }
+    }
+
+    pub fn from(params: &RendererParams) -> Xml {
+        Xml {
+            rules: XmlRules::from(params.clone()),
             builder: Builder::new(),
         }
     }
