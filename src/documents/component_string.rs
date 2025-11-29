@@ -41,7 +41,13 @@ pub fn compose_string(
     )]);
 
     while let Some(mut cmpnt_bit) = component_stack.pop() {
-        // results over len / bytes
+        // check document length
+        if rules.get_document_memory_limit() < template_results.len() {
+            return Err(Errors::DocumentMemoryLimitExceeded(
+                rules.get_document_memory_limit(),
+                template_results.len(),
+            ));
+        }
 
         match cmpnt_bit {
             // text or list
