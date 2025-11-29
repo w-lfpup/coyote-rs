@@ -1,7 +1,7 @@
 use crate::components::Component;
 use crate::documents::compose_string;
 use crate::errors::Errors;
-use crate::renderers::renderer::{RendererImpl, RendererParams};
+use crate::renderers::RendererParams;
 use crate::renderers::template_builder::Builder;
 use crate::template_steps::RulesetImpl;
 
@@ -21,10 +21,8 @@ impl Xml {
             builder: Builder::new(),
         }
     }
-}
 
-impl RendererImpl for Xml {
-    fn render(&mut self, component: &Component) -> Result<String, Errors> {
+    pub fn render(&mut self, component: &Component) -> Result<String, Errors> {
         compose_string(&mut self.builder, &self.rules, component)
     }
 }

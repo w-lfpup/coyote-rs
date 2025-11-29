@@ -1,6 +1,3 @@
-use crate::components::Component;
-use crate::errors::Errors;
-
 #[derive(Clone)]
 pub struct RendererParams {
     pub cache_memory_limit: usize,
