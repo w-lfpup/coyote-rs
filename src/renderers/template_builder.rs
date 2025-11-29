@@ -1,11 +1,7 @@
 use crate::documents::TemplateBuilderImpl;
 use crate::template_steps::{RulesetImpl, TemplateSteps, compose};
-use std::collections::HashMap;
 
-// default cache params
-pub struct BuilderParams {
-    max_memory: usize,
-}
+use std::collections::HashMap;
 
 pub struct Builder {
     memory_footprint: usize,
@@ -23,27 +19,18 @@ impl Builder {
 
 impl TemplateBuilderImpl for Builder {
     fn build(&mut self, rules: &dyn RulesetImpl, template_str: &str) -> TemplateSteps {
-        // cache template steps here
+        // obliterate cache if memory limit exceeded
+        if rules.get_cache_memory_limit() < self.memory_footprint {
+            self.results_cache = HashMap::new();
+        }
 
         if let Some(steps) = self.results_cache.get(template_str) {
             return steps.clone();
         }
 
-        // sizeof step * len of steps
-        // + len of template string
-        //
-        // = memory footprint
-
-        // += curr_bytes
-
-        // if bytes is > max memory
-        // create new cache
+        self.memory_footprint += template_str.len();
 
         let steps = compose(rules, template_str);
-
-        // check if step count is above threshold
-
-        // obliterate cache if step count + new step count > threshold
 
         self.results_cache
             .insert(template_str.to_string(), steps.clone());

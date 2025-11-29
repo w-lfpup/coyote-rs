@@ -1,8 +1,13 @@
 use crate::components::Component;
 use crate::documents::compose_string;
 use crate::errors::Errors;
+use crate::renderers::RendererParams;
 use crate::renderers::template_builder::Builder;
 use crate::template_steps::RulesetImpl;
+
+const MEGABYTE: usize = 1024 * 1024;
+const FALLBACK_CACHE_MEMORY_LIMIT: usize = 16 * MEGABYTE;
+const FALLBACK_DOCUMENT_MEMORY_LIMIT: usize = 32 * MEGABYTE;
 
 pub struct Xml {
     rules: XmlRules,
@@ -17,20 +22,49 @@ impl Xml {
         }
     }
 
-    pub fn build(&mut self, component: &Component) -> Result<String, Errors> {
+    pub fn from(params: &RendererParams) -> Xml {
+        Xml {
+            rules: XmlRules::from(params.clone()),
+            builder: Builder::new(),
+        }
+    }
+
+    pub fn render(&mut self, component: &Component) -> Result<String, Errors> {
         compose_string(&mut self.builder, &self.rules, component)
     }
 }
 
-pub struct XmlRules {}
+pub struct XmlRules {
+    params: RendererParams,
+}
 
 impl XmlRules {
     pub fn new() -> XmlRules {
-        XmlRules {}
+        let params = RendererParams {
+            cache_memory_limit: FALLBACK_CACHE_MEMORY_LIMIT,
+            document_memory_limit: FALLBACK_DOCUMENT_MEMORY_LIMIT,
+            respect_indentation: false,
+        };
+
+        XmlRules { params }
+    }
+
+    pub fn from(params: RendererParams) -> XmlRules {
+        XmlRules {
+            params: params.clone(),
+        }
     }
 }
 
 impl RulesetImpl for XmlRules {
+    fn get_document_memory_limit(&self) -> usize {
+        self.params.document_memory_limit
+    }
+
+    fn get_cache_memory_limit(&self) -> usize {
+        self.params.cache_memory_limit
+    }
+
     fn get_initial_namespace(&self) -> &str {
         "xml"
     }
@@ -53,7 +87,7 @@ impl RulesetImpl for XmlRules {
         }
     }
 
-    fn tag_prefix_of_contentless(&self, tag: &str) -> Option<&str> {
+    fn tag_is_prefix_of_contentless_el(&self, tag: &str) -> Option<&str> {
         if tag.starts_with("?") {
             return Some("?");
         }
@@ -78,7 +112,7 @@ impl RulesetImpl for XmlRules {
     }
 
     fn respect_indentation(&self) -> bool {
-        true
+        self.params.respect_indentation
     }
 
     fn tag_is_banned_el(&self, _tag: &str) -> bool {

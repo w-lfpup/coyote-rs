@@ -1,5 +1,6 @@
-use crate::components::Component;
-
-pub trait RendererImpl {
-    fn render(&mut self, component: &Component) -> Result<String, String>;
+#[derive(Clone)]
+pub struct RendererParams {
+    pub cache_memory_limit: usize,
+    pub document_memory_limit: usize,
+    pub respect_indentation: bool,
 }

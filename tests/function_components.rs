@@ -30,7 +30,7 @@ fn form_component_retains_spacing() {
     let expected = "<form action=\"/uwu\" method=\"post\">\n\tyou're a boy kisser aren't you >:3\n\t<input type=submit value=\"yus -_-\">\n</form>";
 
     let mut html = Html::new();
-    let results = html.build(&template);
+    let results = html.render(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
 }
@@ -101,7 +101,7 @@ fn elememt_and_text_components_retains_spacing() {
 </div>";
 
     let mut html = Html::new();
-    let results = html.build(&template);
+    let results = html.render(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
 }
@@ -160,7 +160,7 @@ fn element_and_text_components_retain_extra_spacey_spacing() {
 </div>";
 
     let mut html = Html::new();
-    let results = html.build(&template);
+    let results = html.render(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
 }
@@ -195,7 +195,7 @@ fn attributes_retain_spacing() {
 </p>";
 
     let mut html = Html::new();
-    let results = html.build(&template);
+    let results = html.render(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
 }
@@ -213,7 +213,7 @@ fn attribute_components_retain_spacing() {
 </p>";
 
     let mut html = Html::new();
-    let results = html.build(&template);
+    let results = html.render(&template);
 
     assert_eq!(Ok(expected.to_string()), results);
 }

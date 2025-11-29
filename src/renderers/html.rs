@@ -1,13 +1,17 @@
 use crate::components::Component;
 use crate::documents::compose_string;
 use crate::errors::Errors;
+use crate::renderers::renderer::RendererParams;
 use crate::renderers::template_builder::Builder;
 use crate::template_steps::RulesetImpl;
+
+const MEGABYTE: usize = 1024 * 1024;
+const FALLBACK_CACHE_MEMORY_LIMIT: usize = 16 * MEGABYTE;
+const FALLBACK_DOCUMENT_MEMORY_LIMIT: usize = 32 * MEGABYTE;
 
 pub struct Html {
     rules: HtmlRules,
     builder: Builder,
-    // template_builder: TemplateBuilder,
 }
 
 impl Html {
@@ -18,7 +22,14 @@ impl Html {
         }
     }
 
-    pub fn build(&mut self, component: &Component) -> Result<String, Errors> {
+    pub fn from(params: &RendererParams) -> Html {
+        Html {
+            rules: HtmlRules::from(params),
+            builder: Builder::new(),
+        }
+    }
+
+    pub fn render(&mut self, component: &Component) -> Result<String, Errors> {
         compose_string(&mut self.builder, &self.rules, component)
     }
 }
@@ -37,25 +48,54 @@ impl HtmlOnly {
         }
     }
 
-    pub fn build(&mut self, component: &Component) -> Result<String, Errors> {
+    pub fn from(params: &RendererParams) -> HtmlOnly {
+        HtmlOnly {
+            rules: HtmlOnlyRules::from(params),
+            builder: Builder::new(),
+        }
+    }
+
+    pub fn render(&mut self, component: &Component) -> Result<String, Errors> {
         compose_string(&mut self.builder, &self.rules, component)
     }
 }
 
-pub struct HtmlRules {}
+pub struct HtmlRules {
+    params: RendererParams,
+}
 
 impl HtmlRules {
     pub fn new() -> HtmlRules {
-        HtmlRules {}
+        let params = RendererParams {
+            cache_memory_limit: FALLBACK_CACHE_MEMORY_LIMIT,
+            document_memory_limit: FALLBACK_DOCUMENT_MEMORY_LIMIT,
+            respect_indentation: true,
+        };
+
+        HtmlRules { params }
+    }
+
+    pub fn from(params: &RendererParams) -> HtmlRules {
+        HtmlRules {
+            params: params.clone(),
+        }
     }
 }
 
 impl RulesetImpl for HtmlRules {
+    fn get_document_memory_limit(&self) -> usize {
+        self.params.document_memory_limit
+    }
+
+    fn get_cache_memory_limit(&self) -> usize {
+        self.params.cache_memory_limit
+    }
+
     fn get_initial_namespace(&self) -> &str {
         "html"
     }
 
-    fn tag_prefix_of_contentless(&self, tag: &str) -> Option<&str> {
+    fn tag_is_prefix_of_contentless_el(&self, tag: &str) -> Option<&str> {
         if tag.starts_with("!--") {
             return Some("!--");
         }
@@ -94,7 +134,7 @@ impl RulesetImpl for HtmlRules {
     }
 
     fn respect_indentation(&self) -> bool {
-        true
+        self.params.respect_indentation
     }
 
     fn tag_is_banned_el(&self, tag: &str) -> bool {
@@ -118,15 +158,37 @@ impl RulesetImpl for HtmlRules {
     }
 }
 
-pub struct HtmlOnlyRules {}
+pub struct HtmlOnlyRules {
+    params: RendererParams,
+}
 
 impl HtmlOnlyRules {
     pub fn new() -> HtmlOnlyRules {
-        HtmlOnlyRules {}
+        let params = RendererParams {
+            cache_memory_limit: FALLBACK_CACHE_MEMORY_LIMIT,
+            document_memory_limit: FALLBACK_DOCUMENT_MEMORY_LIMIT,
+            respect_indentation: false,
+        };
+
+        HtmlOnlyRules { params }
+    }
+
+    pub fn from(params: &RendererParams) -> HtmlOnlyRules {
+        HtmlOnlyRules {
+            params: params.clone(),
+        }
     }
 }
 
 impl RulesetImpl for HtmlOnlyRules {
+    fn get_document_memory_limit(&self) -> usize {
+        self.params.document_memory_limit
+    }
+
+    fn get_cache_memory_limit(&self) -> usize {
+        self.params.cache_memory_limit
+    }
+
     fn get_initial_namespace(&self) -> &str {
         "html"
     }
@@ -145,7 +207,7 @@ impl RulesetImpl for HtmlOnlyRules {
         }
     }
 
-    fn tag_prefix_of_contentless(&self, tag: &str) -> Option<&str> {
+    fn tag_is_prefix_of_contentless_el(&self, tag: &str) -> Option<&str> {
         if tag.starts_with("!--") {
             return Some("!--");
         }
@@ -170,7 +232,7 @@ impl RulesetImpl for HtmlOnlyRules {
     }
 
     fn respect_indentation(&self) -> bool {
-        false
+        self.params.respect_indentation
     }
 
     fn tag_is_banned_el(&self, tag: &str) -> bool {
