@@ -67,10 +67,7 @@ fn injection_story() -> Component {
             {}
         </article>
         ",
-        [
-            attribute,
-            descendant,
-        ]
+        [attribute, descendant]
     )
 }
 ```
@@ -130,10 +127,7 @@ fn form() -> Component {
             {}
         </form>
         ",
-        [
-            attributes,
-            vlist(descendants),
-        ],
+        [attributes, vlist(descendants)],
     )
 }
 ```
