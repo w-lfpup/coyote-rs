@@ -11,7 +11,7 @@ HTML in, HTML out. No suprises and very little overhead.
 `Coyote-rs` is available on [crates.io](https://crates.io) as `coyote_rs`:
 
 ```sh
-cargo install coyote_rs
+cargo install coyotes
 ```
 
 Or install directly from git:

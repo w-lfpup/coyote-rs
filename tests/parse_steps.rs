@@ -1,4 +1,4 @@
-use coyote_rs::{Component, HtmlRules, Step, StepKind, TemplateSteps, compose, tmpl};
+use coyotes::{Component, HtmlRules, Step, StepKind, TemplateSteps, compose, tmpl};
 
 fn woof_woof() -> Component {
     tmpl("<form {}>{}</form>", [])

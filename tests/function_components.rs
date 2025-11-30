@@ -1,4 +1,4 @@
-use coyote_rs::{Component, Html, attr_val, list, text, tmpl, vlist};
+use coyotes::{Component, Html, attr_val, list, text, tmpl, vlist};
 
 fn submit_button() -> Component {
     tmpl("<input type=submit value=\"yus -_-\">", [])
