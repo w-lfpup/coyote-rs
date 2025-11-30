@@ -2,14 +2,23 @@
 
 `Coyote` creates documents with components.
 
+## Components as an IMR
+
+Components are not HTML or XML.
+
+Components are an (I)ntermediate (R)endering (F)ormat.
+
+They are the _potential_ for a document like HTML or XML.
+
 ## The template component
 
-## Tags, void elements, fragments
+## Syntax story
 
 `Coyote` templates support self-closing tags, void elements, and jsx-like fragments:
 
 ```rs
-tmpl("
+tmpl(
+    "
     <article>
         <>
             <p>no waaaay?</p>
@@ -62,7 +71,8 @@ fn injection_story() -> Component {
     let attribute = attr("uwu");
     let descendant = text("hai :3")
 
-    tmpl("
+    tmpl(
+        "
         <article {}>
             {}
         </article>
@@ -230,14 +240,6 @@ the abscence of a component
 ```rs
 Component::None
 ```
-
-## Components as an IMR
-
-Components are not quite HTML or XML.
-
-Components are an (I)ntermediate (R)endering (F)ormat.
-
-They are the _potential_ for a document like HTML or XML.
 
 ## Document builders
 
