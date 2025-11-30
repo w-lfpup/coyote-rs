@@ -6,7 +6,7 @@
 
 ### Hello, world!
 
-The example below creates an html document from a coyote component function.
+The example below creates an html document from a component function.
 
 ```rust
 use coyotex::{Component, Html, tmpl};
@@ -35,7 +35,7 @@ The output will be:
 
 The example below creates a _safer_ fragment for client-side renders using `HtmlOnly`.
 
-This document builder avoids all instances of `link`, `style`, and `script` elements.
+This document builder removes all instances of `link`, `style`, and `script` elements.
 
 ```rust
 use coyoteh::{HtmlOnly, Component, tmpl};
@@ -75,10 +75,10 @@ The output will be:
 
 ## Errors
 
-There are a few instances where a document builder will return an error:
-- a template was unbalanced
-- an attribute contained a forbidden glyph
-- render exceeded document memory limits
+A document builder will return an error when:
+- a template is unbalanced
+- an attribute contains a forbidden glyph
+- a render exceeds a memory limit
 
 ### Forbidden attribute glyphs
 
@@ -141,3 +141,5 @@ let renderer_params = RendererParams {
 let html = Html::from(&renderer_params);
 let html_only = HtmlOnly::from(&renderer_params);
 ```
+
+Memory limits are defined in bytes.

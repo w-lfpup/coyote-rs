@@ -8,10 +8,10 @@ HTML in, HTML out. No suprises and very little overhead.
 
 ## Install
 
-`Coyote-rs` is available on [crates.io](https://crates.io) as `koyote`:
+`Coyote-rs` is available on [crates.io](https://crates.io) as `coyote_html`:
 
 ```sh
-cargo install coyoteh
+cargo install coyote_html
 ```
 
 Or install directly from git:
@@ -32,9 +32,9 @@ fn hello_world() -> Component {
 }
 ```
 
-## Html
+## Renderers
 
-Render components as `html` with [document builders](./document_builders.md).
+Render components as `html` with [renderers](./document_builders.md).
 
 ```rust
 use coyote_html::Html;
