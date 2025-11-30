@@ -9,4 +9,4 @@ pub use document_builders::{
     DocumentParams, Html, HtmlOnly, HtmlOnlyRules, HtmlRules, Xml, XmlRules,
 };
 pub use documents::{TemplateBuilderImpl, compose_string};
-pub use template_steps::{RulesetImpl, Step, StepKind, TemplateSteps, compose};
+pub use template_steps::{RulesetImpl, TemplateSteps, compose};
