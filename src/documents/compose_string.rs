@@ -21,10 +21,6 @@ enum StackBit<'a> {
     None,
 }
 
-// needs to be a concept of a "remainder"
-// the last empty string of the previous step,
-// provided to the next step
-
 pub fn compose_string(
     builder: &mut dyn TemplateBuilderImpl,
     rules: &dyn RulesetImpl,
