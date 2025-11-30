@@ -45,7 +45,7 @@ The output will be:
 
 ## Spaces
 
-`Coyote` outputs w3 spec-compliant HTML that respects the lines and spaces defined by templates and text injections.
+Spacing is meaningful in html so `Coyote` respects the lines and spaces defined by developers.
 
 Learn more about how `coyote` handles [spacing](./spacing).
 
