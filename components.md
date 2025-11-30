@@ -1,13 +1,13 @@
 # Components
 
-`Coyote` creates documents with function components.
+`Coyote` creates documents with components.
 
 ## Function Components
 
 Function components are functions that return components!
 
 ```rust
-use coyote::components::{Component, tmpl};
+use coyoteh::components::{Component, tmpl};
 
 fn hello_world() -> Component {
     tmpl("<p>hai :3</p>", [])
@@ -59,7 +59,7 @@ Likewise there are only two valid injection locations in a `tmpl` component:
 ```rs
 fn injection_story() -> Component {
     let attribute = attr("uwu");
-    let descendant = text("hai! :3")
+    let descendant = text("hai :3")
 
     tmpl("
         <article {}>
@@ -67,6 +67,14 @@ fn injection_story() -> Component {
         </article>
     ", [attribute, descendant])
 }
+```
+
+Which renders:
+
+```html
+<article uwu>
+    hai :3
+<article>
 ```
 
 Any other instance of `{}` in a template component will not be considered an injection.
@@ -84,17 +92,17 @@ helloooo { world }
 would look like the following as a template:
 
 ```rust
-tmpl("hellooo, &#123; world }"); 
+tmpl("hellooo, &#123; world }", []); 
 ```
 
 ## Nested templates
 
-The `list` and `vlist` (vector list) components immitate the `node -> [node, text, node, ...]` heiarchy of an xml-like document.
+The `list` and `vlist` components immitate the `node -> [node, text, node, ...]` heiarchy of an xml-like document.
 
 The example below creates a form defined by lists of attributes, templates, and text.
 
 ```rust
-use coyote::{Component, attr_val, list, text, tmpl};
+use coyoteh::{Component, attr_val, list, text, tmpl};
 
 fn submit_button() -> Component {
     tmpl("<input type=submit value='yus -_-'>", [])
@@ -107,7 +115,7 @@ fn form() -> Component {
     ];
 
     let mut descendants: Vec<Component> = Vec::new();
-    descendants.push(text("you're a boy kisser aren't you >:3"));
+    descendants.push(text("you're a good dog aren't you >:3"));
     descendants.push(submit_button());
     
     tmpl(
@@ -123,7 +131,7 @@ And the output will be:
 
 ```html
 <form action="/uwu" method="post">
-    you're a boy kisser aren't you >:3
+    you're a good dog aren't you >:3
     <input type=submit value="yus -_-">
 </form>
 ```

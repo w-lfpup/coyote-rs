@@ -1,6 +1,6 @@
 # Document Builders
 
-`Coyote` renders templates with `rulesets` and `document builders`.
+`Coyote` renders components with `document builders`.
 
 ## Html
 
@@ -9,7 +9,7 @@
 The example below creates an html document from a coyote component function.
 
 ```rust
-use coyote::{Component, Html, tmpl};
+use coyotex::{Component, Html, tmpl};
 
 fn hello_world() -> Component {
     tmpl("<p>hai :3</p>", [])
@@ -35,8 +35,10 @@ The output will be:
 
 The example below creates a _safer_ fragment for client-side renders using `HtmlOnly`.
 
+This document builder avoids all instances of `link`, `style`, and `script` elements.
+
 ```rust
-use coyote::{HtmlOnly, Component, tmpl};
+use coyoteh::{HtmlOnly, Component, tmpl};
 
 fn hello_world() -> Component {
     tmpl(
@@ -52,7 +54,7 @@ fn malicious() -> Component {
             * { color: malicious-blue; }
         </style>
         <script>
-            console.log('malicious! rawr!');
+            console.log('malicious rawrr!');
         </script>
     ", [])
 }
