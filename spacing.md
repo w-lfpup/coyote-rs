@@ -13,7 +13,7 @@ So every new line and space is intentional.
 Here are some general expectations developers should know when writing templates:
 - spaces collapse
 - new lines do not collapse
-- injections repeat their preceeding space
+- descendant components define space
 
 ## Templates
 
@@ -49,31 +49,27 @@ Will output collapsed spaces:
 
 ### Preserve new lines
 
-`Coyote` respects new lines found in template text nodes.
+`Coyote` respects new lines found in text components.
 
 New lines are often used by developers to visually organize content.
 
-So a template with new lines:
+So a text components with new lines:
 
 ```rust
-tmpl("
-	<p>
+text(
+	"
 
-		hai :3
-	
-	</p>
-	",
-	[]
+	hai    :3
+
+	"
 )
 ```
 
 Will output every new line:
 ```html
-<p>
 
 	hai :3
 
-</p>
 ```
 
 ### Attributes
@@ -131,9 +127,10 @@ tmpl("
 	<p
 		attr='
 
-		hai   :3    hello!
+			hai   :3    hello!
 
-		'></p>
+			'
+	></p>
 	",
 	[]
 )
@@ -145,9 +142,10 @@ Will collapse spaces but preserve new lines on render:
 <p
 	attr='
 
-	hai :3 hello!
+		hai :3 hello!
 
-	'></p>
+		'
+></p>
 ```
 
 ## Injections
@@ -190,7 +188,8 @@ let attributes = list([
 
 tmpl(
 	"<p
-		{}></p>",
+		{}></p>
+	",
 	[attributes]
 )
 ```
@@ -205,12 +204,17 @@ A template will output new lines before attributes:
 
 ### Descendant injections
 
-Similarly, if a descendant injection is preceeded by a space (or the start of a new tag):
+#### No spaces
+
+If a descendant component has space, that space is preserved:
 
 ```rs
 let descendants = list([
-	tmpl("<span>hai :3</span>", []),
-	tmpl("<span>hello</span>", []),
+	tmpl(" <span>hai :3</span> ", []),
+	tmpl(
+		"
+		<span>hello</span>
+		", []),
 ]);
 
 tmpl(
@@ -219,18 +223,23 @@ tmpl(
 )
 ```
 
-Then the template will render descendants preceeded by a space:
+Then the template will render descendants without a space:
 
 ```html
-<p><span>hai :3</span> <span>hello</span></p>
+<p> <span>hai :3</span>
+	<span>hello</span></p>
 ```
+
+#### New lines
 
 If a descendant injection is preceeded by a new line:
 
 ```rs
 let descendants = list([
 	tmpl("<span>hai :3</span>", []),
-	tmpl("<span>hello</span>", []),
+	tmpl("
+		<span>hello</span>
+		", []),
 ]);
 
 tmpl(
