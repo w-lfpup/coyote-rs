@@ -1,6 +1,5 @@
 use crate::documents::TemplateBuilderImpl;
 use crate::template_steps::{RulesetImpl, TemplateSteps, compose};
-
 use std::collections::HashMap;
 
 pub struct Builder {

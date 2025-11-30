@@ -1,5 +1,3 @@
-// Test will not build if function components do not build
-
 use coyote_rs::{Component, Html, attr_val, list, text, tmpl, vlist};
 
 fn submit_button() -> Component {
