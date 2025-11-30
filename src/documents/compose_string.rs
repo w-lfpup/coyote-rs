@@ -75,7 +75,7 @@ pub fn compose_string(
             },
             // template chunk and possible injection
             // could be used for String too
-            StackBit::Tmpl(cmpnt, ref template, ref mut bit) => {
+            StackBit::Tmpl(cmpnt, ref template_steps, ref mut bit) => {
                 let index = bit.inj_index;
                 bit.inj_index += 1;
 
@@ -86,7 +86,7 @@ pub fn compose_string(
                 };
 
                 // template chunk
-                match template.steps.get(index) {
+                match template_steps.steps.get(index) {
                     Some(chunk) => {
                         compose_steps(
                             rules,
@@ -113,7 +113,7 @@ pub fn compose_string(
                 };
 
                 if let (Some(inj_step), Some(inj)) =
-                    (template.injs.get(index), injections.get(index))
+                    (template_steps.injs.get(index), injections.get(index))
                 {
                     match inj_step.kind {
                         StepKind::AttrMapInjection => {
@@ -142,7 +142,7 @@ pub fn compose_string(
                     }
                 }
 
-                if index < template.steps.len() {
+                if index < template_steps.steps.len() {
                     component_stack.push(cmpnt_bit);
                 }
             }
