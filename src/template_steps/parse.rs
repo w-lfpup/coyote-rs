@@ -273,7 +273,6 @@ mod tests {
     fn test_parse_str() {
         let rules = HtmlRules::new();
 
-        let template = woof_woof();
         let expected = TemplateSteps {
             steps: Vec::from([
                 Vec::from([
@@ -352,8 +351,10 @@ mod tests {
             ]),
         };
 
-        if let Component::Tmpl(tmpl) = template {
-            let results = compose(&rules, &tmpl.template);
+        let woof_woof_components = woof_woof();
+
+        if let Component::Tmpl(tmpl, _) = woof_woof_components {
+            let results = compose(&rules, &tmpl.template_str);
             assert_eq!(expected, results);
         }
     }

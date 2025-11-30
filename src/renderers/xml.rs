@@ -1,13 +1,11 @@
 use crate::components::Component;
 use crate::documents::compose_string;
 use crate::errors::Errors;
-use crate::renderers::RendererParams;
+use crate::renderers::renderer::{
+    FALLBACK_CACHE_MEMORY_LIMIT, FALLBACK_DOCUMENT_MEMORY_LIMIT, RendererParams,
+};
 use crate::renderers::template_builder::Builder;
 use crate::template_steps::RulesetImpl;
-
-const MEGABYTE: usize = 1024 * 1024;
-const FALLBACK_CACHE_MEMORY_LIMIT: usize = 16 * MEGABYTE;
-const FALLBACK_DOCUMENT_MEMORY_LIMIT: usize = 32 * MEGABYTE;
 
 pub struct Xml {
     rules: XmlRules,

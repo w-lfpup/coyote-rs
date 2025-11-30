@@ -1,4 +1,4 @@
-use coyote::{Html, tmpl, tmpl_string};
+use coyote_rs::{Html, tmpl, tmpl_string};
 
 #[test]
 fn text_element() {

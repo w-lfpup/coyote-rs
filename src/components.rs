@@ -4,38 +4,25 @@ pub enum Component {
     AttrVal(String, String),
     List(Vec<Component>),
     Text(String),
-    Tmpl(Template),
-    TmplString(TemplateString),
+    Tmpl(Template, Vec<Component>),
+    TmplString(String, Vec<Component>),
     UnescapedText(String),
     None,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Template {
-    pub template: &'static str,
-    pub injections: Vec<Component>,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TemplateString {
-    pub template: String,
-    pub injections: Vec<Component>,
+    pub template_str: &'static str,
 }
 
 // ergonomic functions to quickly create componets without the typical rust verbosity
 // (considerably improves readability of component code)
 pub fn tmpl<const N: usize>(template_str: &'static str, injections: [Component; N]) -> Component {
-    Component::Tmpl(Template {
-        template: template_str,
-        injections: Vec::from(injections),
-    })
+    Component::Tmpl(Template { template_str }, Vec::from(injections))
 }
 
 pub fn tmpl_string<const N: usize>(template: &str, injections: [Component; N]) -> Component {
-    Component::TmplString(TemplateString {
-        template: template.to_string(),
-        injections: Vec::from(injections),
-    })
+    Component::TmplString(template.to_string(), Vec::from(injections))
 }
 
 pub fn text(txt: &str) -> Component {

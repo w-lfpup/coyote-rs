@@ -1,13 +1,13 @@
 # Components
 
-`Coyote` creates documents with function components.
+`Coyote` creates documents with components.
 
 ## Function Components
 
 Function components are functions that return components!
 
 ```rust
-use coyote::components::{Component, tmpl};
+use coyoteh::components::{Component, tmpl};
 
 fn hello_world() -> Component {
     tmpl("<p>hai :3</p>", [])
@@ -59,7 +59,7 @@ Likewise there are only two valid injection locations in a `tmpl` component:
 ```rs
 fn injection_story() -> Component {
     let attribute = attr("uwu");
-    let descendant = text("hai! :3")
+    let descendant = text("hai :3")
 
     tmpl("
         <article {}>
@@ -67,6 +67,14 @@ fn injection_story() -> Component {
         </article>
     ", [attribute, descendant])
 }
+```
+
+Which renders:
+
+```html
+<article uwu>
+    hai :3
+<article>
 ```
 
 Any other instance of `{}` in a template component will not be considered an injection.
@@ -84,17 +92,17 @@ helloooo { world }
 would look like the following as a template:
 
 ```rust
-tmpl("hellooo, &#123; world }"); 
+tmpl("hellooo, &#123; world }", []); 
 ```
 
 ## Nested templates
 
-The `list` and `vlist` (vector list) components immitate the `node -> [node, text, node, ...]` heiarchy of an xml-like document.
+The `list` and `vlist` components immitate the `node -> [node, text, node, ...]` heiarchy of an xml-like document.
 
 The example below creates a form defined by lists of attributes, templates, and text.
 
 ```rust
-use coyote::{Component, attr_val, list, text, tmpl};
+use coyoteh::{Component, attr_val, list, text, tmpl};
 
 fn submit_button() -> Component {
     tmpl("<input type=submit value='yus -_-'>", [])
@@ -107,7 +115,7 @@ fn form() -> Component {
     ];
 
     let mut descendants: Vec<Component> = Vec::new();
-    descendants.push(text("you're a boy kisser aren't you >:3"));
+    descendants.push(text("you're a good dog aren't you >:3"));
     descendants.push(submit_button());
     
     tmpl(
@@ -123,7 +131,7 @@ And the output will be:
 
 ```html
 <form action="/uwu" method="post">
-    you're a boy kisser aren't you >:3
+    you're a good dog aren't you >:3
     <input type=submit value="yus -_-">
 </form>
 ```
@@ -132,17 +140,107 @@ And the output will be:
 
 `Components` are the atomic chunks used to build documents:
 
-| Component | Description | Type |
-| --------- | ---- | ----------- |
-| Attribute | an element attribute | `attr(name: &str) -> Component` |
-| Attribute with value | an element and attribute and value pair | `attr_val(name: &str, value: &str) -> Component` | 
-| Text | text with the HTML-safe escaped text | `text(text_str: &str) -> Component` |
-| Unescaped text | dangerously unescaped text | `unescaped_text(text_str: &str) -> Component` |
-| List | a list of components | `list(component_list: [Component, ...]) -> Component` |
-| Vector List | a vector of components | `vlist(component_vector_list: Vec<Component>) -> Component` |
-| Template | a document fragment described by a static string template and a list of injections | `tmpl(template_str: &'static str, injections: [Component, ...]) -> Component` |
-| Template String | a document fragment described by a string template and a list of injections | `tmpl_str(template_str: &str, injections: [Component, ...]) -> Component` |
-| None | the abscence of a component | `Component::None` |
+#### Attribute
+
+an element attribute
+
+```rs
+attr(name: &str)
+```
+
+#### Attribute with value
+
+an attribute and value pair
+
+```rs
+attr_val(name: &str, value: &str)
+```
+
+#### Text
+
+text with the HTML-safe escaped text
+
+```rs
+text(text_str: &str)
+```
+
+#### Unescaped text
+
+dangerously unescaped text
+
+```rs
+unescaped_text(text_str: &str)
+```
+
+#### Template
+
+a document fragment described by a static string template and a list of injections
+
+```rs
+Component::TmplString(TemplateString {
+    template: String,
+    injections: Vec<Component>,
+})
+```
+
+or
+
+```rs
+tmpl(template_str: &'static str, injections: [Component; N])
+```
+
+#### Template string
+
+a document fragment described by a string template and a list of injections
+
+```rs
+Component::Tmpl(Template {
+    template: &'static str,
+    injections: Vec<Component>,
+})
+```
+
+or
+
+```rs
+tmpl_string(template_str: &str, injections: [Component; N])
+```
+
+#### List
+
+a list of components
+
+```rs
+Component::List(Vec<Component>)
+```
+
+or
+
+```rs
+list(components: [Component; N]) -> Component
+```
+
+#### Vector list
+
+a vector list of components
+
+```rs
+Component::List(Vec<Component>)
+```
+
+or
+
+```rs
+vlist(components: Vec<Component>)-> Component
+```
+
+#### None
+
+the abscence of a component
+
+```rs
+Component::None
+```
 
 ## Components as an IMR
 
