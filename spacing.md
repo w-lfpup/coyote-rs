@@ -139,7 +139,7 @@ tmpl("
 )
 ```
 
-Will collapse spacing but preserve new lines on render:
+Will collapse spaces but preserve new lines on render:
 
 ```html
 <p
@@ -149,7 +149,6 @@ Will collapse spacing but preserve new lines on render:
 
 	'></p>
 ```
-
 
 ## Injections
 

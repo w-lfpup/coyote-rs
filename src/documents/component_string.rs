@@ -53,12 +53,12 @@ pub fn compose_string(
             // text or list
             StackBit::Cmpnt(cmpnt) => match cmpnt {
                 Component::Text(text) => {
-                    let escaped = text.replace("<", "&lt;").replace("{", "&123;");
+                    let escaped_text = remove_template_glyphs(text);
                     push_text_component(
                         &mut template_results,
                         &mut tag_info_stack,
                         rules,
-                        &escaped,
+                        &escaped_text,
                     );
                 }
                 Component::UnescapedText(text) => {
@@ -241,6 +241,19 @@ fn add_attr_inj(
     };
 
     Ok(())
+}
+
+fn remove_template_glyphs(text: &str) -> String {
+    let mut safer_text = String::from("");
+    for glyph in text.chars() {
+        match glyph {
+            '<' => safer_text.push_str("&lt;"),
+            '{' => safer_text.push_str("&123;"),
+            _ => safer_text.push(glyph),
+        }
+    }
+
+    safer_text
 }
 
 fn push_attr_component(results: &mut String, tag_info: &TagInfo, attr: &str) -> Result<(), Errors> {
