@@ -1,10 +1,10 @@
 use crate::components::Component;
-use crate::documents::compose_string;
-use crate::errors::Errors;
-use crate::renderers::renderer::{
+use crate::document_builders::renderer::{
     FALLBACK_CACHE_MEMORY_LIMIT, FALLBACK_DOCUMENT_MEMORY_LIMIT, RendererParams,
 };
-use crate::renderers::template_builder::Builder;
+use crate::document_builders::template_builder::Builder;
+use crate::documents::compose_string;
+use crate::errors::Errors;
 use crate::template_steps::RulesetImpl;
 
 pub struct Xml {
