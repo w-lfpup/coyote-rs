@@ -2,7 +2,7 @@
 
 `Coyote` _never_ adds spaces or new lines.
 
-Spaces are part of the composition in HTML. They have weight and meaning.
+Space is part of the composition in HTML. It has weight and meaning.
 
 `Coyote` outputs html that respects the lines and spaces defined by templates and text injections.
 
@@ -10,7 +10,7 @@ So every new line and space is intentional.
 
 ## A few expectations
 
-There are a couple broad expectations when writing templates:
+Here are some general expectations developers should know when writing templates:
 - spaces collapse
 - new lines do not collapse
 - injections repeat their preceeding space

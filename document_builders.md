@@ -9,7 +9,7 @@
 The example below creates an html document from a component function.
 
 ```rust
-use coyotex::{Component, Html, tmpl};
+use coyotes::{Component, Html, tmpl};
 
 fn hello_world() -> Component {
     tmpl("<p>hai :3</p>", [])
@@ -33,19 +33,12 @@ The output will be:
 
 ### Hello, safer world!
 
-The example below creates a _safer_ fragment for client-side renders using `HtmlOnly`.
+The `HtmlOnly` document builder is meant for HOTW scenarios that can't afford potentially mutative elements being rendered.
 
-This document builder removes all instances of `link`, `style`, and `script` elements.
+Consider the following component with malicious intent:
 
 ```rust
-use coyote_rs::{HtmlOnly, Component, tmpl};
-
-fn hello_world() -> Component {
-    tmpl(
-        "<p>hai {} >:3</p>",
-        [malicious()],
-    )
-}
+use coyotes::{Component, tmpl};
 
 fn malicious() -> Component {
     tmpl("
@@ -56,10 +49,27 @@ fn malicious() -> Component {
         <script>
             console.log('malicious rawrr!');
         </script>
-    ", [])
+        ",
+        []
+    )
 }
 
-fn main() {    
+fn hello_world() -> Component {
+    tmpl(
+        "<p>hai {} :3</p>",
+        [malicious()],
+    )
+}
+```
+
+The malicious component function could load elements with side-effects that could break your site.
+
+The `HtmlOnly` document builder removes all instances of `link`, `style`, and `script` elements.
+
+```rs
+use coyotes::{HtmlOnly};
+
+fn main() {
     let html_only = HtmlOnly::new();    
     
     if let Ok(document) = html_only.render(&hello_world()) {
@@ -68,9 +78,10 @@ fn main() {
 }
 ```
 
-The output will be:
+So the `hello_world` components above renders without the mutative components:
+
 ```html
-<p>hai >:3</p>
+<p>hai :3</p>
 ```
 
 ## Errors
@@ -79,19 +90,6 @@ A document builder will return an error when:
 - a template is unbalanced
 - an attribute contains a forbidden glyph
 - a render exceeds a memory limit
-
-### Forbidden attribute glyphs
-
-The following characters are forbidden in html attributes:
-- <
-- =
-- "
-- \
-- /
-- \>
-- {
-
-Coyote will return an `error` when any of the characters above are found in an attribute component.
 
 ### Unbalanced templates
 
@@ -111,17 +109,26 @@ The following template is also balanced because the `input` element is a [void e
 tmpl("<input>", [])
 ```
 
-The following template is not balanced and will return an `error`:
+The following template does not close all tags. So it is not balanced and document builders will return an `error`:
 
 ```rust
 tmpl("<span>", [])
 ```
 
+### Forbidden attribute glyphs
+
+The following characters are forbidden in html attributes:
+`< > = " \ /`
+
+The bracket-character `{` is forbidden in attribute components by `coyote`.
+
+Coyote will return an `error` when any forbidden characters are found in an attribute component.
+
 ### Document memory limits
 
 Coyote will return an error when a document exceeds a predefined memory limit.
 
-The fallback memory limit is `16mb` which is a sizable html document.
+The fallback memory limit is `16mb` which is a sizable document.
 
 The following section demostrates how to customize document builder parameters like memory limits.
 
@@ -130,16 +137,16 @@ The following section demostrates how to customize document builder parameters l
 Document builders can be custimized using a params object:
 
 ```rs
-use coyote_rs::{Html, RendererParams};
+use coyotes::{Html, DocumentParams};
 
-let renderer_params = RendererParams {
-    respect_indentation: true,
+let params = DocumentParams {
     cache_memory_limit: 32 * 1024 * 1024,
     document_memory_limit: 128 * 1024 * 1024,
+    respect_indentation: true,
 };
 
-let html = Html::from(&renderer_params);
-let html_only = HtmlOnly::from(&renderer_params);
+let html = Html::from(&params);
+let html_only = HtmlOnly::from(&params);
 ```
 
 Memory limits are defined in bytes.

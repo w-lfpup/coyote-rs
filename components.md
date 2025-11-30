@@ -2,6 +2,39 @@
 
 `Coyote` creates documents with components.
 
+## The template component
+
+## Tags, void elements, fragments
+
+`Coyote` templates support self-closing tags, void elements, and jsx-like fragments:
+
+```rs
+tmpl("
+    <article>
+        <>
+            <p>no waaaay?</p>
+            <custom-element />
+            <menuitem>yoooo</menuitem>
+            <input type=button value='high-five!' />
+        </>
+    </article>
+    ",
+    []
+)
+```
+
+However, `coyote` will only output w3 spec compliant HTML:
+
+```html
+<article>
+    <p>no waaaay?</p>
+    <custom-element></custom-element>
+    <input value=button value="high-five!">
+</article>
+```
+
+The goal is to provide a robust template syntax while adhering modern HTML standards.
+
 ## Function Components
 
 Function components are functions that return components!
@@ -14,41 +47,9 @@ fn hello_world() -> Component {
 }
 ```
 
-## The template component
-
-## Tags, void elements, fragments
-
-`Coyote` templates support self-closing tags, void elements, and jsx-like fragments:
-
-```rs
-fn syntax_story() -> Component {
-    tmpl("
-        <article>
-            <>
-                <p>no waaaay?</p>
-                <custom-element />
-                <input type=button value='high-five!' />
-            </>
-        </article>
-    ", [])
-}
-```
-
-However, `coyote` will only output w3-spec compliant HTML:
-
-```html
-<article>
-    <p>no waaaay?</p>
-    <custom-element></custom-element>
-    <input value=button value="high-five!">
-</article>
-```
-
-This provides an robust template syntax while adhering modern HTML standards.
-
 ## Injections
 
-`Injections` create more complex components with template nesting and attribute assignments.
+`Injections` can nest templates and assign attributes.
 
 There are only two valid _injections_ in a `tmpl` component:
 - attribute injections
@@ -65,7 +66,12 @@ fn injection_story() -> Component {
         <article {}>
             {}
         </article>
-    ", [attribute, descendant])
+        ",
+        [
+            attribute,
+            descendant,
+        ]
+    )
 }
 ```
 
@@ -95,7 +101,7 @@ would look like the following as a template:
 tmpl("hellooo, &#123; world }", []); 
 ```
 
-## Nested templates
+## Lists of components
 
 The `list` and `vlist` components immitate the `node -> [node, text, node, ...]` heiarchy of an xml-like document.
 
@@ -105,24 +111,29 @@ The example below creates a form defined by lists of attributes, templates, and 
 use coyote_rs::{Component, attr_val, list, text, tmpl};
 
 fn submit_button() -> Component {
-    tmpl("<input type=submit value='yus -_-'>", [])
+    tmpl("<input type=submit value='yus ^_^'>", [])
 }
 
 fn form() -> Component {
-    let attributes = [
+    let attributes = list([
         attr_val("action", "/uwu"),
         attr_val("method", "post"),
-    ];
+    ]);
 
     let mut descendants: Vec<Component> = Vec::new();
     descendants.push(text("you're a good dog aren't you >:3"));
     descendants.push(submit_button());
     
     tmpl(
-        "<form {}>
+        "
+        <form {}>
             {}
-        </form>",
-        [list(attributes), vlist(descendants)],
+        </form>
+        ",
+        [
+            attributes,
+            vlist(descendants),
+        ],
     )
 }
 ```
@@ -132,7 +143,7 @@ And the output will be:
 ```html
 <form action="/uwu" method="post">
     you're a good dog aren't you >:3
-    <input type=submit value="yus -_-">
+    <input type=submit value="yus ^_^">
 </form>
 ```
 
@@ -150,6 +161,7 @@ use coyote_rs::{
     tmpl_string,
     list,
     vlist,
+    Component::None,
 }
 ```
 

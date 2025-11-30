@@ -2,13 +2,11 @@
 
 Create `HTML` documents with function components in Rust.
 
-There are no dependencies. There are no macros.
-
-HTML in, HTML out. No suprises and very little overhead.
+HTML in, HTML out. No suprises, no dependencies.
 
 ## Install
 
-`Coyote-rs` is available on [crates.io](https://crates.io) as `coyote_rs`:
+`Coyote-rs` is available on [crates.io](https://crates.io) as `coyotes`:
 
 ```sh
 cargo install coyotes
@@ -25,19 +23,19 @@ cargo install --git https://github.com/w-lfpup/coyote-rs
 Create document fragments with coyote [components](./components.md).
 
 ```rust
-use coyote_rs::{Component, tmpl};
+use coyotes::{Component, tmpl};
 
 fn hello_world() -> Component {
     tmpl("<p>hai :3</p>", [])
 }
 ```
 
-## Renderers
+## Document builders
 
-Create `html` with [renderers](./document_builders.md).
+Render `html` with [document builders](./document_builders.md).
 
 ```rust
-use coyote_rs::Html;
+use coyotes::Html;
 
 let html = Html::new();
 
