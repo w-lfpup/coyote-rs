@@ -8,10 +8,10 @@ HTML in, HTML out. No suprises and very little overhead.
 
 ## Install
 
-`Coyote-rs` is available on [crates.io](https://crates.io) as `coyote-rs`:
+`Coyote-rs` is available on [crates.io](https://crates.io) as `coyote_rs`:
 
 ```sh
-cargo install coyote-rs
+cargo install coyote_rs
 ```
 
 Or install directly from git:

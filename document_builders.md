@@ -38,7 +38,7 @@ The example below creates a _safer_ fragment for client-side renders using `Html
 This document builder removes all instances of `link`, `style`, and `script` elements.
 
 ```rust
-use coyoteh::{HtmlOnly, Component, tmpl};
+use coyote_rs::{HtmlOnly, Component, tmpl};
 
 fn hello_world() -> Component {
     tmpl(
@@ -105,7 +105,7 @@ The following template is balanced:
 tmpl("<p></p>", [])
 ```
 
-The following template is also balanced because the `input` element is a [void element]().
+The following template is also balanced because the `input` element is a [void element](https://developer.mozilla.org/en-US/docs/Glossary/Void_element).
 
 ```rust
 tmpl("<input>", [])
@@ -130,7 +130,7 @@ The following section demostrates how to customize document builder parameters l
 Document builders can be custimized using a params object:
 
 ```rs
-use coyoteh::{Html, RendererParams};
+use coyote_rs::{Html, RendererParams};
 
 let renderer_params = RendererParams {
     respect_indentation: true,
