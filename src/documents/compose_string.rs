@@ -81,7 +81,7 @@ pub fn compose_string(
 
                 let tmpl_str = match cmpnt {
                     Component::Tmpl(cmpnt) => cmpnt.template,
-                    Component::TmplString(cmpnt) => &cmpnt.template,
+                    Component::TmplString(tmpl_string, _) => &tmpl_string,
                     _ => continue,
                 };
 
@@ -108,7 +108,7 @@ pub fn compose_string(
                 // add injections
                 let injections = match cmpnt {
                     Component::Tmpl(cmpnt) => &cmpnt.injections,
-                    Component::TmplString(cmpnt) => &cmpnt.injections,
+                    Component::TmplString(_, injections) => &injections,
                     _ => continue,
                 };
 
@@ -173,8 +173,8 @@ fn get_bit_from_component_stack<'a>(
                 },
             )
         }
-        Component::TmplString(tmpl) => {
-            let template_steps = builder.build(rules, &tmpl.template);
+        Component::TmplString(tmpl_string, _) => {
+            let template_steps = builder.build(rules, &tmpl_string);
             StackBit::Tmpl(
                 cmpnt,
                 template_steps,

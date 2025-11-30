@@ -8,10 +8,10 @@ HTML in, HTML out. No suprises and very little overhead.
 
 ## Install
 
-`Coyote-rs` is available on [crates.io](https://crates.io) as `coyote_html`:
+`Coyote-rs` is available on [crates.io](https://crates.io) as `coyote-rs`:
 
 ```sh
-cargo install coyote_html
+cargo install coyote-rs
 ```
 
 Or install directly from git:
@@ -25,7 +25,7 @@ cargo install --git https://github.com/w-lfpup/coyote-rs
 Create document fragments with coyote [components](./components.md).
 
 ```rust
-use coyote_html::{Component, tmpl};
+use coyote_rs::{Component, tmpl};
 
 fn hello_world() -> Component {
     tmpl("<p>hai :3</p>", [])
@@ -34,10 +34,10 @@ fn hello_world() -> Component {
 
 ## Renderers
 
-Render components as `html` with [renderers](./document_builders.md).
+Create `html` with [renderers](./document_builders.md).
 
 ```rust
-use coyote_html::Html;
+use coyote_rs::Html;
 
 let html = Html::new();
 

@@ -1,4 +1,4 @@
-use coyote::{HtmlOnly, tmpl};
+use coyote_rs::{HtmlOnly, tmpl};
 
 #[test]
 fn text_element() {

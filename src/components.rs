@@ -5,7 +5,7 @@ pub enum Component {
     List(Vec<Component>),
     Text(String),
     Tmpl(Template),
-    TmplString(TemplateString),
+    TmplString(String, Vec<Component>),
     UnescapedText(String),
     None,
 }
@@ -13,12 +13,6 @@ pub enum Component {
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Template {
     pub template: &'static str,
-    pub injections: Vec<Component>,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TemplateString {
-    pub template: String,
     pub injections: Vec<Component>,
 }
 
@@ -32,10 +26,7 @@ pub fn tmpl<const N: usize>(template_str: &'static str, injections: [Component; 
 }
 
 pub fn tmpl_string<const N: usize>(template: &str, injections: [Component; N]) -> Component {
-    Component::TmplString(TemplateString {
-        template: template.to_string(),
-        injections: Vec::from(injections),
-    })
+    Component::TmplString(template.to_string(), Vec::from(injections))
 }
 
 pub fn text(txt: &str) -> Component {

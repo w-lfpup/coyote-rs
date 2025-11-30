@@ -1,4 +1,4 @@
-use coyote::{Html, attr, tmpl};
+use coyote_rs::{Html, attr, tmpl};
 
 #[test]
 fn empty_element_retains_spacing() {
