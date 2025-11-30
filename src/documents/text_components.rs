@@ -178,7 +178,7 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
     }
 
     // middle
-    let middle_lines = &texts[1..texts.len()];
+    let middle_lines = &texts[1..texts.len() - 1];
     let common_space_index = get_largest_common_space_index(middle_lines);
 
     for line in middle_lines {
@@ -191,6 +191,12 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
         results.push_str(&"\t".repeat(tag_info.indent_count));
         push_line_of_text(results, &line[common_space_index..])
     }
+
+    // last
+    let last = texts[texts.len() - 1];
+    results.push('\n');
+    results.push_str(&"\t".repeat(tag_info.indent_count));
+    results.push_str(last.trim())
 }
 
 fn push_line_of_text(results: &mut String, line: &str) {
