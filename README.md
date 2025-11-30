@@ -4,6 +4,8 @@ Create `HTML` documents with function components in Rust.
 
 There are no dependencies. There are no macros.
 
+HTML in, HTML out. No suprises. Very little overhead.
+
 ## Install
 
 ```sh
@@ -40,6 +42,12 @@ The output will be:
 ```html
 <p>hai :3</p>
 ```
+
+## Spaces
+
+Spacing is meaningful in html so `Coyote` respects the lines and spaces defined by developers.
+
+Learn more about how `coyote` handles [spacing](./spacing).
 
 ## License
 

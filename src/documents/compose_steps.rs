@@ -76,7 +76,7 @@ fn push_text(
 fn push_alt_text(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
-    _rules: &dyn RulesetImpl,
+    rules: &dyn RulesetImpl,
     template_str: &str,
     step: &Step,
 ) {
@@ -91,7 +91,7 @@ fn push_alt_text(
     }
 
     let text = get_text_from_step(template_str, step);
-    push_alt_text_component(results, text, tag_info);
+    push_alt_text_component(results, rules, text, tag_info);
 
     tag_info.text_format = TextFormat::Text;
 }

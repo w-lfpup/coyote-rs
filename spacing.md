@@ -2,98 +2,107 @@
 
 `Coyote` _never_ adds spaces or new lines.
 
-HTML in, HTML out. No suprises. No mental overhead.
+Spaces are part of the composition in HTML. They have weight and meaning.
 
-## No additive mutations
+`Coyote` outputs html that respects the lines and spaces defined by templates and text injections.
 
-Spaces have weight and meaning in HTML. They are a part of the composition of an HTML document.
+So every new line and space is intentional.
 
-`Coyote` will output w3 spec-compliant HTML while respecting the lines and spaces defined in a template. So every new line and space is intentional.
+## A few expectations
 
-### No spaces
+There are a couple broad expectations when writing templates:
+- spaces collapse
+- new lines do not collapse
+- injections repeat their preceeding space
 
-A template without spaces:
+## Templates
+
+The following examples demonstrate how spaces collapse in templates.
+
+### No added spaces
+
+A template without trailing spaces:
 
 ```rust
-tmpl("<span>hai :3</span>", [])
+tmpl("<p>hai :3</p>", [])
 ```
 
-Will output without spaces:
+Will output without trailing spaces:
 
 ```html
 <p>hai :3</p>
 ```
 
-### Trailing spaces
+### Collapse spaces
 
 A template with trailing spaces:
 
 ```rust
-tmpl("<p> hai :3 </p>", [])
+tmpl("<p>   hai   :3   </p>", [])
 ```
 
-Will output trailing spaces:
+Will output collapsed spaces:
 
 ```html
 <p> hai :3 </p>
 ```
 
-### New lines
+### Preserve new lines
 
-A template with new lines and block elements:
+`Coyote` respects new lines found in template text nodes.
+
+New lines are often used by developers to visually organize content.
+
+So a template with new lines:
 
 ```rust
 tmpl("
 	<p>
+
 		hai :3
+	
 	</p>
 	",
 	[]
 )
 ```
 
-Will output new lines.
+Will output every new line:
 ```html
 <p>
+
 	hai :3
+
 </p>
 ```
 
-A template with new lines and inline elements:
+### Attributes
 
-```rust
-tmpl("
-	<span>
-		hai :3
-	</span>
-	",
-	[]
-)
+Attribute spacing is somewhat special. It collapses spaces _and_ new lines.
+
+So a template with attributes spaced out:
+
+```rs
+tmpl("<p    attr    attr2    att3    ></p>", [])
 ```
 
-Will output new lines without indentation:
+Will collapse spaces on render:
 
 ```html
-<span>
-hai :3
-</span>
+<p attr attr2 att3></p>
 ```
 
-## Collapse spaces, not new lines
+And a template with new lines:
 
-`Coyote-rs` will collapse spaces but not new lines.
-
-For example, a template with extra new lines and spaces:
-
-```rust
+```rs
 tmpl("
-	<p>
-		
-		hai       :3
+	<p
 
-		hello     ^_^
+		attr
 
-		UwU       hai
+		attr2
+
+		attr3>
 
 	</p>
 	",
@@ -101,33 +110,144 @@ tmpl("
 )
 ```
 
-Will output html with extra new lines with spaces collapsed:
+Will collapse new lines on render:
 
 ```html
-<p>
-
-	hai :3
-
-	hello ^_^
-
-	UwU hai
-
+<p
+	attr
+	attr2
+	attr3>
 </p>
 ```
 
-Whereas a browser might render as:
+### Attribute values
 
-```html
-<p>
-	hai :3
-	hello ^_^
-	UwU hai
-</p>
+Attribute value spacing will only collapse spaces.
+
+So a template with a multi-line attribute value:
+
+```rs
+tmpl("
+	<p
+		attr='
+
+		hai   :3    hello!
+
+		'></p>
+	",
+	[]
+)
 ```
 
-But both will _visually_ render just the same.
+Will collapse spaces but preserve new lines on render:
+
+```html
+<p
+	attr='
+
+	hai :3 hello!
+
+	'></p>
+```
 
 ## Injections
 
+Injections repeat the spacing that preceeds them.
 
+So if a `space` is followed by an injection, the injections will be preceeded by a `space`.
 
+Likewise, if a `new line` is followed by an injection, the injections will be preceeded by a `new line`.
+
+### Attribute injections
+
+So when a space is followed by an attribute injection:
+
+```rs
+let attributes = list([
+	text("hai"),
+	text("hello"),
+]);
+
+tmpl(
+	"<p {}></p>",
+	[attributes]
+)
+```
+
+A template will output spaces before attributes:
+
+```html
+<p hai hello></p>
+```
+
+And when a new line is followed by an attribute injection:
+
+```rs
+let attributes = list([
+	attr("hai"),
+	attr("hello"),
+]);
+
+tmpl(
+	"<p
+		{}></p>",
+	[attributes]
+)
+```
+
+A template will output new lines before attributes:
+
+```html
+<p
+	hai
+	hello></p>
+```
+
+### Descendant injections
+
+Similarly, if a descendant injection is preceeded by a space (or the start of a new tag):
+
+```rs
+let descendants = list([
+	tmpl("<span>hai :3</span>", []),
+	tmpl("<span>hello</span>", []),
+]);
+
+tmpl(
+	"<p>{}</p>",
+	[descendants]
+)
+```
+
+Then the template will render descendants preceeded by a space:
+
+```html
+<p><span>hai :3</span> <span>hello</span></p>
+```
+
+If a descendant injection is preceeded by a new line:
+
+```rs
+let descendants = list([
+	tmpl("<span>hai :3</span>", []),
+	tmpl("<span>hello</span>", []),
+]);
+
+tmpl(
+	"
+	<p>
+		{}
+	</p>
+	",
+	[descendants]
+)
+```
+
+Then a template will render descendants preceeded by new lines:
+
+```html
+<p>
+	<span>hai :3</span>
+	<span>hello</span>
+</p>
+```
