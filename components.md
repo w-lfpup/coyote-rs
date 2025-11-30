@@ -7,7 +7,7 @@
 Function components are functions that return components!
 
 ```rust
-use coyoteh::components::{Component, tmpl};
+use coyote_rs::components::{Component, tmpl};
 
 fn hello_world() -> Component {
     tmpl("<p>hai :3</p>", [])
@@ -102,7 +102,7 @@ The `list` and `vlist` components immitate the `node -> [node, text, node, ...]`
 The example below creates a form defined by lists of attributes, templates, and text.
 
 ```rust
-use coyoteh::{Component, attr_val, list, text, tmpl};
+use coyote_rs::{Component, attr_val, list, text, tmpl};
 
 fn submit_button() -> Component {
     tmpl("<input type=submit value='yus -_-'>", [])
@@ -138,7 +138,20 @@ And the output will be:
 
 ## Types of components
 
-`Components` are the atomic chunks used to build documents:
+`Components` are the atomic chunks used to build documents.
+
+```rs
+use coyote_rs::{
+    attr,
+    attr_val,
+    text,
+    unescaped_text,
+    tmpl,
+    tmpl_string,
+    list,
+    vlist,
+}
+```
 
 #### Attribute
 
@@ -177,30 +190,12 @@ unescaped_text(text_str: &str)
 a document fragment described by a static string template and a list of injections
 
 ```rs
-Component::TmplString(TemplateString {
-    template: String,
-    injections: Vec<Component>,
-})
-```
-
-or
-
-```rs
 tmpl(template_str: &'static str, injections: [Component; N])
 ```
 
 #### Template string
 
 a document fragment described by a string template and a list of injections
-
-```rs
-Component::Tmpl(Template {
-    template: &'static str,
-    injections: Vec<Component>,
-})
-```
-
-or
 
 ```rs
 tmpl_string(template_str: &str, injections: [Component; N])
@@ -211,24 +206,12 @@ tmpl_string(template_str: &str, injections: [Component; N])
 a list of components
 
 ```rs
-Component::List(Vec<Component>)
-```
-
-or
-
-```rs
 list(components: [Component; N]) -> Component
 ```
 
 #### Vector list
 
 a vector list of components
-
-```rs
-Component::List(Vec<Component>)
-```
-
-or
 
 ```rs
 vlist(components: Vec<Component>)-> Component
