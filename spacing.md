@@ -67,7 +67,7 @@ tmpl("
 )
 ```
 
-Will output every new line.
+Will output every new line:
 ```html
 <p>
 
@@ -139,7 +139,7 @@ tmpl("
 )
 ```
 
-Will collapse spacing but preserve new lines:
+Will collapse spacing but preserve new lines on render:
 
 ```html
 <p
@@ -153,7 +153,7 @@ Will collapse spacing but preserve new lines:
 
 ## Injections
 
-Injections repeat the spacing that preceeded them.
+Injections repeat the spacing that preceeds them.
 
 So if a `space` is followed by an injection, the injections will be preceeded by a `space`.
 
@@ -175,7 +175,7 @@ tmpl(
 )
 ```
 
-A template will output spaces between attributes:
+A template will output spaces before attributes:
 
 ```html
 <p hai hello></p>
@@ -196,7 +196,7 @@ tmpl(
 )
 ```
 
-A template will output new lines between attributes:
+A template will output new lines before attributes:
 
 ```html
 <p
@@ -220,7 +220,7 @@ tmpl(
 )
 ```
 
-Then the template will render descendants preceeded by spaces:
+Then the template will render descendants preceeded by a space:
 
 ```html
 <p><span>hai :3</span> <span>hello</span></p>
