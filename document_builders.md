@@ -121,7 +121,7 @@ tmpl("<span>", [])
 
 Coyote will return an error when a document exceeds a predefined memory limit.
 
-The fallback memory limit is `16mb` which is a BIG html document.
+The fallback memory limit is `16mb` which is a sizable html document.
 
 The following section demostrates how to customize document builder parameters like memory limits.
 
