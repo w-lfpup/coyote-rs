@@ -113,6 +113,8 @@ fn push_injection_confirmed(
         return;
     }
 
+    // This feels heavy handed and suspect.
+    // More interesting logic might be necessary
     tag_info.text_format = TextFormat::Text;
 }
 
