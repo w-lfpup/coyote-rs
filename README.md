@@ -6,7 +6,7 @@ HTML in, HTML out. No suprises, no dependencies.
 
 ## Install
 
-`Coyote-rs` is available on [crates.io](https://crates.io) as `coyotes`:
+`Coyote-rs` is available on [crates.io](https://crates.io/crates/coyotes) as `coyotes`:
 
 ```sh
 cargo install coyotes

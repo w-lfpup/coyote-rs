@@ -2,3 +2,10 @@
 name = "coyotes"
 version = "0.1.0"
 edition = "2024"
+
+categories = ["template-engine", "web-programming"]
+keywords = ["html", "template", "templates", "web", "ui"]
+license = "BSD-3-Clause"
+license_file = "LICENCE"
+readme = "README.md"
+repository = "https://github.com/w-lfpup/coyote-rs"

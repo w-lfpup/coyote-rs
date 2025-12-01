@@ -1,4 +1,4 @@
-use coyotes::{Html, list, text, tmpl, tmpl_string};
+use coyotes::{Html, list, text, tmpl};
 
 #[test]
 fn no_added_spaces() {
