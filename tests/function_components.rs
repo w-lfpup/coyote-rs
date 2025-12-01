@@ -310,64 +310,10 @@ fn lil_attributes(hai: fn() -> Component) -> Component {
 fn attribute_component_injections_retain_spacing() {
     let template = lil_attributes(attribute_list);
 
-    let expected = "<p hai hello yo=\"what's good!\" hey=\"
-	howdy!
-	\"
->
-</p>
-<p
-	hai
-	hello
-	yo=\"what's good!\"
-	hey=\"
-	howdy!
-	\">
-</p>
-<span hai hello yo=\"what's good!\" hey=\"
-howdy!
-\"></span>
-<span hai hello yo=\"what's good!\" hey=\"
-howdy!
-\"></span>";
-
-    let expected2 = "<p hai hello yo=\"what's good!\" hey=\"
-	howdy!
-
-	howdy!
-
-	hurray!
-	\">
-</p>
-<p
-	hai
-	hello
-	yo=\"what's good!\"
-	hey=\"
-		howdy!
-
-		howdy!
-
-		hurray!
-	\"
->
-</p>
-<span hai hello yo=\"what's good!\" hey=\"
-howdy!
-
-howdy!
-
-hurray!
-\"></span>
-<span hai hello yo=\"what's good!\" hey=\"
-howdy!
-
-howdy!
-
-hurray!
-\"></span>";
+    let expected = "<p hai hello yo=\"what's good!\" hey=\"\n\t\thowdy!\n\n\t\thowdy!\n\n\t\thurray!\n\t\">\n</p>\n<p\n\thai\n\thello\n\tyo=\"what's good!\"\n\they=\"\n\t\thowdy!\n\n\t\thowdy!\n\n\t\thurray!\n\t\"\n>\n</p>\n<span hai hello yo=\"what's good!\" hey=\"\nhowdy!\n\nhowdy!\n\nhurray!\n\"></span>\n<span hai hello yo=\"what's good!\" hey=\"\nhowdy!\n\nhowdy!\n\nhurray!\n\"></span>";
 
     let mut html = Html::new();
     let results = html.render(&template);
 
-    assert_eq!(Ok(expected2.to_string()), results);
+    assert_eq!(Ok(expected.to_string()), results);
 }

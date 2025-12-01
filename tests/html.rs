@@ -203,7 +203,8 @@ fn attribute_value_retains_spacing() {
             '
             wow='People use
 			attributes in some very
-			wild ways but thats okay'>   Hello
+			wild ways but thats okay'
+		> Hello
 				<span> World!</span>   </h1>
 		<h1 oh='' yikes='woah!' oh-no='
                 it goes bye bye
@@ -220,41 +221,7 @@ fn attribute_value_retains_spacing() {
         [],
     );
 
-    let expected = "<h1 wow='People use
-	attributes in some very
-	wild ways but thats okay'> Hello
-	<span> World!</span> </h1>
-<h1 wow='
-
-	People use attributes in some very
-
-	wild ways but thats okay
-
-	'>
-	Hello! <span> World!</span>
-</h1>";
-
-    let expected2 = "<h1
-    oh
-    yikes='woah!'
-    oh-no='
-    it goes bye bye
-    '
-    wow='People use
-    attributes in some very
-    wild ways but thats okay'> Hello
-    <span> World!</span> </h1>
-<h1 oh yikes='woah!' oh-no='
-    it goes bye bye
-    ' wow='
-
-    People use attributes in some very
-
-    wild ways but thats okay
-
-    '>
-    Hello! <span> World!</span>
-</h1>";
+    let expected = "<h1\n\toh\n\tyikes='woah!'\n\toh-no='\n\t\tit goes bye bye\n\t'\n\twow='People use\n\t\tattributes in some very\n\twild ways but thats okay'\n> Hello\n\t<span> World!</span> </h1>\n<h1 oh yikes='woah!' oh-no='\n\t\tit goes bye bye\n\t' wow='\n\n\t\tPeople use attributes in some very\n\n\t\twild ways but thats okay\n\n\t'>\n\tHello! <span> World!</span>\n</h1>";
 
     let mut html = Html::new();
     let results = html.render(&template);
