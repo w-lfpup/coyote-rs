@@ -90,11 +90,13 @@ fn push_text_space(
         _ => return,
     };
 
-    if !tag_info.banned_path {
-        if tag_info.preformatted_text_path {
-            let text = get_text_from_step(template_str, step);
-            results.push_str(text);
-        }
+    if tag_info.banned_path {
+        return;
+    }
+
+    if tag_info.preformatted_text_path {
+        let text = get_text_from_step(template_str, step);
+        results.push_str(text);
     }
 
     if TextFormat::Initial == tag_info.text_format || TextFormat::LineSpace == tag_info.text_format
@@ -120,6 +122,10 @@ fn push_element_space(stack: &mut Vec<TagInfo>, step: &Step) {
         Some(curr) => curr,
         _ => return,
     };
+
+    if tag_info.banned_path {
+        return;
+    }
 
     if TextFormat::Initial == tag_info.text_format || TextFormat::LineSpace == tag_info.text_format
     {
@@ -313,21 +319,23 @@ fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
         _ => return,
     };
 
-    if !tag_info.banned_path {
-        if !tag_info.preformatted_text_path {
-            match tag_info.text_format {
-                TextFormat::Space => results.push(' '),
-                TextFormat::LineSpace => {
-                    results.push('\n');
-                    results.push_str(&"\t".repeat(tag_info.indent_count))
-                }
-                _ => {}
-            }
-        }
-
-        let attr = get_text_from_step(template_str, step);
-        results.push_str(attr.trim());
+    if tag_info.banned_path {
+        return;
     }
+
+    if !tag_info.preformatted_text_path {
+        match tag_info.text_format {
+            TextFormat::Space => results.push(' '),
+            TextFormat::LineSpace => {
+                results.push('\n');
+                results.push_str(&"\t".repeat(tag_info.indent_count))
+            }
+            _ => {}
+        }
+    }
+
+    let attr = get_text_from_step(template_str, step);
+    results.push_str(attr.trim());
 
     tag_info.text_format = TextFormat::Text
 }
