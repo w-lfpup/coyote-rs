@@ -2,7 +2,7 @@
 name = "coyotes"
 version = "0.1.0"
 edition = "2024"
-license = "BSD-3 Clause license"
+license = "BSD-3-Clause"
 license_file = "LICENCE"
 repository = "https://github.com/w-lfpup/coyote-rs"
 readme = "README.md"
