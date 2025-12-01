@@ -96,7 +96,7 @@ fn component_injections() {
 
     let template = tmpl("<p>{}</p>", [descendants]);
 
-    let expected = "<p> <span>hai :3</span>\n\t<span>hello</span></p>";
+    let expected = "<p> <span>hai :3</span>\n\t<span>hello</span>\n</p>";
 
     let mut html = Html::new();
     let results = html.render(&template);

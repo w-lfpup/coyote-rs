@@ -16,14 +16,10 @@ pub fn compose_steps(
             StepKind::EmptyElementClosed => close_empty_element(results, tag_info_stack),
             StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
             StepKind::TailElementClosed => close_tail_tag(results, tag_info_stack),
-            StepKind::Text => push_text(results, tag_info_stack, rules, template_str, step),
+            StepKind::Text => push_text(results, tag_info_stack, template_str, step),
             StepKind::TextAlt => push_alt_text(results, tag_info_stack, rules, template_str, step),
-            StepKind::TextLineSpace => {
-                push_text_space(results, tag_info_stack, rules, template_str, step)
-            }
-            StepKind::TextSpace => {
-                push_text_space(results, tag_info_stack, rules, template_str, step)
-            }
+            StepKind::TextLineSpace => push_text_space(results, tag_info_stack, template_str, step),
+            StepKind::TextSpace => push_text_space(results, tag_info_stack, template_str, step),
             StepKind::Attr => push_attr(results, tag_info_stack, template_str, step),
             StepKind::AttrValueSingleQuoted => {
                 push_attr_value_single_quoted(results, tag_info_stack, template_str, step)
@@ -34,30 +30,18 @@ pub fn compose_steps(
             StepKind::AttrValueUnquoted => {
                 push_attr_value_unquoted(results, tag_info_stack, template_str, step)
             }
-            StepKind::ElementSpace => {
-                push_text_space(results, tag_info_stack, rules, template_str, step)
-            }
+            StepKind::ElementSpace => push_text_space(results, tag_info_stack, template_str, step),
             StepKind::ElementLineSpace => {
-                push_text_space(results, tag_info_stack, rules, template_str, step)
-            }
-            StepKind::InjectionConfirmed => {
-                push_injection_confirmed(results, tag_info_stack, rules, template_str, step)
+                push_text_space(results, tag_info_stack, template_str, step)
             }
             _ => {}
         }
     }
 }
 
-fn push_text(
-    results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    _rules: &dyn RulesetImpl,
-    template_str: &str,
-    step: &Step,
-) {
+fn push_text(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
-        // this should never happen
         _ => return,
     };
 
@@ -72,7 +56,6 @@ fn push_text(
     tag_info.text_format = TextFormat::Text;
 }
 
-// SET SOME KIND OF TEXT FORMAT
 fn push_alt_text(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
@@ -82,7 +65,6 @@ fn push_alt_text(
 ) {
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
-        // this should never happen
         _ => return,
     };
 
@@ -96,38 +78,14 @@ fn push_alt_text(
     tag_info.text_format = TextFormat::Text;
 }
 
-fn push_injection_confirmed(
-    _results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    _rules: &dyn RulesetImpl,
-    _template_str: &str,
-    _step: &Step,
-) {
-    let tag_info = match stack.last_mut() {
-        Some(curr) => curr,
-        // this should never happen
-        _ => return,
-    };
-
-    if tag_info.banned_path {
-        return;
-    }
-
-    // This feels heavy handed and suspect.
-    // More interesting logic might be necessary
-    tag_info.text_format = TextFormat::Text;
-}
-
 fn push_text_space(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
-    _rules: &dyn RulesetImpl,
     template_str: &str,
     step: &Step,
 ) {
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
-        // this should never happen
         _ => return,
     };
 
@@ -169,7 +127,6 @@ fn push_element(
     let tag_info = match stack.last_mut() {
         Some(tag_info) => tag_info,
         _ => {
-            // this never happens
             return;
         }
     };
@@ -254,10 +211,7 @@ fn pop_element(
 
     let tag_info = match stack.last() {
         Some(ti) => ti,
-        _ => {
-            // never happens
-            return;
-        }
+        _ => return,
     };
 
     if tag_info.banned_path {
@@ -292,7 +246,6 @@ fn pop_element(
         };
     }
 
-    // better if else here
     match tag == closed_tag {
         true => {
             results.push_str("</");

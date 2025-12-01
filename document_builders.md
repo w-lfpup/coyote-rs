@@ -117,7 +117,7 @@ tmpl("<span>", [])
 
 ### Forbidden attribute glyphs
 
-The following characters are forbidden in html attributes:
+The following characters are [forbidden](https://html.spec.whatwg.org/multipage/syntax.html#attributes-2) in html attributes:
 `< > = " \ /`
 
 The bracket-character `{` is forbidden in attribute components by `coyote`.

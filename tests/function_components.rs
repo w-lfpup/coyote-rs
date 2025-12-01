@@ -1,7 +1,12 @@
 use coyotes::{Component, Html, attr_val, list, text, tmpl, vlist};
 
 fn submit_button() -> Component {
-    tmpl("<input type=submit value=\"yus -_-\">", [])
+    tmpl(
+        "
+		<input type=submit value=\"yus -_-\">
+		",
+        [],
+    )
 }
 
 fn form() -> Component {
@@ -164,11 +169,7 @@ fn element_and_text_components_retain_extra_spacey_spacing() {
 }
 
 fn el_hai() -> Component {
-    tmpl(
-        "<span> hai :3 </span>
-		",
-        [],
-    )
+    tmpl("<span> hai :3 </span>", [])
 }
 
 #[test]
@@ -182,6 +183,50 @@ fn element_components_retain_spacing() {
 <div><span> hai :3 </span> <span> hai :3 </span></div>
 <div>
 	<span> hai :3 </span> <span> hai :3 </span>
+</div>
+<div>
+	<span> hai :3 </span>
+	<span> hai :3 </span>
+</div>
+<div>
+	<span> hai :3 </span>
+	<span> hai :3 </span>
+</div>";
+
+    let mut html = Html::new();
+    let results = html.render(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+fn el_hai_extra_spacey() -> Component {
+    tmpl(
+        "
+        <span> hai :3 </span>
+        ",
+        [],
+    )
+}
+
+#[test]
+fn element_components_retain_extra_spacey_spacing() {
+    let template = lil_divs(el_hai_extra_spacey);
+
+    let expected = "<div>
+	<span> hai :3 </span>
+	<span> hai :3 </span>
+</div>
+<div>
+	<span> hai :3 </span>
+	<span> hai :3 </span>
+</div>
+<div>
+	<span> hai :3 </span>
+	<span> hai :3 </span>
+</div>
+<div>
+	<span> hai :3 </span>
+	<span> hai :3 </span>
 </div>
 <div>
 	<span> hai :3 </span>
@@ -250,3 +295,5 @@ fn attribute_components_retain_spacing() {
 
     assert_eq!(Ok(expected.to_string()), results);
 }
+
+// list of attribute injections

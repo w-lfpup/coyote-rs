@@ -195,7 +195,8 @@ And those spaces are rendered accordingly:
 
 ```html
 <p> <span>hai :3</span>
-	<span>hello</span></p>
+	<span>hello</span>
+</p>
 ```
 
 #### Text components
