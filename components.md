@@ -49,7 +49,7 @@ The goal is to provide a robust template syntax while adhering modern HTML stand
 Function components are functions that return components!
 
 ```rust
-use coyote_rs::components::{Component, tmpl};
+use coyotes::{Component, tmpl};
 
 fn hello_world() -> Component {
     tmpl("<p>hai :3</p>", [])
@@ -115,7 +115,7 @@ The `list` and `vlist` components immitate the `node -> [node, text, node, ...]`
 The example below creates a form defined by lists of attributes, templates, and text.
 
 ```rust
-use coyote_rs::{Component, attr_val, list, text, tmpl};
+use coyotes::{Component, attr_val, list, text, tmpl};
 
 fn submit_button() -> Component {
     tmpl("<input type=submit value='yus ^_^'>", [])
@@ -156,7 +156,7 @@ And the output will be:
 `Components` are the atomic chunks used to build documents.
 
 ```rs
-use coyote_rs::{
+use coyotes::{
     attr,
     attr_val,
     text,

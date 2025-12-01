@@ -124,8 +124,8 @@ impl RulesetImpl for HtmlOnlyRules {
         fw::is_namespace_el(tag)
     }
 
-    fn tag_is_preserved_text_el(&self, tag: &str) -> bool {
-        fw::is_preserved_text_el(tag)
+    fn tag_is_preformatted_text_el(&self, tag: &str) -> bool {
+        fw::is_preformatted_text_el(tag)
     }
 
     fn tag_is_inline_el(&self, _tag: &str) -> bool {

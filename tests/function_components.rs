@@ -1,4 +1,4 @@
-use coyotes::{Component, Html, attr_val, list, text, tmpl, vlist};
+use coyotes::{Component, Html, attr, attr_val, list, text, tmpl, vlist};
 
 fn submit_button() -> Component {
     tmpl(
@@ -297,3 +297,24 @@ fn attribute_components_retain_spacing() {
 }
 
 // list of attribute injections
+fn attributes() -> Component {
+    list([
+        attr("hai"),
+        attr("hello"),
+        attr_val("yo", "what's good!"),
+        attr_val(
+            "hey",
+            "
+				howdy!
+			",
+        ),
+    ])
+}
+
+// attributes with space
+
+// attributes with line
+
+// attribute with space inline
+
+// attribute with lines

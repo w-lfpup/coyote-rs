@@ -123,7 +123,7 @@ impl RulesetImpl for XmlRules {
         false
     }
 
-    fn tag_is_preserved_text_el(&self, tag: &str) -> bool {
+    fn tag_is_preformatted_text_el(&self, tag: &str) -> bool {
         "!CDATA[[" == tag
     }
 

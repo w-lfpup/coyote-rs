@@ -68,7 +68,7 @@ pub fn is_namespace_el(tag: &str) -> bool {
     }
 }
 
-pub fn is_preserved_text_el(tag: &str) -> bool {
+pub fn is_preformatted_text_el(tag: &str) -> bool {
     return "pre" == tag;
 }
 

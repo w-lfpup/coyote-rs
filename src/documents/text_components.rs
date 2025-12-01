@@ -68,7 +68,7 @@ pub fn push_alt_text_component(
         return;
     }
 
-    if tag_info.preserved_text_path {
+    if tag_info.preformatted_text_path {
         results.push_str(text);
         return;
     }
@@ -118,7 +118,7 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
         return;
     }
 
-    if tag_info.preserved_text_path {
+    if tag_info.preformatted_text_path {
         results.push_str(text);
         return;
     }
@@ -170,7 +170,7 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
         return;
     }
 
-    if tag_info.preserved_text_path {
+    if tag_info.preformatted_text_path {
         results.push_str(text);
         return;
     }

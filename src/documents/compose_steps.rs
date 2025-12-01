@@ -93,10 +93,9 @@ fn push_text_space(
         return;
     }
 
-    if tag_info.preserved_text_path {
+    if tag_info.preformatted_text_path {
         let text = get_text_from_step(template_str, step);
         results.push_str(text);
-        return;
     }
 
     if TextFormat::Initial == tag_info.text_format || TextFormat::LineSpace == tag_info.text_format
@@ -285,7 +284,7 @@ fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
         return;
     }
 
-    if !tag_info.preserved_text_path {
+    if !tag_info.preformatted_text_path {
         match tag_info.text_format {
             TextFormat::Space => results.push(' '),
             TextFormat::LineSpace => {
@@ -365,7 +364,7 @@ fn push_attr_value_double_quoted(
 }
 
 fn push_space_on_text(results: &mut String, tag_info: &TagInfo) {
-    if tag_info.preserved_text_path {
+    if tag_info.preformatted_text_path {
         return;
     }
 
@@ -380,7 +379,7 @@ fn push_space_on_text(results: &mut String, tag_info: &TagInfo) {
 }
 
 fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &TagInfo) {
-    if tag_info.preserved_text_path {
+    if tag_info.preformatted_text_path {
         return;
     }
 

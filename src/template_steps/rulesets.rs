@@ -14,6 +14,6 @@ pub trait RulesetImpl {
     fn tag_is_inline_el(&self, tag: &str) -> bool;
     fn tag_is_namespace_el(&self, tag: &str) -> bool;
     fn tag_is_prefix_of_contentless_el(&self, tag: &str) -> Option<&str>;
-    fn tag_is_preserved_text_el(&self, tag: &str) -> bool;
+    fn tag_is_preformatted_text_el(&self, tag: &str) -> bool;
     fn tag_is_void_el(&self, tag: &str) -> bool;
 }

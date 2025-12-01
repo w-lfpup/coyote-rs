@@ -191,7 +191,7 @@ tmpl(
 )
 ```
 
-And those spaces are rendered accordingly:
+And those spaces and new lines are rendered accordingly:
 
 ```html
 <p> <span>hai :3</span>
@@ -220,7 +220,7 @@ tmpl(
 );
 ```
 
-Those spaces are rendered accordingly:
+New lines are preserved and spaces are collapsed on render:
 
 ```html
 <p>
