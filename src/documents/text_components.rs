@@ -101,7 +101,6 @@ pub fn push_alt_text_component(
     let last = texts[texts.len() - 1];
     results.push('\n');
 
-    // should be based on rules but
     if rules.respect_indentation() {
         let indent_offset = match tag_info.inline_el {
             true => tag_info.indent_count,

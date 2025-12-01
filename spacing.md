@@ -166,11 +166,11 @@ A template will output new lines before attributes:
 
 ### Descendant injections
 
-#### Spaces
+#### Templates
 
-Coyote parses the space between components as if they were one contiguous document.
+Coyote parses the space between templates as if components were a contiguous document.
 
-Coyote only considers the preceeding space in a component. The result is something similar to how a browser might collapse spaces and lines.
+It uses the preceeding space in a template to establish document spacing and avoid empty trailing spaces. 
 
 The following example demonstrates this behavior:
 
@@ -223,6 +223,8 @@ Those spaces are rendered accordingly:
 
 ```html
 <p>
+
 	hai :3
+
 </p>	
 ```
