@@ -163,6 +163,48 @@ fn element_and_text_components_retain_extra_spacey_spacing() {
     assert_eq!(Ok(expected.to_string()), results);
 }
 
+fn el_hai() -> Component {
+    tmpl(
+        "
+		<span> hai :3 </span>
+		",
+        [],
+    )
+}
+
+#[test]
+fn element_components_retain_spacing() {
+    let template = lil_divs(el_hai);
+
+    let expected = "<div>
+	<span> hai :3 </span>
+	<span> hai :3 </span></div>
+<div>
+	<span> hai :3 </span>
+	<span> hai :3 </span>
+</div>
+<div>
+	<span> hai :3 </span>
+	<span> hai :3 </span></div>
+<div>
+	<span> hai :3 </span>
+	<span> hai :3 </span>
+</div>
+<div>
+	<span> hai :3 </span>
+	<span> hai :3 </span>
+</div>
+<div>
+	<span> hai :3 </span>
+	<span> hai :3 </span>
+</div>";
+
+    let mut html = Html::new();
+    let results = html.render(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
 fn lots_of_attributes() -> Component {
     tmpl(
         "
