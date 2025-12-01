@@ -190,6 +190,11 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
     let middle_lines = &texts[1..texts.len() - 1];
     let common_space_index = get_largest_common_space_index(middle_lines);
 
+    let indent_count = match tag_info.text_format {
+        TextFormat::LineSpace => tag_info.indent_count + 1,
+        _ => tag_info.indent_count,
+    };
+
     for line in middle_lines {
         results.push('\n');
 
@@ -197,7 +202,7 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
             continue;
         }
 
-        results.push_str(&"\t".repeat(tag_info.indent_count));
+        results.push_str(&"\t".repeat(indent_count));
         push_line_of_text(results, &line[common_space_index..])
     }
 

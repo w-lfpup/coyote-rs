@@ -15,6 +15,7 @@ pub fn compose_steps(
             StepKind::ElementClosed => close_element(results, tag_info_stack),
             StepKind::EmptyElementClosed => close_empty_element(results, tag_info_stack),
             StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
+            StepKind::TailElementSpace => push_element_space(tag_info_stack, step),
             StepKind::TailElementClosed => close_tail_tag(results, tag_info_stack),
             StepKind::Text => push_text(results, tag_info_stack, template_str, step),
             StepKind::TextAlt => push_alt_text(results, tag_info_stack, rules, template_str, step),
@@ -108,6 +109,31 @@ fn push_text_space(
             tag_info.text_format = TextFormat::LineSpace;
         }
         StepKind::TextLineSpace => {
+            tag_info.text_format = TextFormat::LineSpace;
+        }
+        _ => {
+            tag_info.text_format = TextFormat::Space;
+        }
+    }
+}
+
+fn push_element_space(stack: &mut Vec<TagInfo>, step: &Step) {
+    let tag_info = match stack.last_mut() {
+        Some(curr) => curr,
+        _ => return,
+    };
+
+    if tag_info.banned_path {
+        return;
+    }
+
+    if TextFormat::Initial == tag_info.text_format || TextFormat::LineSpace == tag_info.text_format
+    {
+        return;
+    }
+
+    match step.kind {
+        StepKind::ElementLineSpace => {
             tag_info.text_format = TextFormat::LineSpace;
         }
         _ => {

@@ -305,14 +305,60 @@ fn attributes() -> Component {
         attr_val(
             "hey",
             "
-				howdy!
+			howdy!
+
+			howdy!
+
+			hurray!
 			",
         ),
     ])
 }
 
-// attributes with space
+fn lil_attributes(hai: fn() -> Component) -> Component {
+    tmpl(
+        "
+		<p {}>
+		</p>
+		<p
+			{}>
+		</p>
+		<span {}></span>
+		<span {}></span>
+		",
+        [hai(), hai(), hai(), hai()],
+    )
+}
 
+#[test]
+fn attribute_component_injections_retain_spacing() {
+    let template = lil_attributes(attributes);
+
+    let expected = "<p hai hello yo=\"what's good!\" hey=\"
+	howdy!
+	\"
+>
+</p>
+<p
+	hai
+	hello
+	yo=\"what's good!\"
+	hey=\"
+	howdy!
+	\">
+</p>
+<span hai hello yo=\"what's good!\" hey=\"
+howdy!
+\"></span>
+<span hai hello yo=\"what's good!\" hey=\"
+howdy!
+\"></span>";
+
+    let mut html = Html::new();
+    let results = html.render(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
 // attributes with line
 
 // attribute with space inline
