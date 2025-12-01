@@ -165,7 +165,12 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
     }
 }
 
-pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &TagInfo) {
+pub fn push_multiline_attributes(
+    results: &mut String,
+    rules: &dyn RulesetImpl,
+    text: &str,
+    tag_info: &TagInfo,
+) {
     if tag_info.banned_path {
         return;
     }
@@ -190,10 +195,10 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
     let middle_lines = &texts[1..texts.len() - 1];
     let common_space_index = get_largest_common_space_index(middle_lines);
 
-    let indent_count = match tag_info.text_format {
-        TextFormat::LineSpace => tag_info.indent_count + 1,
-        _ => tag_info.indent_count,
-    };
+    let mut indent_count = tag_info.indent_count;
+    if rules.respect_indentation() && !tag_info.inline_el {
+        indent_count += 1;
+    }
 
     for line in middle_lines {
         results.push('\n');

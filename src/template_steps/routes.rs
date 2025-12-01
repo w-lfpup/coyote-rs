@@ -26,7 +26,6 @@ pub enum StepKind {
     TailElementClosed,
     TailElementSolidus,
     TailElementSpace,
-    // TailElementLineSpace
     TailTag,
     Text,
     TextAlt,

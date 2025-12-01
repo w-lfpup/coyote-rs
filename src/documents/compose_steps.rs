@@ -12,7 +12,7 @@ pub fn compose_steps(
     for step in steps {
         match step.kind {
             StepKind::Tag => push_element(results, tag_info_stack, rules, template_str, step),
-            StepKind::ElementClosed => close_element(results, tag_info_stack),
+            StepKind::ElementClosed => close_element(results, tag_info_stack, rules),
             StepKind::EmptyElementClosed => close_empty_element(results, tag_info_stack),
             StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
             StepKind::TailElementSpace => push_element_space(tag_info_stack, step),
@@ -23,10 +23,10 @@ pub fn compose_steps(
             StepKind::TextSpace => push_text_space(results, tag_info_stack, template_str, step),
             StepKind::Attr => push_attr(results, tag_info_stack, template_str, step),
             StepKind::AttrValueSingleQuoted => {
-                push_attr_value_single_quoted(results, tag_info_stack, template_str, step)
+                push_attr_value_single_quoted(results, tag_info_stack, rules, template_str, step)
             }
             StepKind::AttrValueDoubleQuoted => {
-                push_attr_value_double_quoted(results, tag_info_stack, template_str, step)
+                push_attr_value_double_quoted(results, tag_info_stack, rules, template_str, step)
             }
             StepKind::AttrValueUnquoted => {
                 push_attr_value_unquoted(results, tag_info_stack, template_str, step)
@@ -46,11 +46,13 @@ fn push_text(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
         _ => return,
     };
 
-    if !tag_info.banned_path {
-        let text = get_text_from_step(template_str, step);
-        push_space_on_text(results, &tag_info);
-        results.push_str(text);
+    if tag_info.banned_path {
+        return;
     }
+
+    let text = get_text_from_step(template_str, step);
+    push_space_on_text(results, &tag_info);
+    results.push_str(text);
 
     tag_info.text_format = TextFormat::Text;
 }
@@ -67,10 +69,12 @@ fn push_alt_text(
         _ => return,
     };
 
-    if !tag_info.banned_path {
-        let text = get_text_from_step(template_str, step);
-        push_alt_text_component(results, rules, text, tag_info);
+    if tag_info.banned_path {
+        return;
     }
+
+    let text = get_text_from_step(template_str, step);
+    push_alt_text_component(results, rules, text, tag_info);
 
     tag_info.text_format = TextFormat::Text;
 }
@@ -158,13 +162,29 @@ fn push_element(
     stack.push(next_tag_info);
 }
 
-fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
+fn close_element(results: &mut String, stack: &mut Vec<TagInfo>, rules: &dyn RulesetImpl) {
     let tag_info = match stack.last_mut() {
         Some(tag_info) => tag_info,
         _ => return,
     };
 
     if !tag_info.banned_path {
+        match tag_info.text_format {
+            TextFormat::LineSpace => {
+                results.push('\n');
+
+                // needs an offset logic
+                if rules.respect_indentation() {
+                    let indent_offset = match tag_info.inline_el {
+                        true => tag_info.indent_count,
+                        _ => tag_info.indent_count - 1,
+                    };
+
+                    results.push_str(&"\t".repeat(indent_offset));
+                }
+            }
+            _ => {}
+        }
         results.push_str(">");
     }
 
@@ -335,6 +355,7 @@ fn push_attr_value_unquoted(
 fn push_attr_value_single_quoted(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
+    rules: &dyn RulesetImpl,
     template_str: &str,
     step: &Step,
 ) {
@@ -349,13 +370,14 @@ fn push_attr_value_single_quoted(
 
     let text = get_text_from_step(template_str, step);
     results.push_str("='");
-    push_multiline_attributes(results, &text, tag_info);
+    push_multiline_attributes(results, rules, &text, tag_info);
     results.push('\'');
 }
 
 fn push_attr_value_double_quoted(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
+    rules: &dyn RulesetImpl,
     template_str: &str,
     step: &Step,
 ) {
@@ -370,7 +392,7 @@ fn push_attr_value_double_quoted(
 
     let text = get_text_from_step(template_str, step);
     results.push_str("=\"");
-    push_multiline_attributes(results, &text, tag_info);
+    push_multiline_attributes(results, rules, &text, tag_info);
     results.push('"');
 }
 

@@ -72,7 +72,7 @@ fn attribute_values_preserve_new_lines() {
         [],
     );
 
-    let expected = "<p\n\tattr='\n\n\thai :3 hello!\n\n\t'></p>";
+    let expected = "<p\n\tattr='\n\n\thai :3 hello!\n\n\t'\n></p>";
 
     let mut html = Html::new();
     let results = html.render(&template);

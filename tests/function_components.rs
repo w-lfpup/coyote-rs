@@ -264,31 +264,7 @@ fn lots_of_attributes() -> Component {
 fn attributes_retain_spacing() {
     let template = lots_of_attributes();
 
-    let expected = "<p hai></p>
-<p hai></p>
-<p
-	hai></p>
-<p
-	hai>
-</p>";
-
-    let mut html = Html::new();
-    let results = html.render(&template);
-
-    assert_eq!(Ok(expected.to_string()), results);
-}
-
-#[test]
-fn attribute_components_retain_spacing() {
-    let template = lots_of_attributes();
-
-    let expected = "<p hai></p>
-<p hai></p>
-<p
-	hai></p>
-<p
-	hai>
-</p>";
+    let expected = "<p hai></p>\n<p hai\n></p>\n<p\n\thai></p>\n<p\n\thai\n>\n</p>";
 
     let mut html = Html::new();
     let results = html.render(&template);
@@ -297,7 +273,7 @@ fn attribute_components_retain_spacing() {
 }
 
 // list of attribute injections
-fn attributes() -> Component {
+fn attribute_list() -> Component {
     list([
         attr("hai"),
         attr("hello"),
@@ -332,7 +308,7 @@ fn lil_attributes(hai: fn() -> Component) -> Component {
 
 #[test]
 fn attribute_component_injections_retain_spacing() {
-    let template = lil_attributes(attributes);
+    let template = lil_attributes(attribute_list);
 
     let expected = "<p hai hello yo=\"what's good!\" hey=\"
 	howdy!
@@ -354,13 +330,44 @@ howdy!
 howdy!
 \"></span>";
 
+    let expected2 = "<p hai hello yo=\"what's good!\" hey=\"
+	howdy!
+
+	howdy!
+
+	hurray!
+	\">
+</p>
+<p
+	hai
+	hello
+	yo=\"what's good!\"
+	hey=\"
+		howdy!
+
+		howdy!
+
+		hurray!
+	\"
+>
+</p>
+<span hai hello yo=\"what's good!\" hey=\"
+howdy!
+
+howdy!
+
+hurray!
+\"></span>
+<span hai hello yo=\"what's good!\" hey=\"
+howdy!
+
+howdy!
+
+hurray!
+\"></span>";
+
     let mut html = Html::new();
     let results = html.render(&template);
 
-    assert_eq!(Ok(expected.to_string()), results);
+    assert_eq!(Ok(expected2.to_string()), results);
 }
-// attributes with line
-
-// attribute with space inline
-
-// attribute with lines

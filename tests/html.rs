@@ -195,11 +195,19 @@ fn mozilla_spacing_example_passes() {
 fn attribute_value_retains_spacing() {
     let template = tmpl(
         "
-		<h1 wow='People use
+		<h1 
+            oh=''
+            yikes='woah!'
+            oh-no='
+                it goes bye bye
+            '
+            wow='People use
 			attributes in some very
 			wild ways but thats okay'>   Hello
 				<span> World!</span>   </h1>
-		<h1 wow='
+		<h1 oh='' yikes='woah!' oh-no='
+                it goes bye bye
+            ' wow='
 
 			People use attributes in some very
 
@@ -224,6 +232,28 @@ fn attribute_value_retains_spacing() {
 
 	'>
 	Hello! <span> World!</span>
+</h1>";
+
+    let expected2 = "<h1
+    oh
+    yikes='woah!'
+    oh-no='
+    it goes bye bye
+    '
+    wow='People use
+    attributes in some very
+    wild ways but thats okay'> Hello
+    <span> World!</span> </h1>
+<h1 oh yikes='woah!' oh-no='
+    it goes bye bye
+    ' wow='
+
+    People use attributes in some very
+
+    wild ways but thats okay
+
+    '>
+    Hello! <span> World!</span>
 </h1>";
 
     let mut html = Html::new();
