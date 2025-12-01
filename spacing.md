@@ -170,16 +170,18 @@ A template will output new lines before attributes:
 
 Coyote parses the space between components as if they were one contiguous document.
 
-The result is something similar to how a browser might collapse spaces and lines.
+Coyote only considers the preceeding space in a component. The result is something similar to how a browser might collapse spaces and lines.
 
-The following 
+The following example demonstrates this behavior:
 
 ```rs
 let descendants = list([
 	tmpl(" <span>hai :3</span> ", []),
 	tmpl(
 		"
+
 		<span>hello</span>
+
 		", []),
 ]);
 

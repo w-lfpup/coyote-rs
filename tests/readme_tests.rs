@@ -81,6 +81,30 @@ fn attribute_values_preserve_new_lines() {
 }
 
 #[test]
+fn component_injections() {
+    let descendants = list([
+        tmpl(" <span>hai :3</span> ", []),
+        tmpl(
+            "
+
+			<span>hello</span>
+			
+			",
+            [],
+        ),
+    ]);
+
+    let template = tmpl("<p>{}</p>", [descendants]);
+
+    let expected = "<p> <span>hai :3</span>\n\t<span>hello</span></p>";
+
+    let mut html = Html::new();
+    let results = html.render(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
 fn text_component_injections() {
     let descendants = text(
         "
