@@ -245,10 +245,6 @@ fn pop_element(
     template_str: &str,
     step: &Step,
 ) {
-    if stack.len() < 2 {
-        return;
-    }
-
     let tag_info = match stack.last() {
         Some(ti) => ti,
         _ => return,

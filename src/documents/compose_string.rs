@@ -2,9 +2,7 @@ use crate::components::Component;
 use crate::documents::compose_steps::compose_steps;
 use crate::documents::tag_info::{TagInfo, TextFormat};
 use crate::documents::template_builder::TemplateBuilderImpl;
-use crate::documents::text_components::{
-    push_multiline_attributes, push_text_component as push_that_text_component,
-};
+use crate::documents::text_components::{push_multiline_attributes, push_text_component};
 use crate::errors::Errors;
 use crate::template_steps::{RulesetImpl, StepKind, TemplateSteps};
 
@@ -50,10 +48,9 @@ pub fn compose_string(
             StackBit::Cmpnt(cmpnt) => match cmpnt {
                 Component::Text(text) => {
                     let escaped_text = remove_template_glyphs(text);
-                    push_text_component(
+                    push_text_component_injection(
                         &mut document_results,
                         &mut tag_info_stack,
-                        rules,
                         &escaped_text,
                     );
                 }
@@ -309,18 +306,13 @@ fn push_attr_value_component(
     results.push('"');
 }
 
-fn push_text_component(
-    results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    _rules: &dyn RulesetImpl,
-    text: &str,
-) {
+fn push_text_component_injection(results: &mut String, stack: &mut Vec<TagInfo>, text: &str) {
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
         _ => return,
     };
 
-    push_that_text_component(results, text, tag_info);
+    push_text_component(results, text, tag_info);
 
     tag_info.text_format = TextFormat::Text;
 }
