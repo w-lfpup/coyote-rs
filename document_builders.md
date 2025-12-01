@@ -33,7 +33,7 @@ The output will be:
 
 ### Hello, safer world!
 
-The `HtmlOnly` document builder is meant for HOTW scenarios that can't afford potentially mutative elements being rendered.
+The `HtmlOnly` document builder is meant for HOTW scenarios that cannot affort to render elements with side-effects.
 
 Consider the following component with malicious intent:
 
@@ -62,7 +62,7 @@ fn hello_world() -> Component {
 }
 ```
 
-The malicious component function could load elements with side-effects that could break your site.
+The malicious component could load elements that can mutate the DOM and  break your site.
 
 The `HtmlOnly` document builder removes all instances of `link`, `style`, and `script` elements.
 

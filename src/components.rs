@@ -6,7 +6,6 @@ pub enum Component {
     Text(String),
     Tmpl(Template, Vec<Component>),
     TmplString(String, Vec<Component>),
-    UnescapedText(String),
     None,
 }
 
@@ -27,10 +26,6 @@ pub fn tmpl_string<const N: usize>(template: &str, injections: [Component; N]) -
 
 pub fn text(txt: &str) -> Component {
     Component::Text(txt.to_string())
-}
-
-pub fn unescaped_text(txt: &str) -> Component {
-    Component::UnescapedText(txt.to_string())
 }
 
 pub fn attr(attr_str: &str) -> Component {

@@ -57,9 +57,6 @@ pub fn compose_string(
                         &escaped_text,
                     );
                 }
-                Component::UnescapedText(text) => {
-                    push_text_component(&mut template_results, &mut tag_info_stack, rules, text);
-                }
                 Component::List(list) => {
                     for cmpnt in list.iter().rev() {
                         let bit = get_bit_from_component_stack(

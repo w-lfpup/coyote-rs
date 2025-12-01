@@ -160,7 +160,6 @@ use coyote_rs::{
     attr,
     attr_val,
     text,
-    unescaped_text,
     tmpl,
     tmpl_string,
     list,
@@ -191,14 +190,6 @@ text with the HTML-safe escaped text
 
 ```rs
 text(text_str: &str)
-```
-
-#### Unescaped text
-
-dangerously unescaped text
-
-```rs
-unescaped_text(text_str: &str)
 ```
 
 #### Template
