@@ -46,13 +46,11 @@ fn push_text(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
         _ => return,
     };
 
-    if tag_info.banned_path {
-        return;
+    if !tag_info.banned_path {
+        let text = get_text_from_step(template_str, step);
+        push_space_on_text(results, &tag_info);
+        results.push_str(text);
     }
-
-    let text = get_text_from_step(template_str, step);
-    push_space_on_text(results, &tag_info);
-    results.push_str(text);
 
     tag_info.text_format = TextFormat::Text;
 }
@@ -69,12 +67,10 @@ fn push_alt_text(
         _ => return,
     };
 
-    if tag_info.banned_path {
-        return;
+    if !tag_info.banned_path {
+        let text = get_text_from_step(template_str, step);
+        push_alt_text_component(results, rules, text, tag_info);
     }
-
-    let text = get_text_from_step(template_str, step);
-    push_alt_text_component(results, rules, text, tag_info);
 
     tag_info.text_format = TextFormat::Text;
 }
@@ -90,13 +86,11 @@ fn push_text_space(
         _ => return,
     };
 
-    if tag_info.banned_path {
-        return;
-    }
-
-    if tag_info.preformatted_text_path {
-        let text = get_text_from_step(template_str, step);
-        results.push_str(text);
+    if !tag_info.banned_path {
+        if tag_info.preformatted_text_path {
+            let text = get_text_from_step(template_str, step);
+            results.push_str(text);
+        }
     }
 
     if TextFormat::Initial == tag_info.text_format || TextFormat::LineSpace == tag_info.text_format
@@ -122,10 +116,6 @@ fn push_element_space(stack: &mut Vec<TagInfo>, step: &Step) {
         Some(curr) => curr,
         _ => return,
     };
-
-    if tag_info.banned_path {
-        return;
-    }
 
     if TextFormat::Initial == tag_info.text_format || TextFormat::LineSpace == tag_info.text_format
     {
@@ -176,8 +166,9 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
 
     if !tag_info.banned_path {
         results.push_str(">");
-        tag_info.text_format = TextFormat::Text;
     }
+
+    tag_info.text_format = TextFormat::Text;
 
     if !tag_info.void_el {
         return;
@@ -199,20 +190,18 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         _ => return,
     };
 
-    if tag_info.banned_path {
-        return;
-    }
-
-    match "html" != tag_info.namespace {
-        true => results.push_str("/>"),
-        _ => match tag_info.void_el {
-            true => results.push('>'),
-            _ => {
-                results.push_str("></");
-                results.push_str(&tag_info.tag);
-                results.push('>');
-            }
-        },
+    if !tag_info.banned_path {
+        match "html" != tag_info.namespace {
+            true => results.push_str("/>"),
+            _ => match tag_info.void_el {
+                true => results.push('>'),
+                _ => {
+                    results.push_str("></");
+                    results.push_str(&tag_info.tag);
+                    results.push('>');
+                }
+            },
+        }
     }
 
     let prev_tag_info = match stack.last_mut() {
@@ -286,11 +275,9 @@ fn close_tail_tag(results: &mut String, stack: &mut Vec<TagInfo>) {
         _ => return,
     };
 
-    if tag_info.banned_path {
-        return;
+    if !tag_info.banned_path {
+        results.push_str(">");
     }
-
-    results.push_str(">");
 
     let prev_tag_info = match stack.last_mut() {
         Some(tag_info) => tag_info,
@@ -306,23 +293,21 @@ fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
         _ => return,
     };
 
-    if tag_info.banned_path {
-        return;
-    }
-
-    if !tag_info.preformatted_text_path {
-        match tag_info.text_format {
-            TextFormat::Space => results.push(' '),
-            TextFormat::LineSpace => {
-                results.push('\n');
-                results.push_str(&"\t".repeat(tag_info.indent_count))
+    if !tag_info.banned_path {
+        if !tag_info.preformatted_text_path {
+            match tag_info.text_format {
+                TextFormat::Space => results.push(' '),
+                TextFormat::LineSpace => {
+                    results.push('\n');
+                    results.push_str(&"\t".repeat(tag_info.indent_count))
+                }
+                _ => {}
             }
-            _ => {}
         }
-    }
 
-    let attr = get_text_from_step(template_str, step);
-    results.push_str(attr.trim());
+        let attr = get_text_from_step(template_str, step);
+        results.push_str(attr.trim());
+    }
 
     tag_info.text_format = TextFormat::Text
 }
