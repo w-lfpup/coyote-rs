@@ -2,11 +2,17 @@
 
 Create `HTML` documents with function components in Rust.
 
-There are no dependencies. There are no macros.
-
-HTML in, HTML out. No suprises. Very little overhead.
+HTML in, HTML out. No suprises, no dependencies.
 
 ## Install
+
+`Coyote-rs` is available on [crates.io](https://crates.io) as `coyotes`:
+
+```sh
+cargo install coyotes
+```
+
+Or install directly from git:
 
 ```sh
 cargo install --git https://github.com/w-lfpup/coyote-rs
@@ -17,19 +23,19 @@ cargo install --git https://github.com/w-lfpup/coyote-rs
 Create document fragments with coyote [components](./components.md).
 
 ```rust
-use coyote::{Component, tmpl};
+use coyotes::{Component, tmpl};
 
 fn hello_world() -> Component {
     tmpl("<p>hai :3</p>", [])
 }
 ```
 
-## Html
+## Document builders
 
-Render components as `html` with [document builders](./document_builders.md).
+Render `html` with [document builders](./document_builders.md).
 
 ```rust
-use coyote::Html;
+use coyotes::Html;
 
 let html = Html::new();
 
@@ -47,7 +53,7 @@ The output will be:
 
 Spacing is meaningful in html so `Coyote` respects the lines and spaces defined by developers.
 
-Learn more about how `coyote` handles [spacing](./spacing).
+Learn more about how `coyote` handles [spacing](./spacing.md).
 
 ## License
 

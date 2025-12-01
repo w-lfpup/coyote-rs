@@ -21,10 +21,6 @@ enum StackBit<'a> {
     None,
 }
 
-// needs to be a concept of a "remainder"
-// the last empty string of the previous step,
-// provided to the next step
-
 pub fn compose_string(
     builder: &mut dyn TemplateBuilderImpl,
     rules: &dyn RulesetImpl,
@@ -61,9 +57,6 @@ pub fn compose_string(
                         &escaped_text,
                     );
                 }
-                Component::UnescapedText(text) => {
-                    push_text_component(&mut template_results, &mut tag_info_stack, rules, text);
-                }
                 Component::List(list) => {
                     for cmpnt in list.iter().rev() {
                         let bit = get_bit_from_component_stack(
@@ -79,18 +72,18 @@ pub fn compose_string(
             },
             // template chunk and possible injection
             // could be used for String too
-            StackBit::Tmpl(cmpnt, ref template, ref mut bit) => {
+            StackBit::Tmpl(cmpnt, ref template_steps, ref mut bit) => {
                 let index = bit.inj_index;
                 bit.inj_index += 1;
 
                 let tmpl_str = match cmpnt {
-                    Component::Tmpl(cmpnt) => cmpnt.template,
-                    Component::TmplString(cmpnt) => &cmpnt.template,
+                    Component::Tmpl(template, _) => template.template_str,
+                    Component::TmplString(tmpl_string, _) => tmpl_string,
                     _ => continue,
                 };
 
                 // template chunk
-                match template.steps.get(index) {
+                match template_steps.steps.get(index) {
                     Some(chunk) => {
                         compose_steps(
                             rules,
@@ -111,13 +104,13 @@ pub fn compose_string(
 
                 // add injections
                 let injections = match cmpnt {
-                    Component::Tmpl(cmpnt) => &cmpnt.injections,
-                    Component::TmplString(cmpnt) => &cmpnt.injections,
+                    Component::Tmpl(_, injections) => injections,
+                    Component::TmplString(_, injections) => injections,
                     _ => continue,
                 };
 
                 if let (Some(inj_step), Some(inj)) =
-                    (template.injs.get(index), injections.get(index))
+                    (template_steps.injs.get(index), injections.get(index))
                 {
                     match inj_step.kind {
                         StepKind::AttrMapInjection => {
@@ -146,7 +139,7 @@ pub fn compose_string(
                     }
                 }
 
-                if index < template.steps.len() {
+                if index < template_steps.steps.len() {
                     component_stack.push(cmpnt_bit);
                 }
             }
@@ -166,8 +159,8 @@ fn get_bit_from_component_stack<'a>(
     match cmpnt {
         Component::Text(_) => StackBit::Cmpnt(cmpnt),
         Component::List(_) => StackBit::Cmpnt(cmpnt),
-        Component::Tmpl(tmpl) => {
-            let template_steps = builder.build(rules, &tmpl.template);
+        Component::Tmpl(tmpl, _) => {
+            let template_steps = builder.build(rules, tmpl.template_str);
             StackBit::Tmpl(
                 cmpnt,
                 template_steps,
@@ -177,8 +170,8 @@ fn get_bit_from_component_stack<'a>(
                 },
             )
         }
-        Component::TmplString(tmpl) => {
-            let template_steps = builder.build(rules, &tmpl.template);
+        Component::TmplString(tmpl_string, _) => {
+            let template_steps = builder.build(rules, tmpl_string);
             StackBit::Tmpl(
                 cmpnt,
                 template_steps,

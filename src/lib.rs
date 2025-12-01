@@ -1,12 +1,12 @@
 mod components;
+mod document_builders;
 mod documents;
 mod errors;
-mod renderers;
 mod template_steps;
 
-pub use components::{
-    Component, attr, attr_val, list, text, tmpl, tmpl_string, unescaped_text, vlist,
+pub use components::*;
+pub use document_builders::{
+    DocumentParams, Html, HtmlOnly, HtmlOnlyRules, HtmlRules, Xml, XmlRules,
 };
 pub use documents::{TemplateBuilderImpl, compose_string};
-pub use renderers::{Html, HtmlOnly, HtmlOnlyRules, HtmlRules, Xml, XmlRules};
-pub use template_steps::RulesetImpl;
+pub use template_steps::{RulesetImpl, TemplateSteps, compose};

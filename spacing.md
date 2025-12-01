@@ -2,18 +2,11 @@
 
 `Coyote` _never_ adds spaces or new lines.
 
-Spaces are part of the composition in HTML. They have weight and meaning.
+Space is compositional in HTML. It has weight and meaning.
 
-`Coyote` outputs html that respects the lines and spaces defined by templates and text injections.
+`Coyote` outputs html that respects the lines and spaces defined by templates, text nodes, and attribute values.
 
 So every new line and space is intentional.
-
-## A few expectations
-
-There are a couple broad expectations when writing templates:
-- spaces collapse
-- new lines do not collapse
-- injections repeat their preceeding space
 
 ## Templates
 
@@ -45,35 +38,6 @@ Will output collapsed spaces:
 
 ```html
 <p> hai :3 </p>
-```
-
-### Preserve new lines
-
-`Coyote` respects new lines found in template text nodes.
-
-New lines are often used by developers to visually organize content.
-
-So a template with new lines:
-
-```rust
-tmpl("
-	<p>
-
-		hai :3
-	
-	</p>
-	",
-	[]
-)
-```
-
-Will output every new line:
-```html
-<p>
-
-	hai :3
-
-</p>
 ```
 
 ### Attributes
@@ -131,9 +95,10 @@ tmpl("
 	<p
 		attr='
 
-		hai   :3    hello!
+			hai   :3    hello!
 
-		'></p>
+			'
+	></p>
 	",
 	[]
 )
@@ -145,22 +110,17 @@ Will collapse spaces but preserve new lines on render:
 <p
 	attr='
 
-	hai :3 hello!
+		hai :3 hello!
 
-	'></p>
+		'
+></p>
 ```
 
 ## Injections
 
-Injections repeat the spacing that preceeds them.
-
-So if a `space` is followed by an injection, the injections will be preceeded by a `space`.
-
-Likewise, if a `new line` is followed by an injection, the injections will be preceeded by a `new line`.
-
 ### Attribute injections
 
-So when a space is followed by an attribute injection:
+When a space is followed by an attribute injection:
 
 ```rs
 let attributes = list([
@@ -190,7 +150,8 @@ let attributes = list([
 
 tmpl(
 	"<p
-		{}></p>",
+		{}></p>
+	",
 	[attributes]
 )
 ```
@@ -205,12 +166,23 @@ A template will output new lines before attributes:
 
 ### Descendant injections
 
-Similarly, if a descendant injection is preceeded by a space (or the start of a new tag):
+#### Templates
+
+Coyote parses the space between templates as if components were a contiguous document.
+
+It uses the preceeding space in a template to establish document spacing and avoid empty trailing spaces. 
+
+The following example demonstrates this behavior:
 
 ```rs
 let descendants = list([
-	tmpl("<span>hai :3</span>", []),
-	tmpl("<span>hello</span>", []),
+	tmpl(" <span>hai :3</span> ", []),
+	tmpl(
+		"
+
+		<span>hello</span>
+
+		", []),
 ]);
 
 tmpl(
@@ -219,35 +191,40 @@ tmpl(
 )
 ```
 
-Then the template will render descendants preceeded by a space:
+And those spaces are rendered accordingly:
 
 ```html
-<p><span>hai :3</span> <span>hello</span></p>
+<p> <span>hai :3</span>
+	<span>hello</span></p>
 ```
 
-If a descendant injection is preceeded by a new line:
+#### Text components
+
+Text components preserve all new lines and collapse all spaces.
 
 ```rs
-let descendants = list([
-	tmpl("<span>hai :3</span>", []),
-	tmpl("<span>hello</span>", []),
-]);
+let text_component = text(
+	"
 
+	hai   :3
+
+	"
+);
+	
 tmpl(
 	"
-	<p>
-		{}
-	</p>
+	<p>{}</p>
 	",
-	[descendants]
-)
+	[text_component]
+);
 ```
 
-Then a template will render descendants preceeded by new lines:
+Those spaces are rendered accordingly:
 
 ```html
 <p>
-	<span>hai :3</span>
-	<span>hello</span>
-</p>
+
+	hai :3
+
+</p>	
 ```

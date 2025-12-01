@@ -1,6 +1,5 @@
 use crate::documents::TemplateBuilderImpl;
 use crate::template_steps::{RulesetImpl, TemplateSteps, compose};
-
 use std::collections::HashMap;
 
 pub struct Builder {
@@ -21,6 +20,7 @@ impl TemplateBuilderImpl for Builder {
     fn build(&mut self, rules: &dyn RulesetImpl, template_str: &str) -> TemplateSteps {
         // obliterate cache if memory limit exceeded
         if rules.get_cache_memory_limit() < self.memory_footprint {
+            self.memory_footprint = 0;
             self.results_cache = HashMap::new();
         }
 

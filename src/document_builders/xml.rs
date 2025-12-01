@@ -1,13 +1,9 @@
 use crate::components::Component;
+use crate::document_builders::flyweight as fw;
+use crate::document_builders::template_builder::Builder;
 use crate::documents::compose_string;
 use crate::errors::Errors;
-use crate::renderers::RendererParams;
-use crate::renderers::template_builder::Builder;
 use crate::template_steps::RulesetImpl;
-
-const MEGABYTE: usize = 1024 * 1024;
-const FALLBACK_CACHE_MEMORY_LIMIT: usize = 16 * MEGABYTE;
-const FALLBACK_DOCUMENT_MEMORY_LIMIT: usize = 32 * MEGABYTE;
 
 pub struct Xml {
     rules: XmlRules,
@@ -22,7 +18,7 @@ impl Xml {
         }
     }
 
-    pub fn from(params: &RendererParams) -> Xml {
+    pub fn from(params: &fw::DocumentParams) -> Xml {
         Xml {
             rules: XmlRules::from(params.clone()),
             builder: Builder::new(),
@@ -35,21 +31,21 @@ impl Xml {
 }
 
 pub struct XmlRules {
-    params: RendererParams,
+    params: fw::DocumentParams,
 }
 
 impl XmlRules {
     pub fn new() -> XmlRules {
-        let params = RendererParams {
-            cache_memory_limit: FALLBACK_CACHE_MEMORY_LIMIT,
-            document_memory_limit: FALLBACK_DOCUMENT_MEMORY_LIMIT,
+        let params = fw::DocumentParams {
+            cache_memory_limit: fw::FALLBACK_CACHE_MEMORY_LIMIT,
+            document_memory_limit: fw::FALLBACK_DOCUMENT_MEMORY_LIMIT,
             respect_indentation: false,
         };
 
         XmlRules { params }
     }
 
-    pub fn from(params: RendererParams) -> XmlRules {
+    pub fn from(params: fw::DocumentParams) -> XmlRules {
         XmlRules {
             params: params.clone(),
         }
