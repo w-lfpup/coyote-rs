@@ -79,7 +79,7 @@ fn main() {
 }
 ```
 
-The builder removes all instances of `link`, `style`, and `script` elements:
+The builder removes all instances of `<link>`, `<style>`, and `<script>` elements:
 
 ```html
 <p>hai :3</p>
@@ -94,7 +94,7 @@ A document builder returns an error when:
 
 ### Unbalanced templates
 
-Balanced templates are templates without unclosed tags.
+"Balanced" templates are templates where all tags are closed.
 
 Coyote returns an `error` when a template is _unbalanced_.
 
@@ -119,7 +119,7 @@ tmpl("<span>", [])
 
 ### Forbidden attribute glyphs
 
-The following characters are [forbidden](https://html.spec.whatwg.org/multipage/syntax.html#attributes-2) in html attributes:
+The following attribute characters are [forbidden](https://html.spec.whatwg.org/multipage/syntax.html#attributes-2) in html:
 
 `< > = " \ /`
 

@@ -51,7 +51,7 @@ The output will be:
 
 ## Spaces
 
-`Coyote` does not add spaces or new lines.
+`Coyote` never spaces or new lines.
 
 Learn more about how `coyote` handles [spacing](./spacing.md).
 
