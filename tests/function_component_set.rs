@@ -26,10 +26,6 @@ pub fn form_component_retains_spacing() -> Component {
     )
 }
 
-fn hai() -> Component {
-    text("hai :3")
-}
-
 fn lil_divs(hai: fn() -> Component) -> Component {
     tmpl(
         "
@@ -68,6 +64,10 @@ fn lil_divs(hai: fn() -> Component) -> Component {
             hai(),
         ],
     )
+}
+
+fn hai() -> Component {
+    text("hai :3")
 }
 
 pub fn elememt_and_text_components_retains_spacing() -> Component {
