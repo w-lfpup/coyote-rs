@@ -136,8 +136,6 @@ fn is_injection_kind(step_kind: &StepKind) -> bool {
     }
 }
 
-// WWE DONT NEED TO RETURN ERRORS HERE
-
 fn push_alt_element_steps(rules: &dyn RulesetImpl, steps: &mut Vec<Step>, tag: &str, index: usize) {
     let step = match steps.last_mut() {
         Some(step) => step,

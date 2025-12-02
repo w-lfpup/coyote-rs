@@ -2,6 +2,7 @@
     INTERMEDIATE RENDER FORMAT
 
     Templates are converted to an array of template steps[][] and and injections[].
+    Investigate a more linear solution: Vec<Step>, Vec<(start, end)>
 
     Coyote is focused on text / strings
 */

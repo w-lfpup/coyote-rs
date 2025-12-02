@@ -1,6 +1,3 @@
-// max template size
-// max cache size
-
 pub trait RulesetImpl {
     fn get_document_memory_limit(&self) -> usize;
     fn get_cache_memory_limit(&self) -> usize;
