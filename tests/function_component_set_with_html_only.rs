@@ -1,6 +1,6 @@
 mod function_component_set;
 
-use coyotes::{Component, HtmlOnly, attr, attr_val, list, text, tmpl, vlist};
+use coyotes::HtmlOnly;
 
 use function_component_set as fcs;
 

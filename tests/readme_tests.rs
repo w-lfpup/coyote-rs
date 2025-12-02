@@ -1,8 +1,12 @@
-use coyotes::{Html, list, text, tmpl};
+mod readme_component_set;
+
+use coyotes::Html;
+
+use readme_component_set as rcs;
 
 #[test]
 fn no_added_spaces() {
-    let template = tmpl("<p>hai :3</p>", []);
+    let template = rcs::no_added_spaces();
     let expected = "<p>hai :3</p>";
 
     let mut html = Html::new();
@@ -13,7 +17,7 @@ fn no_added_spaces() {
 
 #[test]
 fn collapse_spaces() {
-    let template = tmpl("<p>   hai   :3   </p>", []);
+    let template = rcs::collapse_spaces();
     let expected = "<p> hai :3 </p>";
 
     let mut html = Html::new();
@@ -24,7 +28,7 @@ fn collapse_spaces() {
 
 #[test]
 fn attribute_collapse_spaces() {
-    let template = tmpl("<p    attr    attr2    att3    ></p>", []);
+    let template = rcs::attribute_collapse_spaces();
     let expected = "<p attr attr2 att3></p>";
 
     let mut html = Html::new();
@@ -35,20 +39,7 @@ fn attribute_collapse_spaces() {
 
 #[test]
 fn attribute_preserve_new_lines() {
-    let template = tmpl(
-        "
-		<p
-
-			attr
-
-			attr2
-
-			attr3>
-
-		</p>
-		",
-        [],
-    );
+    let template = rcs::attribute_preserve_new_lines();
     let expected = "<p\n\tattr\n\tattr2\n\tattr3>\n</p>";
 
     let mut html = Html::new();
@@ -59,20 +50,9 @@ fn attribute_preserve_new_lines() {
 
 #[test]
 fn attribute_values_preserve_new_lines() {
-    let template = tmpl(
-        "
-		<p
-			attr='
-
-			hai   :3    hello!
-
-			'
-		></p>
-		",
-        [],
-    );
-
+    let template = rcs::attribute_values_preserve_new_lines();
     let expected = "<p\n\tattr='\n\n\t\thai :3 hello!\n\n\t'\n></p>";
+
     let mut html = Html::new();
     let results = html.render(&template);
 
@@ -81,20 +61,7 @@ fn attribute_values_preserve_new_lines() {
 
 #[test]
 fn component_injections() {
-    let descendants = list([
-        tmpl(" <span>hai :3</span> ", []),
-        tmpl(
-            "
-
-			<span>hello</span>
-			
-			",
-            [],
-        ),
-    ]);
-
-    let template = tmpl("<p>{}</p>", [descendants]);
-
+    let template = rcs::component_injections();
     let expected = "<p> <span>hai :3</span>\n\t<span>hello</span>\n</p>";
 
     let mut html = Html::new();
@@ -105,21 +72,7 @@ fn component_injections() {
 
 #[test]
 fn text_component_injections() {
-    let descendants = text(
-        "
-
-		hai    :3
-
-		",
-    );
-
-    let template = tmpl(
-        "
-		<p>{}</p>
-		",
-        [descendants],
-    );
-
+    let template = rcs::text_component_injections();
     let expected = "<p>\n\n\thai :3\n\n</p>";
 
     let mut html = Html::new();

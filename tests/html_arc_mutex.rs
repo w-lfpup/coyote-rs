@@ -2,6 +2,12 @@ use coyotes::{Component, Html, attr_val, list, text, tmpl};
 use std::sync::Arc;
 use std::sync::Mutex;
 
+/*
+    Coyote uses a standard hashmap to cache templates.
+    That is mutable memory.
+    It needs to be wrapped in an ARC/MUTEX across threads.
+*/
+
 fn woof() -> Component {
     tmpl("<input type=submit value=\"yus -_-\">", [])
 }

@@ -132,7 +132,6 @@ pub fn attributes_retain_spacing() -> Component {
     lots_of_attributes()
 }
 
-// list of attribute injections
 fn attribute_list() -> Component {
     list([
         attr("hai"),

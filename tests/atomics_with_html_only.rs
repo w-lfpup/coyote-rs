@@ -1,6 +1,6 @@
 mod atomics_component_set;
 
-use coyotes::{HtmlOnly, tmpl, tmpl_string};
+use coyotes::HtmlOnly;
 
 use atomics_component_set as acs;
 

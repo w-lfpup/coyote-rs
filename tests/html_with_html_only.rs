@@ -1,6 +1,6 @@
 mod html_component_set;
 
-use coyotes::{HtmlOnly, attr, tmpl};
+use coyotes::HtmlOnly;
 use html_component_set as hcs;
 
 #[test]
