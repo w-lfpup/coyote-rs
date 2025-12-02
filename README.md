@@ -9,13 +9,13 @@ HTML in, HTML out. No suprises, no dependencies.
 `Coyote-rs` is available on [crates.io](https://crates.io/crates/coyotes) as `coyotes`:
 
 ```sh
-cargo install coyotes
+cargo add coyotes
 ```
 
-Or install directly from git:
+Or add directly from git:
 
 ```sh
-cargo install --git https://github.com/w-lfpup/coyote-rs
+cargo add --git https://github.com/w-lfpup/coyote-rs
 ```
 
 ## Components
