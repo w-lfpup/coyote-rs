@@ -31,10 +31,8 @@ pub fn compose_steps(
             StepKind::AttrValueUnquoted => {
                 push_attr_value_unquoted(results, tag_info_stack, template_str, step)
             }
-            StepKind::ElementSpace => push_text_space(results, tag_info_stack, template_str, step),
-            StepKind::ElementLineSpace => {
-                push_text_space(results, tag_info_stack, template_str, step)
-            }
+            StepKind::ElementSpace => push_element_space(tag_info_stack, step),
+            StepKind::ElementLineSpace => push_element_space(tag_info_stack, step),
             _ => {}
         }
     }
