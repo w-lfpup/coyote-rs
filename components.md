@@ -56,7 +56,7 @@ fn hello_world() -> Component {
 }
 ```
 
-## Tetmplate injections
+## Template injections
 
 Template `injections` nest templates and assign attributes.
 
