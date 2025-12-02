@@ -51,7 +51,10 @@ fn push_text(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
     }
 
     let text = get_text_from_step(template_str, step);
-    push_space_on_text(results, &tag_info);
+    if !tag_info.preformatted_text_path {
+        push_formatted_space(results, &tag_info);
+    }
+
     results.push_str(text);
 
     tag_info.text_format = TextFormat::Text;
@@ -126,13 +129,9 @@ fn push_element_space(stack: &mut Vec<TagInfo>, step: &Step) {
         return;
     }
 
-    match step.kind {
-        StepKind::ElementLineSpace => {
-            tag_info.text_format = TextFormat::LineSpace;
-        }
-        _ => {
-            tag_info.text_format = TextFormat::Space;
-        }
+    tag_info.text_format = match step.kind {
+        StepKind::ElementLineSpace => TextFormat::LineSpace,
+        _ => TextFormat::Space,
     }
 }
 
@@ -154,7 +153,9 @@ fn push_element(
     let next_tag_info = TagInfo::from(rules, tag_info, tag);
 
     if !next_tag_info.banned_path {
-        push_space_on_text(results, &tag_info);
+        if !next_tag_info.preformatted_text_path {
+            push_formatted_space(results, &tag_info);
+        }
         results.push('<');
         results.push_str(tag);
     }
@@ -190,6 +191,7 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>, rules: &dyn Rul
 
     tag_info.text_format = TextFormat::Text;
 
+    // for void elements
     if !tag_info.void_el {
         return;
     }
@@ -248,6 +250,10 @@ fn pop_element(
         return;
     }
 
+    if tag_info.void_el {
+        return;
+    }
+
     let tag = get_text_from_step(template_str, step);
     let mut closed_tag = tag;
     if let Some(close_tag) = rules.get_alt_text_tag_from_close_sequence(tag) {
@@ -258,12 +264,8 @@ fn pop_element(
         closed_tag = close_tag;
     }
 
-    // mismatched tags? bail
+    // bail on mismatched tag
     if closed_tag != tag_info.tag {
-        return;
-    }
-
-    if tag_info.void_el {
         return;
     }
 
@@ -313,16 +315,7 @@ fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
         return;
     }
 
-    if !tag_info.preformatted_text_path {
-        match tag_info.text_format {
-            TextFormat::Space => results.push(' '),
-            TextFormat::LineSpace => {
-                results.push('\n');
-                results.push_str(&"\t".repeat(tag_info.indent_count))
-            }
-            _ => {}
-        }
-    }
+    push_formatted_space(results, tag_info);
 
     let attr = get_text_from_step(template_str, step);
     results.push_str(attr.trim());
@@ -394,21 +387,6 @@ fn push_attr_value_double_quoted(
     results.push('"');
 }
 
-fn push_space_on_text(results: &mut String, tag_info: &TagInfo) {
-    if tag_info.preformatted_text_path {
-        return;
-    }
-
-    match tag_info.text_format {
-        TextFormat::Space => results.push(' '),
-        TextFormat::LineSpace => {
-            results.push('\n');
-            results.push_str(&"\t".repeat(tag_info.indent_count))
-        }
-        _ => {}
-    }
-}
-
 fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &TagInfo) {
     if tag_info.preformatted_text_path {
         return;
@@ -419,6 +397,17 @@ fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &T
         TextFormat::LineSpace => {
             results.push('\n');
             results.push_str(&"\t".repeat(prev_tag_info.indent_count))
+        }
+        _ => {}
+    }
+}
+
+pub fn push_formatted_space(results: &mut String, tag_info: &TagInfo) {
+    match tag_info.text_format {
+        TextFormat::Space => results.push(' '),
+        TextFormat::LineSpace => {
+            results.push('\n');
+            results.push_str(&"\t".repeat(tag_info.indent_count))
         }
         _ => {}
     }

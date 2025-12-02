@@ -1,5 +1,5 @@
 use crate::components::Component;
-use crate::documents::compose_steps::compose_steps;
+use crate::documents::compose_steps::{compose_steps, push_formatted_space};
 use crate::documents::tag_info::{TagInfo, TextFormat};
 use crate::documents::template_builder::TemplateBuilderImpl;
 use crate::documents::text_components::{push_multiline_attributes, push_text_component};
@@ -254,14 +254,7 @@ fn push_attr_component(results: &mut String, tag_info: &TagInfo, attr: &str) -> 
         return Err(e);
     }
 
-    match tag_info.text_format {
-        TextFormat::Space => results.push(' '),
-        TextFormat::LineSpace => {
-            results.push('\n');
-            results.push_str(&"\t".repeat(tag_info.indent_count));
-        }
-        _ => {}
-    }
+    push_formatted_space(results, tag_info);
 
     results.push_str(attr);
 
