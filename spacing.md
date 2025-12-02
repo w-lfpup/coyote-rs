@@ -169,8 +169,7 @@ A template will output new lines before attributes:
 ```html
 <p
 	hai
-	hello
-></p>
+	hello></p>
 ```
 
 ### Descendant injections

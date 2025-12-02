@@ -61,7 +61,7 @@ fn attribute_injections() {
 #[test]
 fn attribute_injections_with_new_lines() {
     let template = rcs::attribute_injections_with_new_lines();
-    let expected = "<p\nhai\nhello\n></p>";
+    let expected = "<p\nhai\nhello></p>";
 
     let mut html = HtmlOnly::new();
     let results = html.render(&template);

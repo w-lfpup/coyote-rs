@@ -188,7 +188,7 @@ fn add_attr_inj(
     rules: &dyn RulesetImpl,
     cmpnt: &Component,
 ) -> Result<(), Errors> {
-    let tag_info = match stack.last() {
+    let tag_info = match stack.last_mut() {
         Some(curr) => curr,
         _ => return Ok(()),
     };
@@ -230,6 +230,8 @@ fn add_attr_inj(
         }
         _ => {}
     };
+
+    tag_info.text_format = TextFormat::Text;
 
     Ok(())
 }

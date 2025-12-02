@@ -104,16 +104,10 @@ fn push_text_space(
         return;
     }
 
-    match step.kind {
-        StepKind::ElementLineSpace => {
-            tag_info.text_format = TextFormat::LineSpace;
-        }
-        StepKind::TextLineSpace => {
-            tag_info.text_format = TextFormat::LineSpace;
-        }
-        _ => {
-            tag_info.text_format = TextFormat::Space;
-        }
+    tag_info.text_format = match step.kind {
+        StepKind::ElementLineSpace => TextFormat::LineSpace,
+        StepKind::TextLineSpace => TextFormat::LineSpace,
+        _ => TextFormat::Space,
     }
 }
 

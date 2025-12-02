@@ -164,8 +164,7 @@ fn attributes_retain_spacing() {
 #[test]
 fn attribute_component_injections_retain_spacing() {
     let template = fcs::attribute_component_injections_retain_spacing();
-    let expected = "<p hai hello yo=\"what's good!\" hey=\"\nhowdy!\n\nhowdy!\n\nhurray!\n\">\n</p>\n<p\nhai\nhello\nyo=\"what's good!\"\nhey=\"\nhowdy!\n\nhowdy!\n\nhurray!\n\"\n>\n</p>\n<span hai hello yo=\"what's good!\" hey=\"\nhowdy!\n\nhowdy!\n\nhurray!\n\"></span>\n<span hai hello yo=\"what's good!\" hey=\"\nhowdy!\n\nhowdy!\n\nhurray!\n\"></span>";
-
+    let expected = "<p hai hello yo=\"what's good!\" hey=\"\nhowdy!\n\nhowdy!\n\nhurray!\n\">\n</p>\n<p\nhai\nhello\nyo=\"what's good!\"\nhey=\"\nhowdy!\n\nhowdy!\n\nhurray!\n\">\n</p>\n<span hai hello yo=\"what's good!\" hey=\"\nhowdy!\n\nhowdy!\n\nhurray!\n\"></span>\n<span hai hello yo=\"what's good!\" hey=\"\nhowdy!\n\nhowdy!\n\nhurray!\n\"></span>";
     let mut html = HtmlOnly::new();
     let results = html.render(&template);
 

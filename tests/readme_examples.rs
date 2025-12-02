@@ -72,7 +72,7 @@ fn attribute_injections() {
 #[test]
 fn attribute_injections_with_new_lines() {
     let template = rcs::attribute_injections_with_new_lines();
-    let expected = "<p\n\thai\n\thello\n></p>";
+    let expected = "<p\n\thai\n\thello></p>";
 
     let mut html = Html::new();
     let results = html.render(&template);
