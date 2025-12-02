@@ -48,6 +48,28 @@ fn attribute_preserve_new_lines() {
 }
 
 #[test]
+fn attribute_injections() {
+    let template = rcs::attribute_injections();
+    let expected = "<p hai hello></p>";
+
+    let mut html = HtmlOnly::new();
+    let results = html.render(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn attribute_injections_with_new_lines() {
+    let template = rcs::attribute_injections_with_new_lines();
+    let expected = "<p\nhai\nhello\n></p>";
+
+    let mut html = HtmlOnly::new();
+    let results = html.render(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
 fn attribute_values_preserve_new_lines() {
     let template = rcs::attribute_values_preserve_new_lines();
     let expected = "<p\nattr='\n\nhai :3 hello!\n\n'\n></p>";

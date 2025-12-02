@@ -1,7 +1,7 @@
 mod atomics_component_set;
 
-use coyotes::Html;
 use atomics_component_set as acs;
+use coyotes::Html;
 
 #[test]
 fn text_element() {

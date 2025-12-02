@@ -1,4 +1,4 @@
-use coyotes::{Component, list, text, tmpl};
+use coyotes::{Component, attr, list, text, tmpl};
 
 pub fn no_added_spaces() -> Component {
     tmpl("<p>hai :3</p>", [])
@@ -41,6 +41,24 @@ pub fn attribute_values_preserve_new_lines() -> Component {
 		></p>
 		",
         [],
+    )
+}
+
+pub fn attribute_injections() -> Component {
+    let descendants = list([attr("hai"), attr("hello")]);
+
+    tmpl("<p {}></p>", [descendants])
+}
+
+pub fn attribute_injections_with_new_lines() -> Component {
+    let descendants = list([attr("hai"), attr("hello")]);
+
+    tmpl(
+        "
+        <p
+            {}></p>
+        ",
+        [descendants],
     )
 }
 

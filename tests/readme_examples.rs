@@ -59,6 +59,28 @@ fn attribute_values_preserve_new_lines() {
 }
 
 #[test]
+fn attribute_injections() {
+    let template = rcs::attribute_injections();
+    let expected = "<p hai hello></p>";
+
+    let mut html = Html::new();
+    let results = html.render(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn attribute_injections_with_new_lines() {
+    let template = rcs::attribute_injections_with_new_lines();
+    let expected = "<p\n\thai\n\thello\n></p>";
+
+    let mut html = Html::new();
+    let results = html.render(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
 fn component_injections() {
     let template = rcs::component_injections();
     let expected = "<p> <span>hai :3</span>\n\t<span>hello</span>\n</p>";
