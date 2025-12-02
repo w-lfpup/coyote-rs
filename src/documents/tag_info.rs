@@ -27,7 +27,7 @@ impl TagInfo {
             banned_path: false,
             indent_count: 0,
             inline_el: true,
-            namespace: rules.get_initial_namespace().to_string(),
+            namespace: rules.get_initial_embedded_content().to_string(),
             preformatted_text_path: false,
             tag: ":root".to_string(),
             text_format: TextFormat::Initial,
@@ -43,7 +43,7 @@ impl TagInfo {
         tag_info.inline_el = rules.tag_is_inline_el(tag);
         tag_info.text_format = TextFormat::Text;
 
-        if rules.tag_is_namespace_el(tag) {
+        if rules.tag_is_embedded_content_el(tag) {
             tag_info.namespace = tag.to_string();
         }
 

@@ -11,7 +11,7 @@ use crate::template_steps::parse::{Step, parse_str};
 use crate::template_steps::routes::StepKind;
 use crate::template_steps::rulesets::RulesetImpl;
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct TemplateSteps {
     pub steps: Vec<Vec<Step>>,
     pub injs: Vec<Step>,

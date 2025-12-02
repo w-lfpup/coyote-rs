@@ -3,7 +3,7 @@ use crate::template_steps::routes::StepKind;
 use crate::template_steps::rulesets::RulesetImpl;
 use crate::template_steps::sliding_window::SlidingWindow;
 
-#[derive(Debug, Eq, Clone, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Step {
     pub kind: StepKind,
     pub origin: usize,
