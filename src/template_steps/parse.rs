@@ -29,9 +29,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
         // <!--comment_edge_case-->
         if contentless {
             contentless = false;
-            if let Err(_) = push_contentless_steps_edge(rules, &mut steps, tag, index) {
-                return steps;
-            };
+            push_contentless_steps_edge(rules, &mut steps, tag, index)
         }
 
         if let Some(ref mut slider) = sliding_window {
@@ -41,15 +39,11 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
 
             // <-- comment case -->
             if let Some(_closing_sequence) = rules.get_close_sequence_from_contentless_tag(tag) {
-                if let Err(_) = push_contentless_steps(rules, &mut steps, tag, index) {
-                    return steps;
-                };
+                push_contentless_steps(rules, &mut steps, tag, index);
             }
 
             if let Some(_alt_text_tag) = rules.get_close_sequence_from_alt_text_tag(tag) {
-                if let Err(_) = push_alt_element_steps(rules, &mut steps, tag, index) {
-                    return steps;
-                };
+                push_alt_element_steps(rules, &mut steps, tag, index);
             }
 
             sliding_window = None;
@@ -144,20 +138,15 @@ fn is_injection_kind(step_kind: &StepKind) -> bool {
 
 // WWE DONT NEED TO RETURN ERRORS HERE
 
-fn push_alt_element_steps(
-    rules: &dyn RulesetImpl,
-    steps: &mut Vec<Step>,
-    tag: &str,
-    index: usize,
-) -> Result<(), ()> {
+fn push_alt_element_steps(rules: &dyn RulesetImpl, steps: &mut Vec<Step>, tag: &str, index: usize) {
     let step = match steps.last_mut() {
         Some(step) => step,
-        _ => return Err(()),
+        _ => return,
     };
 
     let closing_sequence = match rules.get_close_sequence_from_alt_text_tag(tag) {
         Some(sequence) => sequence,
-        _ => return Ok(()),
+        _ => return,
     };
 
     step.target = index - (closing_sequence.len() - 1);
@@ -166,24 +155,17 @@ fn push_alt_element_steps(
         origin: index - (closing_sequence.len() - 1),
         target: index - (closing_sequence.len()),
     });
-
-    Ok(())
 }
 
-fn push_contentless_steps(
-    rules: &dyn RulesetImpl,
-    steps: &mut Vec<Step>,
-    tag: &str,
-    index: usize,
-) -> Result<(), ()> {
+fn push_contentless_steps(rules: &dyn RulesetImpl, steps: &mut Vec<Step>, tag: &str, index: usize) {
     let closing_sequence = match rules.get_close_sequence_from_contentless_tag(tag) {
         Some(sequence) => sequence,
-        _ => return Ok(()),
+        _ => return,
     };
 
     let step = match steps.last_mut() {
         Some(step) => step,
-        _ => return Err(()),
+        _ => return,
     };
 
     step.target = index - (closing_sequence.len() - 1);
@@ -197,8 +179,6 @@ fn push_contentless_steps(
         origin: index,
         target: index,
     });
-
-    Ok(())
 }
 
 fn push_contentless_steps_edge(
@@ -206,15 +186,15 @@ fn push_contentless_steps_edge(
     steps: &mut Vec<Step>,
     tag: &str,
     index: usize,
-) -> Result<(), ()> {
+) {
     let closing_sequence = match rules.get_close_sequence_from_contentless_tag(tag) {
         Some(sequence) => sequence,
-        _ => return Ok(()),
+        _ => return,
     };
 
     let step = match steps.last_mut() {
         Some(step) => step,
-        _ => return Err(()),
+        _ => return,
     };
 
     let target = step.target;
@@ -244,6 +224,4 @@ fn push_contentless_steps_edge(
         origin: target,
         target: index,
     });
-
-    Ok(())
 }
