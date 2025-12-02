@@ -1,11 +1,11 @@
 [package]
 name = "coyotes"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 
 categories = ["template-engine", "web-programming"]
 description = "An HTML component set and template processor"
-keywords = ["html", "html5", "template", "templates", "ssr", "ssg", "htow", "web", "ui"]
+keywords = ["html", "template", "ssr", "web", "ui"]
 license = "BSD-3-Clause"
 readme = "README.md"
 repository = "https://github.com/w-lfpup/coyote-rs"
