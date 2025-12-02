@@ -122,7 +122,7 @@ impl RulesetImpl for HtmlOnlyRules {
     }
 
     fn tag_is_embedded_content_el(&self, tag: &str) -> bool {
-        fw::is_namespace_el(tag)
+        fw::is_embedded_el(tag)
     }
 
     fn tag_is_preformatted_text_el(&self, tag: &str) -> bool {

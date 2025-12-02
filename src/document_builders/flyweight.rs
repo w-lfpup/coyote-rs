@@ -60,7 +60,7 @@ pub fn is_void_el(tag: &str) -> bool {
     }
 }
 
-pub fn is_namespace_el(tag: &str) -> bool {
+pub fn is_embedded_el(tag: &str) -> bool {
     match tag {
         "html" => true,
         "math" => true,
