@@ -1,16 +1,11 @@
-use coyotes::{Html, tmpl, tmpl_string};
+mod atomics_component_set;
+
+use atomics_component_set as acs;
+use coyotes::Html;
 
 #[test]
 fn text_element() {
-    let template = tmpl(
-        "
-
-            Beasts tread
-                softly     underfoot.
-
-		",
-        [],
-    );
+    let template = acs::text_element();
     let expected = "Beasts tread\nsoftly underfoot.";
 
     let mut html = Html::new();
@@ -21,13 +16,7 @@ fn text_element() {
 
 #[test]
 fn empty_element() {
-    let template = tmpl(
-        "
-		<p>
-		</p>
-		",
-        [],
-    );
+    let template = acs::empty_element();
     let expected = "<p>\n</p>";
 
     let mut html = Html::new();
@@ -38,13 +27,7 @@ fn empty_element() {
 
 #[test]
 fn fragment() {
-    let template = tmpl(
-        "
-		<>
-		</>
-		",
-        [],
-    );
+    let template = acs::fragment();
     let expected = "";
 
     let mut html = Html::new();
@@ -55,14 +38,7 @@ fn fragment() {
 
 #[test]
 fn block_element_with_text() {
-    let template = tmpl(
-        "
-		<p>
-            hello!
-        </p>
-		",
-        [],
-    );
+    let template = acs::block_element_with_text();
     let expected = "<p>\n\thello!\n</p>";
 
     let mut html = Html::new();
@@ -73,14 +49,7 @@ fn block_element_with_text() {
 
 #[test]
 fn block_element_with_text_for_string() {
-    let template = tmpl_string(
-        "
-		<p>
-            hello!
-        </p>
-		",
-        [],
-    );
+    let template = acs::block_element_with_text_for_string();
     let expected = "<p>\n\thello!\n</p>";
 
     let mut html = Html::new();
@@ -91,12 +60,7 @@ fn block_element_with_text_for_string() {
 
 #[test]
 fn inline_element_with_text() {
-    let template = tmpl(
-        "
-		<b> hello! </b>
-		",
-        [],
-    );
+    let template = acs::inline_element_with_text();
     let expected = "<b> hello! </b>";
 
     let mut html = Html::new();
@@ -107,12 +71,7 @@ fn inline_element_with_text() {
 
 #[test]
 fn void_element() {
-    let template = tmpl(
-        "
-		<input>
-		",
-        [],
-    );
+    let template = acs::void_element();
     let expected = "<input>";
 
     let mut html = Html::new();
@@ -123,12 +82,7 @@ fn void_element() {
 
 #[test]
 fn void_element_with_self_closing() {
-    let template = tmpl(
-        "
-		<input />
-		",
-        [],
-    );
+    let template = acs::void_element_with_self_closing();
     let expected = "<input>";
 
     let mut html = Html::new();
@@ -139,12 +93,7 @@ fn void_element_with_self_closing() {
 
 #[test]
 fn non_void_element() {
-    let template = tmpl(
-        "
-		<p />
-		",
-        [],
-    );
+    let template = acs::non_void_element();
     let expected = "<p></p>";
 
     let mut html = Html::new();
@@ -156,12 +105,7 @@ fn non_void_element() {
 // needs updating
 #[test]
 fn comment_element() {
-    let template = tmpl(
-        "
-		<!-- Hello! -->
-		",
-        [],
-    );
+    let template = acs::comment_element();
     let expected = "<!-- Hello! -->";
 
     let mut html = Html::new();
@@ -172,12 +116,7 @@ fn comment_element() {
 
 #[test]
 fn alt_text_element() {
-    let template = tmpl(
-        "<style>#woof .bark {
-			color: doggo;
-		}</style>",
-        [],
-    );
+    let template = acs::alt_text_element();
     let expected = "<style>#woof .bark {\n\tcolor: doggo;\n}</style>";
 
     let mut html = Html::new();
@@ -188,14 +127,7 @@ fn alt_text_element() {
 
 #[test]
 fn alt_element_has_no_descendants() {
-    let template = tmpl(
-        "
-		<script>
-			{}
-		</script>
-		",
-        [],
-    );
+    let template = acs::alt_element_has_no_descendants();
     let expected = "<script>\n\t{}\n</script>";
 
     let mut html = Html::new();
@@ -206,15 +138,7 @@ fn alt_element_has_no_descendants() {
 
 #[test]
 fn preserved_text_element_retains_spacing() {
-    let template = tmpl(
-        "
-<pre>
-	U w U
-	  woof woof!
-</pre>
-		",
-        [],
-    );
+    let template = acs::preserved_text_element_retains_spacing();
 
     let expected = "<pre>\n\tU w U\n\t  woof woof!\n</pre>";
 
@@ -226,7 +150,7 @@ fn preserved_text_element_retains_spacing() {
 
 #[test]
 fn attribute() {
-    let template = tmpl("<span hai>UwU</span>", []);
+    let template = acs::attribute();
     let expected = "<span hai>UwU</span>";
 
     let mut html = Html::new();
@@ -237,7 +161,7 @@ fn attribute() {
 
 #[test]
 fn attribute_with_single_quote() {
-    let template = tmpl("<span hai=''>UwU</span>", []);
+    let template = acs::attribute_with_single_quote();
     let expected = "<span hai>UwU</span>";
 
     let mut html = Html::new();
@@ -248,7 +172,7 @@ fn attribute_with_single_quote() {
 
 #[test]
 fn attribute_with_double_quote() {
-    let template = tmpl("<span hai=\"\">UwU</span>", []);
+    let template = acs::attribute_with_double_quote();
     let expected = "<span hai>UwU</span>";
 
     let mut html = Html::new();
@@ -259,7 +183,7 @@ fn attribute_with_double_quote() {
 
 #[test]
 fn attribute_with_single_quote_value() {
-    let template = tmpl("<span hai='hewoo'>UwU</span>", []);
+    let template = acs::attribute_with_single_quote_value();
     let expected = "<span hai='hewoo'>UwU</span>";
 
     let mut html = Html::new();
@@ -270,7 +194,7 @@ fn attribute_with_single_quote_value() {
 
 #[test]
 fn attribute_with_double_quote_value() {
-    let template = tmpl("<span hai=\"hewoo\">UwU</span>", []);
+    let template = acs::attribute_with_double_quote_value();
     let expected = "<span hai=\"hewoo\">UwU</span>";
 
     let mut html = Html::new();

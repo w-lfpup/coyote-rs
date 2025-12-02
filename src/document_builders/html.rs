@@ -39,6 +39,7 @@ impl HtmlRules {
         let params = fw::DocumentParams {
             cache_memory_limit: fw::FALLBACK_CACHE_MEMORY_LIMIT,
             document_memory_limit: fw::FALLBACK_DOCUMENT_MEMORY_LIMIT,
+            embedded_content: String::from("html"),
             respect_indentation: true,
         };
 
@@ -61,8 +62,8 @@ impl RulesetImpl for HtmlRules {
         self.params.cache_memory_limit
     }
 
-    fn get_initial_namespace(&self) -> &str {
-        "html"
+    fn get_initial_embedded_content(&self) -> &str {
+        &self.params.embedded_content
     }
 
     fn tag_is_prefix_of_contentless_el(&self, tag: &str) -> Option<&str> {
@@ -115,12 +116,12 @@ impl RulesetImpl for HtmlRules {
         fw::is_void_el(tag)
     }
 
-    fn tag_is_namespace_el(&self, tag: &str) -> bool {
+    fn tag_is_embedded_content_el(&self, tag: &str) -> bool {
         fw::is_namespace_el(tag)
     }
 
-    fn tag_is_preserved_text_el(&self, tag: &str) -> bool {
-        fw::is_preserved_text_el(tag)
+    fn tag_is_preformatted_text_el(&self, tag: &str) -> bool {
+        fw::is_preformatted_text_el(tag)
     }
 
     fn tag_is_inline_el(&self, tag: &str) -> bool {

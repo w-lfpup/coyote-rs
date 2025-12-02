@@ -2,6 +2,7 @@
     INTERMEDIATE RENDER FORMAT
 
     Templates are converted to an array of template steps[][] and and injections[].
+    Investigate a more linear solution: Vec<Step>, Vec<(start, end)>
 
     Coyote is focused on text / strings
 */
@@ -10,7 +11,7 @@ use crate::template_steps::parse::{Step, parse_str};
 use crate::template_steps::routes::StepKind;
 use crate::template_steps::rulesets::RulesetImpl;
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct TemplateSteps {
     pub steps: Vec<Vec<Step>>,
     pub injs: Vec<Step>,

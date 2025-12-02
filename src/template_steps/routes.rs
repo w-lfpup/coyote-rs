@@ -1,4 +1,4 @@
-#[derive(Debug, Eq, Clone, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum StepKind {
     Attr,
     AttrDoubleQuote,

@@ -51,8 +51,8 @@ fn get_largest_common_space_index(texts: &[&str]) -> usize {
             }
         }
 
-        space_index = cmp::min(next_space_index, space_index);
         prev_line = line;
+        space_index = cmp::min(next_space_index, space_index);
     }
 
     space_index
@@ -68,7 +68,7 @@ pub fn push_alt_text_component(
         return;
     }
 
-    if tag_info.preserved_text_path {
+    if tag_info.preformatted_text_path {
         results.push_str(text);
         return;
     }
@@ -102,10 +102,10 @@ pub fn push_alt_text_component(
     results.push('\n');
 
     if rules.respect_indentation() {
-        let indent_offset = match tag_info.inline_el {
-            true => tag_info.indent_count,
-            _ => tag_info.indent_count - 1,
-        };
+        let mut indent_offset = tag_info.indent_count;
+        if !tag_info.inline_el && 0 < tag_info.indent_count {
+            indent_offset -= 1;
+        }
 
         results.push_str(&"\t".repeat(indent_offset));
     }
@@ -118,7 +118,7 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
         return;
     }
 
-    if tag_info.preserved_text_path {
+    if tag_info.preformatted_text_path {
         results.push_str(text);
         return;
     }
@@ -133,15 +133,16 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
     let mut text_iter = texts.iter();
 
     if let Some(first_line) = text_iter.next() {
+        let found_index = get_index_of_first_char(first_line);
         match tag_info.text_format {
             TextFormat::LineSpace => {
                 results.push('\n');
-                if 0 != first_line.len() {
+                if first_line.len() != found_index {
                     results.push_str(&"\t".repeat(tag_info.indent_count));
                 }
             }
             TextFormat::Space => {
-                if 0 != first_line.len() {
+                if first_line.len() != found_index {
                     results.push(' ');
                 }
             }
@@ -165,12 +166,17 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
     }
 }
 
-pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &TagInfo) {
+pub fn push_multiline_attributes(
+    results: &mut String,
+    rules: &dyn RulesetImpl,
+    text: &str,
+    tag_info: &TagInfo,
+) {
     if tag_info.banned_path {
         return;
     }
 
-    if tag_info.preserved_text_path {
+    if tag_info.preformatted_text_path {
         results.push_str(text);
         return;
     }
@@ -190,6 +196,11 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
     let middle_lines = &texts[1..texts.len() - 1];
     let common_space_index = get_largest_common_space_index(middle_lines);
 
+    let mut indent_count = tag_info.indent_count;
+    if rules.respect_indentation() && !tag_info.inline_el {
+        indent_count += 1;
+    }
+
     for line in middle_lines {
         results.push('\n');
 
@@ -197,7 +208,7 @@ pub fn push_multiline_attributes(results: &mut String, text: &str, tag_info: &Ta
             continue;
         }
 
-        results.push_str(&"\t".repeat(tag_info.indent_count));
+        results.push_str(&"\t".repeat(indent_count));
         push_line_of_text(results, &line[common_space_index..])
     }
 

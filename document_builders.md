@@ -117,7 +117,7 @@ tmpl("<span>", [])
 
 ### Forbidden attribute glyphs
 
-The following characters are forbidden in html attributes:
+The following characters are [forbidden](https://html.spec.whatwg.org/multipage/syntax.html#attributes-2) in html attributes:
 `< > = " \ /`
 
 The bracket-character `{` is forbidden in attribute components by `coyote`.
@@ -142,6 +142,7 @@ use coyotes::{Html, DocumentParams};
 let params = DocumentParams {
     cache_memory_limit: 32 * 1024 * 1024,
     document_memory_limit: 128 * 1024 * 1024,
+    embedded_content: String::from("svg"),
     respect_indentation: true,
 };
 

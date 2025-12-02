@@ -1,10 +1,8 @@
 use crate::components::Component;
-use crate::documents::compose_steps::compose_steps;
+use crate::documents::compose_steps::{compose_steps, push_formatted_space};
 use crate::documents::tag_info::{TagInfo, TextFormat};
 use crate::documents::template_builder::TemplateBuilderImpl;
-use crate::documents::text_components::{
-    push_multiline_attributes, push_text_component as push_that_text_component,
-};
+use crate::documents::text_components::{push_multiline_attributes, push_text_component};
 use crate::errors::Errors;
 use crate::template_steps::{RulesetImpl, StepKind, TemplateSteps};
 
@@ -26,7 +24,7 @@ pub fn compose_string(
     rules: &dyn RulesetImpl,
     component: &Component,
 ) -> Result<String, Errors> {
-    let mut template_results = "".to_string();
+    let mut document_results = "".to_string();
 
     let mut tag_info_stack: Vec<TagInfo> = Vec::from([TagInfo::get_root(rules)]);
     let mut component_stack: Vec<StackBit> = Vec::from([get_bit_from_component_stack(
@@ -38,10 +36,10 @@ pub fn compose_string(
 
     while let Some(mut cmpnt_bit) = component_stack.pop() {
         // check document length
-        if rules.get_document_memory_limit() < template_results.len() {
+        if rules.get_document_memory_limit() < document_results.len() {
             return Err(Errors::DocumentMemoryLimitExceeded(
                 rules.get_document_memory_limit(),
-                template_results.len(),
+                document_results.len(),
             ));
         }
 
@@ -50,10 +48,9 @@ pub fn compose_string(
             StackBit::Cmpnt(cmpnt) => match cmpnt {
                 Component::Text(text) => {
                     let escaped_text = remove_template_glyphs(text);
-                    push_text_component(
-                        &mut template_results,
+                    push_text_component_injection(
+                        &mut document_results,
                         &mut tag_info_stack,
-                        rules,
                         &escaped_text,
                     );
                 }
@@ -87,7 +84,7 @@ pub fn compose_string(
                     Some(chunk) => {
                         compose_steps(
                             rules,
-                            &mut template_results,
+                            &mut document_results,
                             &mut tag_info_stack,
                             tmpl_str,
                             chunk,
@@ -115,7 +112,7 @@ pub fn compose_string(
                     match inj_step.kind {
                         StepKind::AttrMapInjection => {
                             if let Err(e) =
-                                add_attr_inj(&mut tag_info_stack, &mut template_results, inj)
+                                add_attr_inj(&mut tag_info_stack, &mut document_results, rules, inj)
                             {
                                 return Err(e);
                             };
@@ -147,7 +144,7 @@ pub fn compose_string(
         }
     }
 
-    Ok(template_results)
+    Ok(document_results)
 }
 
 fn get_bit_from_component_stack<'a>(
@@ -187,10 +184,11 @@ fn get_bit_from_component_stack<'a>(
 
 fn add_attr_inj(
     stack: &mut Vec<TagInfo>,
-    template_str: &mut String,
+    document_results: &mut String,
+    rules: &dyn RulesetImpl,
     cmpnt: &Component,
 ) -> Result<(), Errors> {
-    let tag_info = match stack.last() {
+    let tag_info = match stack.last_mut() {
         Some(curr) => curr,
         _ => return Ok(()),
     };
@@ -201,30 +199,30 @@ fn add_attr_inj(
 
     match cmpnt {
         Component::Attr(attr) => {
-            if let Err(e) = push_attr_component(template_str, tag_info, attr) {
+            if let Err(e) = push_attr_component(document_results, tag_info, attr) {
                 return Err(e);
             }
         }
         Component::AttrVal(attr, val) => {
-            if let Err(e) = push_attr_component(template_str, tag_info, attr) {
+            if let Err(e) = push_attr_component(document_results, tag_info, attr) {
                 return Err(e);
             }
 
-            push_attr_value_component(template_str, tag_info, val)
+            push_attr_value_component(document_results, rules, tag_info, val)
         }
         Component::List(attr_list) => {
             for cmpnt in attr_list {
                 match cmpnt {
                     Component::Attr(attr) => {
-                        if let Err(e) = push_attr_component(template_str, tag_info, attr) {
+                        if let Err(e) = push_attr_component(document_results, tag_info, attr) {
                             return Err(e);
                         }
                     }
                     Component::AttrVal(attr, val) => {
-                        if let Err(e) = push_attr_component(template_str, tag_info, attr) {
+                        if let Err(e) = push_attr_component(document_results, tag_info, attr) {
                             return Err(e);
                         }
-                        push_attr_value_component(template_str, tag_info, val)
+                        push_attr_value_component(document_results, rules, tag_info, val)
                     }
                     _ => {}
                 }
@@ -232,6 +230,8 @@ fn add_attr_inj(
         }
         _ => {}
     };
+
+    tag_info.text_format = TextFormat::Text;
 
     Ok(())
 }
@@ -254,14 +254,7 @@ fn push_attr_component(results: &mut String, tag_info: &TagInfo, attr: &str) -> 
         return Err(e);
     }
 
-    match tag_info.text_format {
-        TextFormat::Space => results.push(' '),
-        TextFormat::LineSpace => {
-            results.push('\n');
-            results.push_str(&"\t".repeat(tag_info.indent_count));
-        }
-        _ => {}
-    }
+    push_formatted_space(results, tag_info);
 
     results.push_str(attr);
 
@@ -296,23 +289,25 @@ fn forbidden_attr_glyph(glyph: char) -> bool {
     }
 }
 
-fn push_attr_value_component(results: &mut String, tag_info: &TagInfo, val: &str) {
+fn push_attr_value_component(
+    results: &mut String,
+    rules: &dyn RulesetImpl,
+    tag_info: &TagInfo,
+    val: &str,
+) {
     results.push_str("=\"");
     let escaped = val.replace("\"", "&quot;");
-    push_multiline_attributes(results, &escaped, tag_info);
+    push_multiline_attributes(results, rules, &escaped, tag_info);
     results.push('"');
 }
 
-fn push_text_component(
-    results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    _rules: &dyn RulesetImpl,
-    text: &str,
-) {
+fn push_text_component_injection(results: &mut String, stack: &mut Vec<TagInfo>, text: &str) {
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
         _ => return,
     };
 
-    push_that_text_component(results, text, tag_info);
+    push_text_component(results, text, tag_info);
+
+    tag_info.text_format = TextFormat::Text;
 }

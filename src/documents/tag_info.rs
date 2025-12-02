@@ -15,7 +15,7 @@ pub struct TagInfo {
     pub indent_count: usize,
     pub inline_el: bool,
     pub namespace: String,
-    pub preserved_text_path: bool,
+    pub preformatted_text_path: bool,
     pub tag: String,
     pub text_format: TextFormat,
     pub void_el: bool,
@@ -27,8 +27,8 @@ impl TagInfo {
             banned_path: false,
             indent_count: 0,
             inline_el: true,
-            namespace: rules.get_initial_namespace().to_string(),
-            preserved_text_path: false,
+            namespace: rules.get_initial_embedded_content().to_string(),
+            preformatted_text_path: false,
             tag: ":root".to_string(),
             text_format: TextFormat::Initial,
             void_el: false,
@@ -43,12 +43,12 @@ impl TagInfo {
         tag_info.inline_el = rules.tag_is_inline_el(tag);
         tag_info.text_format = TextFormat::Text;
 
-        if rules.tag_is_namespace_el(tag) {
+        if rules.tag_is_embedded_content_el(tag) {
             tag_info.namespace = tag.to_string();
         }
 
-        if rules.tag_is_preserved_text_el(&tag_info.tag) {
-            tag_info.preserved_text_path = true;
+        if rules.tag_is_preformatted_text_el(&tag_info.tag) {
+            tag_info.preformatted_text_path = true;
         }
 
         if rules.tag_is_banned_el(tag) {

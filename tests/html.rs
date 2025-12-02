@@ -1,15 +1,11 @@
-use coyotes::{Html, attr, tmpl};
+mod html_component_set;
+
+use coyotes::Html;
+use html_component_set as hcs;
 
 #[test]
 fn empty_element_retains_spacing() {
-    let template = tmpl(
-        "
-        <p></p>
-		<p> </p><p>
-        </p>
-		",
-        [],
-    );
+    let template = hcs::empty_element_retains_spacing();
     let expected = "<p></p>\n<p> </p><p>\n</p>";
 
     let mut html = Html::new();
@@ -20,13 +16,7 @@ fn empty_element_retains_spacing() {
 
 #[test]
 fn fragments_dont_exist() {
-    let template = tmpl(
-        "
-		<><>
-        </></>
-		",
-        [],
-    );
+    let template = hcs::fragments_dont_exist();
     let expected = "";
 
     let mut html = Html::new();
@@ -37,22 +27,7 @@ fn fragments_dont_exist() {
 
 #[test]
 fn block_element_with_text_retains_spacing() {
-    let template = tmpl(
-        "
-		<p>hello!</p>
-        <p> hello! </p>
-        <p>
-            hello
-        </p><p>
-hello
-        </p>
-        <p>hello
-        </p>
-        <p>
-        hello</p>
-		",
-        [],
-    );
+    let template = hcs::block_element_with_text_retains_spacing();
     let expected = "<p>hello!</p>\n<p> hello! </p>\n<p>\n\thello\n</p><p>\n\thello\n</p>\n<p>hello\n</p>\n<p>\n\thello</p>";
 
     let mut html = Html::new();
@@ -63,28 +38,7 @@ hello
 
 #[test]
 fn inline_element_with_text_retains_spacing() {
-    let template = tmpl(
-        "
-		<b>hello!</b>
-        <b> hello! </b>
-        <b> hello
-        </b>
-        <b>
-            hello </b>
-        <b>
-hello
-        </b>
-        <b>
-            hello
-        </b>
-        <b>hello
-        </b>
-        <b>
-        hello</b>
-		",
-        [],
-    );
-
+    let template = hcs::inline_element_with_text_retains_spacing();
     let expected = "<b>hello!</b>\n<b> hello! </b>\n<b> hello\n</b>\n<b>\nhello </b>\n<b>\nhello\n</b>\n<b>\nhello\n</b>\n<b>hello\n</b>\n<b>\nhello</b>";
 
     let mut html = Html::new();
@@ -95,25 +49,7 @@ hello
 
 #[test]
 fn comment_element_retains_spacing() {
-    let template = tmpl(
-        "
-		<!---->
-		<!--Hello!-->
-		<!-- Hello! -->
-		<!--Hello! -->
-		<!-- Hello!-->
-		<!--Hello!
-		-->
-		<!--
-		Hello!-->
-		<!--
-
-		Hello!
-
-		-->
-		",
-        [],
-    );
+    let template = hcs::comment_element_retains_spacing();
     let expected = "<!---->
 <!--Hello!-->
 <!-- Hello! -->
@@ -137,7 +73,7 @@ Hello!-->
 
 #[test]
 fn empty_element_stays_empty() {
-    let template = tmpl("<html></html>", []);
+    let template = hcs::empty_element_stays_empty();
     let expected = "<html></html>";
 
     let mut html = Html::new();
@@ -148,7 +84,7 @@ fn empty_element_stays_empty() {
 
 #[test]
 fn unbalanced_empty_elemen_errors_out() {
-    let template = tmpl("<html>", []);
+    let template = hcs::unbalanced_empty_elemen_errors_out();
 
     let mut html = Html::new();
     let results = html.render(&template);
@@ -162,7 +98,7 @@ fn unbalanced_empty_elemen_errors_out() {
 
 #[test]
 fn forbidden_attribute_injection_glyph_errors_out() {
-    let template = tmpl("<p {}></p>", [attr("a<b/c'd=e>f")]);
+    let template = hcs::forbidden_attribute_injection_glyph_errors_out();
 
     let mut html = Html::new();
     let results = html.render(&template);
@@ -176,12 +112,7 @@ fn forbidden_attribute_injection_glyph_errors_out() {
 
 #[test]
 fn mozilla_spacing_example_passes() {
-    let template = tmpl(
-        "
-        <h1>   Hello
-                <span> World!</span>   </h1>",
-        [],
-    );
+    let template = hcs::mozilla_spacing_example_passes();
 
     let expected = "<h1> Hello\n\t<span> World!</span> </h1>";
 
@@ -193,38 +124,9 @@ fn mozilla_spacing_example_passes() {
 
 #[test]
 fn attribute_value_retains_spacing() {
-    let template = tmpl(
-        "
-		<h1 wow='People use
-			attributes in some very
-			wild ways but thats okay'>   Hello
-				<span> World!</span>   </h1>
-		<h1 wow='
+    let template = hcs::attribute_value_retains_spacing();
 
-			People use attributes in some very
-
-			wild ways but thats okay
-
-		'>
-			Hello! <span> World!</span>
-		</h1>
-		",
-        [],
-    );
-
-    let expected = "<h1 wow='People use
-	attributes in some very
-	wild ways but thats okay'> Hello
-	<span> World!</span> </h1>
-<h1 wow='
-
-	People use attributes in some very
-
-	wild ways but thats okay
-
-	'>
-	Hello! <span> World!</span>
-</h1>";
+    let expected = "<h1\n\toh\n\tyikes='woah!'\n\toh-no='\n\t\tit goes bye bye\n\t'\n\twow='People use\n\t\tattributes in some very\n\twild ways but thats okay'\n> Hello\n\t<span> World!</span> </h1>\n<h1 oh yikes='woah!' oh-no='\n\t\tit goes bye bye\n\t' wow='\n\n\t\tPeople use attributes in some very\n\n\t\twild ways but thats okay\n\n\t'>\n\tHello! <span> World!</span>\n</h1>";
 
     let mut html = Html::new();
     let results = html.render(&template);
@@ -234,11 +136,7 @@ fn attribute_value_retains_spacing() {
 
 #[test]
 fn void_elements_retain_spacing() {
-    let template = tmpl(
-        "<input>   <input>
-            <input><input> ",
-        [],
-    );
+    let template = hcs::void_elements_retain_spacing();
 
     let expected = "<input> <input>\n<input><input>";
 
@@ -250,10 +148,7 @@ fn void_elements_retain_spacing() {
 
 #[test]
 fn text_with_inline_elements_retain_spacing() {
-    let template = tmpl(
-        "beasts <span>    tread		</span>     softly <span>    underfoot </span>      .",
-        [],
-    );
+    let template = hcs::text_with_inline_elements_retain_spacing();
 
     let expected = "beasts <span> tread </span> softly <span> underfoot </span> .";
 
@@ -265,10 +160,7 @@ fn text_with_inline_elements_retain_spacing() {
 
 #[test]
 fn text_with_block_elements_retain_spacing() {
-    let template = tmpl(
-        "beasts <p>    tread		</p>     softly <p>    underfoot </p>      .",
-        [],
-    );
+    let template = hcs::text_with_block_elements_retain_spacing();
 
     let expected = "beasts <p> tread </p> softly <p> underfoot </p> .";
 
@@ -280,12 +172,7 @@ fn text_with_block_elements_retain_spacing() {
 
 #[test]
 fn void_elements_can_have_attributes() {
-    let template = tmpl(
-        "
-        <!DOCTYPE html><input type=checkbox>   <input woof=\"bark\">
-            <input grrr><input> ",
-        [],
-    );
+    let template = hcs::void_elements_can_have_attributes();
     let expected =
         "<!DOCTYPE html><input type=checkbox> <input woof=\"bark\">\n<input grrr><input>";
 
@@ -297,11 +184,7 @@ fn void_elements_can_have_attributes() {
 
 #[test]
 fn void_element_with_sibling() {
-    let template = tmpl(
-        "
-            <input><p>hai :3</p>    ",
-        [],
-    );
+    let template = hcs::void_element_with_sibling();
     let expected = "<input><p>hai :3</p>";
 
     let mut html = Html::new();
@@ -312,14 +195,7 @@ fn void_element_with_sibling() {
 
 #[test]
 fn nested_void_element_with_siblings_retains_spacing() {
-    let template = tmpl(
-        "
-        <section>
-            <input><p>hai :3</p>
-        </section>
-    ",
-        [],
-    );
+    let template = hcs::nested_void_element_with_siblings_retains_spacing();
 
     let expected = "<section>\n\t<input><p>hai :3</p>\n</section>";
 
@@ -331,7 +207,7 @@ fn nested_void_element_with_siblings_retains_spacing() {
 
 #[test]
 fn nested_elements_and_text_retain_spacing() {
-    let template = tmpl("<a><label><input type=woofer>bark!</label><img></a>", []);
+    let template = hcs::nested_elements_and_text_retain_spacing();
     let expected = "<a><label><input type=woofer>bark!</label><img></a>";
 
     let mut html = Html::new();
@@ -342,22 +218,7 @@ fn nested_elements_and_text_retain_spacing() {
 
 #[test]
 fn document_retains_spacing() {
-    let template = tmpl(
-        "        <!DOCTYPE>
-    <html>
-    <head>
-
-    </head>
-        <body>
-            <article>
-                You're a <span>boy kisser</span> aren't you?
-                Click <a>here</a> and go somewhere else.
-            </article>
-            <footer/>
-        </body>
-</html>",
-        [],
-    );
+    let template = hcs::document_retains_spacing();
 
     let expected = "<!DOCTYPE>\n<html>\n\t<head>\n\t</head>\n\t<body>\n\t\t<article>\n\t\t\tYou're a <span>boy kisser</span> aren't you?\n\t\t\tClick <a>here</a> and go somewhere else.\n\t\t</article>\n\t\t<footer></footer>\n\t</body>\n</html>";
 
@@ -369,28 +230,7 @@ fn document_retains_spacing() {
 
 #[test]
 fn document_with_alt_text_elements_retains_spacing() {
-    let template = tmpl(
-        "        <!DOCTYPE>
-    <html>
-    <head>
-        <style>
-			#woof .bark {
-				color: doggo;
-			}
-        </style>
-        <script>
-			if 2 < 3 {
-				console.log();
-			}
-        </script>
-    </head>
-        <body>
-            <article></article>
-            <footer/>
-        </body>
-</html>",
-        [],
-    );
+    let template = hcs::document_with_alt_text_elements_retains_spacing();
 
     let expected = "<!DOCTYPE>\n<html>\n\t<head>\n\t\t<style>\n\t\t\t#woof .bark {\n\t\t\t\tcolor: doggo;\n\t\t\t}\n\t\t</style>\n\t\t<script>\n\t\t\tif 2 < 3 {\n\t\t\t\tconsole.log();\n\t\t\t}\n\t\t</script>\n\t</head>\n\t<body>\n\t\t<article></article>\n\t\t<footer></footer>\n\t</body>\n</html>";
 

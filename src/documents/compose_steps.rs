@@ -12,52 +12,37 @@ pub fn compose_steps(
     for step in steps {
         match step.kind {
             StepKind::Tag => push_element(results, tag_info_stack, rules, template_str, step),
-            StepKind::ElementClosed => close_element(results, tag_info_stack),
+            StepKind::ElementClosed => close_element(results, tag_info_stack, rules),
             StepKind::EmptyElementClosed => close_empty_element(results, tag_info_stack),
             StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
+            StepKind::TailElementSpace => push_element_space(tag_info_stack, step),
             StepKind::TailElementClosed => close_tail_tag(results, tag_info_stack),
-            StepKind::Text => push_text(results, tag_info_stack, rules, template_str, step),
+            StepKind::Text => push_text(results, tag_info_stack, template_str, step),
             StepKind::TextAlt => push_alt_text(results, tag_info_stack, rules, template_str, step),
-            StepKind::TextLineSpace => {
-                push_text_space(results, tag_info_stack, rules, template_str, step)
-            }
-            StepKind::TextSpace => {
-                push_text_space(results, tag_info_stack, rules, template_str, step)
-            }
+            StepKind::TextLineSpace => push_text_space(results, tag_info_stack, template_str, step),
+            StepKind::TextSpace => push_text_space(results, tag_info_stack, template_str, step),
             StepKind::Attr => push_attr(results, tag_info_stack, template_str, step),
             StepKind::AttrValueSingleQuoted => {
-                push_attr_value_single_quoted(results, tag_info_stack, template_str, step)
+                push_attr_value_single_quoted(results, tag_info_stack, rules, template_str, step)
             }
             StepKind::AttrValueDoubleQuoted => {
-                push_attr_value_double_quoted(results, tag_info_stack, template_str, step)
+                push_attr_value_double_quoted(results, tag_info_stack, rules, template_str, step)
             }
             StepKind::AttrValueUnquoted => {
                 push_attr_value_unquoted(results, tag_info_stack, template_str, step)
             }
-            StepKind::ElementSpace => {
-                push_text_space(results, tag_info_stack, rules, template_str, step)
-            }
+            StepKind::ElementSpace => push_text_space(results, tag_info_stack, template_str, step),
             StepKind::ElementLineSpace => {
-                push_text_space(results, tag_info_stack, rules, template_str, step)
-            }
-            StepKind::InjectionConfirmed => {
-                push_injection_confirmed(results, tag_info_stack, rules, template_str, step)
+                push_text_space(results, tag_info_stack, template_str, step)
             }
             _ => {}
         }
     }
 }
 
-fn push_text(
-    results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    _rules: &dyn RulesetImpl,
-    template_str: &str,
-    step: &Step,
-) {
+fn push_text(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
-        // this should never happen
         _ => return,
     };
 
@@ -66,13 +51,15 @@ fn push_text(
     }
 
     let text = get_text_from_step(template_str, step);
-    push_space_on_text(results, &tag_info);
+    if !tag_info.preformatted_text_path {
+        push_formatted_space(results, &tag_info);
+    }
+
     results.push_str(text);
 
     tag_info.text_format = TextFormat::Text;
 }
 
-// SET SOME KIND OF TEXT FORMAT
 fn push_alt_text(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
@@ -82,7 +69,6 @@ fn push_alt_text(
 ) {
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
-        // this should never happen
         _ => return,
     };
 
@@ -96,38 +82,14 @@ fn push_alt_text(
     tag_info.text_format = TextFormat::Text;
 }
 
-fn push_injection_confirmed(
-    _results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    _rules: &dyn RulesetImpl,
-    _template_str: &str,
-    _step: &Step,
-) {
-    let tag_info = match stack.last_mut() {
-        Some(curr) => curr,
-        // this should never happen
-        _ => return,
-    };
-
-    if tag_info.banned_path {
-        return;
-    }
-
-    // This feels heavy handed and suspect.
-    // More interesting logic might be necessary
-    tag_info.text_format = TextFormat::Text;
-}
-
 fn push_text_space(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
-    _rules: &dyn RulesetImpl,
     template_str: &str,
     step: &Step,
 ) {
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
-        // this should never happen
         _ => return,
     };
 
@@ -135,9 +97,30 @@ fn push_text_space(
         return;
     }
 
-    if tag_info.preserved_text_path {
+    if tag_info.preformatted_text_path {
         let text = get_text_from_step(template_str, step);
         results.push_str(text);
+    }
+
+    if TextFormat::Initial == tag_info.text_format || TextFormat::LineSpace == tag_info.text_format
+    {
+        return;
+    }
+
+    tag_info.text_format = match step.kind {
+        StepKind::ElementLineSpace => TextFormat::LineSpace,
+        StepKind::TextLineSpace => TextFormat::LineSpace,
+        _ => TextFormat::Space,
+    }
+}
+
+fn push_element_space(stack: &mut Vec<TagInfo>, step: &Step) {
+    let tag_info = match stack.last_mut() {
+        Some(curr) => curr,
+        _ => return,
+    };
+
+    if tag_info.banned_path {
         return;
     }
 
@@ -146,16 +129,9 @@ fn push_text_space(
         return;
     }
 
-    match step.kind {
-        StepKind::ElementLineSpace => {
-            tag_info.text_format = TextFormat::LineSpace;
-        }
-        StepKind::TextLineSpace => {
-            tag_info.text_format = TextFormat::LineSpace;
-        }
-        _ => {
-            tag_info.text_format = TextFormat::Space;
-        }
+    tag_info.text_format = match step.kind {
+        StepKind::ElementLineSpace => TextFormat::LineSpace,
+        _ => TextFormat::Space,
     }
 }
 
@@ -169,7 +145,6 @@ fn push_element(
     let tag_info = match stack.last_mut() {
         Some(tag_info) => tag_info,
         _ => {
-            // this never happens
             return;
         }
     };
@@ -178,7 +153,9 @@ fn push_element(
     let next_tag_info = TagInfo::from(rules, tag_info, tag);
 
     if !next_tag_info.banned_path {
-        push_space_on_text(results, &tag_info);
+        if !next_tag_info.preformatted_text_path {
+            push_formatted_space(results, &tag_info);
+        }
         results.push('<');
         results.push_str(tag);
     }
@@ -186,17 +163,35 @@ fn push_element(
     stack.push(next_tag_info);
 }
 
-fn close_element(results: &mut String, stack: &mut Vec<TagInfo>) {
+fn close_element(results: &mut String, stack: &mut Vec<TagInfo>, rules: &dyn RulesetImpl) {
     let tag_info = match stack.last_mut() {
         Some(tag_info) => tag_info,
         _ => return,
     };
 
     if !tag_info.banned_path {
+        match tag_info.text_format {
+            TextFormat::LineSpace => {
+                results.push('\n');
+
+                // needs an offset logic
+                if rules.respect_indentation() {
+                    let indent_offset = match tag_info.inline_el {
+                        true => tag_info.indent_count,
+                        _ => tag_info.indent_count - 1,
+                    };
+
+                    results.push_str(&"\t".repeat(indent_offset));
+                }
+            }
+            _ => {}
+        }
         results.push_str(">");
-        tag_info.text_format = TextFormat::Text;
     }
 
+    tag_info.text_format = TextFormat::Text;
+
+    // for void elements
     if !tag_info.void_el {
         return;
     }
@@ -217,20 +212,18 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
         _ => return,
     };
 
-    if tag_info.banned_path {
-        return;
-    }
-
-    match "html" != tag_info.namespace {
-        true => results.push_str("/>"),
-        _ => match tag_info.void_el {
-            true => results.push('>'),
-            _ => {
-                results.push_str("></");
-                results.push_str(&tag_info.tag);
-                results.push('>');
-            }
-        },
+    if !tag_info.banned_path {
+        match "html" != tag_info.namespace {
+            true => results.push_str("/>"),
+            _ => match tag_info.void_el {
+                true => results.push('>'),
+                _ => {
+                    results.push_str("></");
+                    results.push_str(&tag_info.tag);
+                    results.push('>');
+                }
+            },
+        }
     }
 
     let prev_tag_info = match stack.last_mut() {
@@ -248,19 +241,16 @@ fn pop_element(
     template_str: &str,
     step: &Step,
 ) {
-    if stack.len() < 2 {
-        return;
-    }
-
     let tag_info = match stack.last() {
         Some(ti) => ti,
-        _ => {
-            // never happens
-            return;
-        }
+        _ => return,
     };
 
     if tag_info.banned_path {
+        return;
+    }
+
+    if tag_info.void_el {
         return;
     }
 
@@ -274,12 +264,8 @@ fn pop_element(
         closed_tag = close_tag;
     }
 
-    // mismatched tags? bail
+    // bail on mismatched tag
     if closed_tag != tag_info.tag {
-        return;
-    }
-
-    if tag_info.void_el {
         return;
     }
 
@@ -292,7 +278,6 @@ fn pop_element(
         };
     }
 
-    // better if else here
     match tag == closed_tag {
         true => {
             results.push_str("</");
@@ -308,11 +293,9 @@ fn close_tail_tag(results: &mut String, stack: &mut Vec<TagInfo>) {
         _ => return,
     };
 
-    if tag_info.banned_path {
-        return;
+    if !tag_info.banned_path {
+        results.push_str(">");
     }
-
-    results.push_str(">");
 
     let prev_tag_info = match stack.last_mut() {
         Some(tag_info) => tag_info,
@@ -332,16 +315,7 @@ fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
         return;
     }
 
-    if !tag_info.preserved_text_path {
-        match tag_info.text_format {
-            TextFormat::Space => results.push(' '),
-            TextFormat::LineSpace => {
-                results.push('\n');
-                results.push_str(&"\t".repeat(tag_info.indent_count))
-            }
-            _ => {}
-        }
-    }
+    push_formatted_space(results, tag_info);
 
     let attr = get_text_from_step(template_str, step);
     results.push_str(attr.trim());
@@ -372,6 +346,7 @@ fn push_attr_value_unquoted(
 fn push_attr_value_single_quoted(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
+    rules: &dyn RulesetImpl,
     template_str: &str,
     step: &Step,
 ) {
@@ -386,13 +361,14 @@ fn push_attr_value_single_quoted(
 
     let text = get_text_from_step(template_str, step);
     results.push_str("='");
-    push_multiline_attributes(results, &text, tag_info);
+    push_multiline_attributes(results, rules, &text, tag_info);
     results.push('\'');
 }
 
 fn push_attr_value_double_quoted(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
+    rules: &dyn RulesetImpl,
     template_str: &str,
     step: &Step,
 ) {
@@ -407,27 +383,12 @@ fn push_attr_value_double_quoted(
 
     let text = get_text_from_step(template_str, step);
     results.push_str("=\"");
-    push_multiline_attributes(results, &text, tag_info);
+    push_multiline_attributes(results, rules, &text, tag_info);
     results.push('"');
 }
 
-fn push_space_on_text(results: &mut String, tag_info: &TagInfo) {
-    if tag_info.preserved_text_path {
-        return;
-    }
-
-    match tag_info.text_format {
-        TextFormat::Space => results.push(' '),
-        TextFormat::LineSpace => {
-            results.push('\n');
-            results.push_str(&"\t".repeat(tag_info.indent_count))
-        }
-        _ => {}
-    }
-}
-
 fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &TagInfo) {
-    if tag_info.preserved_text_path {
+    if tag_info.preformatted_text_path {
         return;
     }
 
@@ -436,6 +397,17 @@ fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &T
         TextFormat::LineSpace => {
             results.push('\n');
             results.push_str(&"\t".repeat(prev_tag_info.indent_count))
+        }
+        _ => {}
+    }
+}
+
+pub fn push_formatted_space(results: &mut String, tag_info: &TagInfo) {
+    match tag_info.text_format {
+        TextFormat::Space => results.push(' '),
+        TextFormat::LineSpace => {
+            results.push('\n');
+            results.push_str(&"\t".repeat(tag_info.indent_count))
         }
         _ => {}
     }
