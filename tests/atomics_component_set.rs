@@ -4,8 +4,8 @@ pub fn text_element() -> Component {
     tmpl(
         "
 
-            Beasts tread
-                softly     underfoot.
+			Beasts tread
+				softly   underfoot.
 
 		",
         [],
@@ -36,8 +36,8 @@ pub fn block_element_with_text() -> Component {
     tmpl(
         "
 		<p>
-            hello!
-        </p>
+			hello!
+		</p>
 		",
         [],
     )
@@ -47,8 +47,8 @@ pub fn block_element_with_text_for_string() -> Component {
     tmpl_string(
         "
 		<p>
-            hello!
-        </p>
+			hello!
+		</p>
 		",
         [],
     )
