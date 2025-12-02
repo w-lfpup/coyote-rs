@@ -4,7 +4,7 @@
 
 Space is compositional in HTML. It has weight and meaning.
 
-`Coyote` outputs html that respects the lines and spaces defined by templates, text nodes, and attribute values.
+`Coyote` adheres to the lines and spaces defined by templates, text nodes, and attribute values.
 
 So every new line and space is intentional.
 
@@ -20,7 +20,7 @@ A template without trailing spaces:
 tmpl("<p>hai :3</p>", [])
 ```
 
-Will output without trailing spaces:
+Will render without trailing spaces:
 
 ```html
 <p>hai :3</p>
@@ -40,7 +40,7 @@ tmpl("
 	", [])
 ```
 
-Will output collapsed spaces and collapsed new lines:
+Will render collapsed spaces and collapsed new lines:
 
 ```html
 <p>
@@ -50,7 +50,7 @@ Will output collapsed spaces and collapsed new lines:
 
 ### Attributes
 
-Attribute spacing is somewhat special. It collapses spaces _and_ new lines.
+Attributes collapse spaces and new lines.
 
 So a template with attributes spaced out:
 
@@ -142,7 +142,7 @@ tmpl(
 )
 ```
 
-A template will output spaces before attributes:
+A template will render spaces before attributes:
 
 ```html
 <p hai hello></p>
@@ -164,7 +164,7 @@ tmpl(
 )
 ```
 
-A template will output new lines before attributes:
+A template will render new lines before attributes:
 
 ```html
 <p
@@ -174,7 +174,7 @@ A template will output new lines before attributes:
 
 ### Descendant injections
 
-#### Templates
+#### Template injections
 
 Coyote parses the space between templates as if components were a contiguous document.
 

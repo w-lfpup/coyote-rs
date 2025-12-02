@@ -24,7 +24,7 @@ fn main() {
 }
 ```
 
-The output will be:
+Its output will be:
 ```html
 <p>hai :3</p>
 ```
@@ -33,9 +33,9 @@ The output will be:
 
 ### Hello, safer world!
 
-The `HtmlOnly` document builder is meant for HOTW scenarios that cannot affort to render elements with side-effects.
+The `HtmlOnly` document builder is meant for html-over-the-wire (HOTW). Scenarios that cannot afford side-effects benefit from this builder.
 
-Consider the following component with malicious intent:
+Consider the following component with a malicious intent:
 
 ```rust
 use coyotes::{Component, tmpl};
@@ -62,9 +62,10 @@ fn hello_world() -> Component {
 }
 ```
 
-The malicious component could load elements that can mutate the DOM and  break your site.
+The malicious component can potentially mutate the DOM and break your site.
 
-The `HtmlOnly` document builder removes all instances of `link`, `style`, and `script` elements.
+
+But when the `hello_world` component above is rendered with the `HtmlOnly` document builder:
 
 ```rs
 use coyotes::{HtmlOnly};
@@ -78,7 +79,7 @@ fn main() {
 }
 ```
 
-So the `hello_world` components above renders without the mutative components:
+The builder removes all instances of `link`, `style`, and `script` elements:
 
 ```html
 <p>hai :3</p>
@@ -86,7 +87,7 @@ So the `hello_world` components above renders without the mutative components:
 
 ## Errors
 
-A document builder will return an error when:
+A document builder returns an error when:
 - a template is unbalanced
 - an attribute contains a forbidden glyph
 - a render exceeds a memory limit
@@ -95,8 +96,9 @@ A document builder will return an error when:
 
 Balanced templates are templates without unclosed tags.
 
-Coyote will return an `error` when a template is unbalanced.
+Coyote returns an `error` when a template is _unbalanced_.
 
+#### Examples of balance
 The following template is balanced:
 
 ```rust
@@ -118,15 +120,16 @@ tmpl("<span>", [])
 ### Forbidden attribute glyphs
 
 The following characters are [forbidden](https://html.spec.whatwg.org/multipage/syntax.html#attributes-2) in html attributes:
+
 `< > = " \ /`
 
 The bracket-character `{` is forbidden in attribute components by `coyote`.
 
-Coyote will return an `error` when any forbidden characters are found in an attribute component.
+Coyote returns an `error` when any forbidden characters are found in an attribute component.
 
 ### Document memory limits
 
-Coyote will return an error when a document exceeds a predefined memory limit.
+Coyote returns an error when a document exceeds a predefined memory limit.
 
 The fallback memory limit is `16mb` which is a sizable document.
 

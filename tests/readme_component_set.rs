@@ -7,19 +7,19 @@ pub fn no_added_spaces() -> Component {
 pub fn collapse_spaces_and_new_lines() -> Component {
     tmpl(
         "
-        <p>
+		<p>
 
-            hai   :3
-        
-        
-        </p>
-        ",
+			hai   :3
+		
+		
+		</p>
+		",
         [],
     )
 }
 
 pub fn attribute_collapse_spaces() -> Component {
-    tmpl("<p    attr    attr2    att3    ></p>", [])
+    tmpl("<p	attr	attr2	att3	></p>", [])
 }
 
 pub fn attribute_preserve_new_lines() -> Component {
@@ -45,7 +45,7 @@ pub fn attribute_values_preserve_new_lines() -> Component {
 		<p
 			attr='
 
-			hai   :3    hello!
+			hai   :3	hello!
 
 			'
 		></p>
@@ -65,9 +65,9 @@ pub fn attribute_injections_with_new_lines() -> Component {
 
     tmpl(
         "
-        <p
-            {}></p>
-        ",
+		<p
+			{}></p>
+		",
         [descendants],
     )
 }
@@ -79,7 +79,7 @@ pub fn component_injections() -> Component {
             "
 
 			<span>hello</span>
-			
+
 			",
             [],
         ),
@@ -92,7 +92,7 @@ pub fn text_component_injections() -> Component {
     let descendants = text(
         "
 
-		hai    :3
+		hai	:3
 
 		",
     );

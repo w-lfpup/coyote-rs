@@ -50,20 +50,7 @@ fn inline_element_with_text_retains_spacing() {
 #[test]
 fn comment_element_retains_spacing() {
     let template = hcs::comment_element_retains_spacing();
-    let expected = "<!---->
-<!--Hello!-->
-<!-- Hello! -->
-<!--Hello! -->
-<!-- Hello!-->
-<!--Hello!
--->
-<!--
-Hello!-->
-<!--
-
-	Hello!
-
--->";
+    let expected = "<!---->\n<!--Hello!-->\n<!-- Hello! -->\n<!--Hello! -->\n<!-- Hello!-->\n<!--Hello!\n-->\n<!--\nHello!-->\n<!--\n\n\tHello!\n\n-->";
 
     let mut html = Html::new();
     let results = html.render(&template);
