@@ -17,22 +17,7 @@ fn form_component_retains_spacing() {
 #[test]
 fn elememt_and_text_components_retains_spacing() {
     let template = fcs::elememt_and_text_components_retains_spacing();
-    let expected = "<div>hai :3hai :3</div>
-<div>
-	hai :3hai :3
-</div>
-<div>hai :3 hai :3</div>
-<div>
-	hai :3 hai :3
-</div>
-<div>
-	hai :3
-	hai :3
-</div>
-<div>
-	hai :3
-	hai :3
-</div>";
+    let expected = "<div>hai :3hai :3</div>\n<div>\n\thai :3hai :3\n</div>\n<div>hai :3 hai :3</div>\n<div>\n\thai :3 hai :3\n</div>\n<div>\n\thai :3\n\thai :3\n</div>\n<div>\n\thai :3\n\thai :3\n</div>";
 
     let mut html = Html::new();
     let results = html.render(&template);
@@ -43,46 +28,7 @@ fn elememt_and_text_components_retains_spacing() {
 #[test]
 fn element_and_text_components_retain_extra_spacey_spacing() {
     let template = fcs::element_and_text_components_retain_extra_spacey_spacing();
-    let expected = "<div>
-	hai :3
-
-	hai :3
-</div>
-<div>
-
-	hai :3
-
-	hai :3
-
-</div>
-<div>
-	hai :3
-
-	hai :3
-</div>
-<div>
-
-	hai :3
-
-	hai :3
-
-</div>
-<div>
-
-	hai :3
-
-
-	hai :3
-
-</div>
-<div>
-
-	hai :3
-
-
-	hai :3
-
-</div>";
+    let expected = "<div>\n\thai :3\n\n\thai :3\n</div>\n<div>\n\n\thai :3\n\n\thai :3\n\n</div>\n<div>\n\thai :3\n\n\thai :3\n</div>\n<div>\n\n\thai :3\n\n\thai :3\n\n</div>\n<div>\n\n\thai :3\n\n\n\thai :3\n\n</div>\n<div>\n\n\thai :3\n\n\n\thai :3\n\n</div>";
 
     let mut html = Html::new();
     let results = html.render(&template);
@@ -93,22 +39,7 @@ fn element_and_text_components_retain_extra_spacey_spacing() {
 #[test]
 fn element_components_retain_spacing() {
     let template = fcs::element_components_retain_spacing();
-    let expected = "<div><span> hai :3 </span><span> hai :3 </span></div>
-<div>
-	<span> hai :3 </span><span> hai :3 </span>
-</div>
-<div><span> hai :3 </span> <span> hai :3 </span></div>
-<div>
-	<span> hai :3 </span> <span> hai :3 </span>
-</div>
-<div>
-	<span> hai :3 </span>
-	<span> hai :3 </span>
-</div>
-<div>
-	<span> hai :3 </span>
-	<span> hai :3 </span>
-</div>";
+    let expected = "<div><span> hai :3 </span><span> hai :3 </span></div>\n<div>\n\t<span> hai :3 </span><span> hai :3 </span>\n</div>\n<div><span> hai :3 </span> <span> hai :3 </span></div>\n<div>\n\t<span> hai :3 </span> <span> hai :3 </span>\n</div>\n<div>\n\t<span> hai :3 </span>\n\t<span> hai :3 </span>\n</div>\n<div>\n\t<span> hai :3 </span>\n\t<span> hai :3 </span>\n</div>";
 
     let mut html = Html::new();
     let results = html.render(&template);
@@ -119,30 +50,7 @@ fn element_components_retain_spacing() {
 #[test]
 fn element_components_retain_extra_spacey_spacing() {
     let template = fcs::element_components_retain_extra_spacey_spacing();
-    let expected = "<div>
-	<span> hai :3 </span>
-	<span> hai :3 </span>
-</div>
-<div>
-	<span> hai :3 </span>
-	<span> hai :3 </span>
-</div>
-<div>
-	<span> hai :3 </span>
-	<span> hai :3 </span>
-</div>
-<div>
-	<span> hai :3 </span>
-	<span> hai :3 </span>
-</div>
-<div>
-	<span> hai :3 </span>
-	<span> hai :3 </span>
-</div>
-<div>
-	<span> hai :3 </span>
-	<span> hai :3 </span>
-</div>";
+    let expected = "<div>\n\t<span> hai :3 </span>\n\t<span> hai :3 </span>\n</div>\n<div>\n\t<span> hai :3 </span>\n\t<span> hai :3 </span>\n</div>\n<div>\n\t<span> hai :3 </span>\n\t<span> hai :3 </span>\n</div>\n<div>\n\t<span> hai :3 </span>\n\t<span> hai :3 </span>\n</div>\n<div>\n\t<span> hai :3 </span>\n\t<span> hai :3 </span>\n</div>\n<div>\n\t<span> hai :3 </span>\n\t<span> hai :3 </span>\n</div>";
 
     let mut html = Html::new();
     let results = html.render(&template);
