@@ -38,7 +38,7 @@ However, `coyote` will only render the HTML5 standard:
 <article>
     <p>no waaaay?</p>
     <custom-element></custom-element>
-    <input value=button value="high-five!">
+    <input value=button value='high-five!'>
 </article>
 ```
 
@@ -56,7 +56,7 @@ fn hello_world() -> Component {
 }
 ```
 
-## Tetmplate injections
+## Template injections
 
 Template `injections` nest templates and assign attributes.
 
@@ -128,7 +128,7 @@ fn form() -> Component {
     ]);
 
     let mut descendants: Vec<Component> = Vec::new();
-    descendants.push(text("you're a good dog aren't you >:3"));
+    descendants.push(text("you're a good dog aren't you?"));
     descendants.push(submit_button());
     
     tmpl(
@@ -146,8 +146,8 @@ And the output will be:
 
 ```html
 <form action="/uwu" method="post">
-    you're a good dog aren't you >:3
-    <input type=submit value="yus ^_^">
+    you're a good dog aren't you?
+    <input type=submit value='yus ^_^'>
 </form>
 ```
 

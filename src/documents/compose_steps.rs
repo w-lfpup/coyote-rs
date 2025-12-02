@@ -204,6 +204,13 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>, rules: &dyn Rul
     };
 }
 
+// Self-closing logic requires a sieve between HTML elements and non-html elements.
+// Html elements are also allowed in embedded elements (like a link around svg text).
+//
+// So for now
+// - xml elements can self close
+// - html, svg, mathml elements that self-close like <tag/>
+//   expand into <tag></tag> and remain valid
 fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
     let tag_info = match stack.pop() {
         Some(curr) => curr,
@@ -211,8 +218,8 @@ fn close_empty_element(results: &mut String, stack: &mut Vec<TagInfo>) {
     };
 
     if !tag_info.banned_path {
-        match "html" != tag_info.namespace {
-            true => results.push_str("/>"),
+        match tag_info.embedded_content.as_str() {
+            "xml" => results.push_str("/>"),
             _ => match tag_info.void_el {
                 true => results.push('>'),
                 _ => {

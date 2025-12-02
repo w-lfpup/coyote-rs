@@ -14,7 +14,7 @@ pub struct TagInfo {
     pub banned_path: bool,
     pub indent_count: usize,
     pub inline_el: bool,
-    pub namespace: String,
+    pub embedded_content: String,
     pub preformatted_text_path: bool,
     pub tag: String,
     pub text_format: TextFormat,
@@ -27,7 +27,7 @@ impl TagInfo {
             banned_path: false,
             indent_count: 0,
             inline_el: true,
-            namespace: rules.get_initial_embedded_content().to_string(),
+            embedded_content: rules.get_initial_embedded_content().to_string(),
             preformatted_text_path: false,
             tag: ":root".to_string(),
             text_format: TextFormat::Initial,
@@ -44,7 +44,7 @@ impl TagInfo {
         tag_info.text_format = TextFormat::Text;
 
         if rules.tag_is_embedded_content_el(tag) {
-            tag_info.namespace = tag.to_string();
+            tag_info.embedded_content = tag.to_string();
         }
 
         if rules.tag_is_preformatted_text_el(&tag_info.tag) {
