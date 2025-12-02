@@ -1,7 +1,6 @@
 mod atomics_component_set;
 
 use coyotes::HtmlOnly;
-
 use atomics_component_set as acs;
 
 #[test]

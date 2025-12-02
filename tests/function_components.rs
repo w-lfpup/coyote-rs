@@ -1,7 +1,6 @@
 mod function_component_set;
 
 use coyotes::Html;
-
 use function_component_set as fcs;
 
 #[test]

@@ -1,7 +1,6 @@
 mod readme_component_set;
 
 use coyotes::HtmlOnly;
-
 use readme_component_set as rcs;
 
 #[test]
