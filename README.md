@@ -1,6 +1,6 @@
 # Coyote-rs
 
-Create `HTML` documents with function components in Rust.
+Create `HTML` documents in Rust.
 
 HTML in, HTML out. No suprises, no dependencies.
 
@@ -51,7 +51,7 @@ The output will be:
 
 ## Spaces
 
-Spacing is meaningful in html so `Coyote` respects the lines and spaces defined by developers.
+`Coyote` does not add spaces or new lines.
 
 Learn more about how `coyote` handles [spacing](./spacing.md).
 

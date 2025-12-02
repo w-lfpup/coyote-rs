@@ -8,7 +8,7 @@ Components are not HTML or XML.
 
 Components are an (I)ntermediate (R)endering (F)ormat.
 
-They are the _potential_ for a document like HTML or XML.
+They are the _potential_ for HTML or XML.
 
 ## The template component
 
@@ -32,7 +32,7 @@ tmpl(
 )
 ```
 
-However, `coyote` will only output w3 spec compliant HTML:
+However, `coyote` will only render the HTML5 standard:
 
 ```html
 <article>
@@ -42,7 +42,7 @@ However, `coyote` will only output w3 spec compliant HTML:
 </article>
 ```
 
-The goal is to provide a robust template syntax while adhering modern HTML standards.
+The goal is to provide a robust and flexible template syntax while adhering modern standards.
 
 ## Function Components
 
@@ -56,9 +56,9 @@ fn hello_world() -> Component {
 }
 ```
 
-## Injections
+## Tetmplate injections
 
-`Injections` can nest templates and assign attributes.
+Template `injections` nest templates and assign attributes.
 
 There are only two valid _injections_ in a `tmpl` component:
 - attribute injections
@@ -90,22 +90,22 @@ Which renders:
 <article>
 ```
 
-Any other instance of `{}` in a template component will not be considered an injection.
+Any other instance of brackets `{}` in a template component will not register as an injection.
 
-### Escape the `{` character
+### Escape the left-bracket `{` character
 
-To use a `{` in a template without creating an injection, use the left-bracket html escape charactor `&123;`.
+To use a left-bracket `{` in a template without creating an injection, use the html escape charactor `&123;`.
 
-So ...
-
-```html
-helloooo { world }
-```
-
-would look like the following as a template:
+So the following template:
 
 ```rust
 tmpl("hellooo, &#123; world }", []); 
+```
+
+Will render a left-bracket as text:
+
+```html
+helloooo { world }
 ```
 
 ## Lists of components
@@ -202,7 +202,7 @@ tmpl(template_str: &'static str, injections: [Component; N])
 
 #### Template string
 
-a document fragment described by a string template and a list of injections
+A document fragment described by a string template and a list of injections. Useful for dynamically generated templates or templates found on disk / remote.
 
 ```rs
 tmpl_string(template_str: &str, injections: [Component; N])
