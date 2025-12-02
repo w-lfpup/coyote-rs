@@ -4,7 +4,7 @@ Create `HTML` documents in Rust.
 
 HTML in, HTML out. No suprises, no dependencies.
 
-[![Build and test](https://github.com/w-lfpup/coyote-rs/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/w-lfpup/coyote-rs/actions/workflows/build_and_test.yml)
+[![Tests](https://github.com/w-lfpup/coyote-rs/actions/workflows/tests.yml/badge.svg)](https://github.com/w-lfpup/coyote-rs/actions/workflows/tests.yml)
 
 ## Install
 
