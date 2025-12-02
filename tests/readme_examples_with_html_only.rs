@@ -15,9 +15,9 @@ fn no_added_spaces() {
 }
 
 #[test]
-fn collapse_spaces() {
-    let template = rcs::collapse_spaces();
-    let expected = "<p> hai :3 </p>";
+fn collapse_spaces_and_new_lines() {
+    let template = rcs::collapse_spaces_and_new_lines();
+    let expected = "<p>\nhai :3\n</p>";
 
     let mut html = HtmlOnly::new();
     let results = html.render(&template);

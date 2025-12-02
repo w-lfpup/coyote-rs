@@ -4,8 +4,18 @@ pub fn no_added_spaces() -> Component {
     tmpl("<p>hai :3</p>", [])
 }
 
-pub fn collapse_spaces() -> Component {
-    tmpl("<p>   hai   :3   </p>", [])
+pub fn collapse_spaces_and_new_lines() -> Component {
+    tmpl(
+        "
+        <p>
+
+            hai   :3
+        
+        
+        </p>
+        ",
+        [],
+    )
 }
 
 pub fn attribute_collapse_spaces() -> Component {

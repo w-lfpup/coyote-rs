@@ -26,18 +26,26 @@ Will output without trailing spaces:
 <p>hai :3</p>
 ```
 
-### Collapse spaces
+### Collapse spaces and new lines
 
-A template with trailing spaces:
+A template with trailing spaces and multiple new lines:
 
 ```rust
-tmpl("<p>   hai   :3   </p>", [])
+tmpl("
+	<p>
+
+	hai   :3
+	
+	</p>
+	", [])
 ```
 
-Will output collapsed spaces:
+Will output collapsed spaces and collapsed new lines:
 
 ```html
-<p> hai :3 </p>
+<p>
+	hai :3
+</p>
 ```
 
 ### Attributes
