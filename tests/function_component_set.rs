@@ -9,7 +9,7 @@ fn submit_button() -> Component {
     )
 }
 
-fn form() -> Component {
+pub fn form_component_retains_spacing() -> Component {
     let attributes = [attr_val("action", "/uwu"), attr_val("method", "post")];
 
     let mut descendants: Vec<Component> = Vec::new();
@@ -24,10 +24,6 @@ fn form() -> Component {
 		",
         [list(attributes), vlist(descendants)],
     )
-}
-
-pub fn form_component_retains_spacing() -> Component {
-    form()
 }
 
 fn hai() -> Component {
@@ -111,7 +107,7 @@ pub fn element_components_retain_extra_spacey_spacing() -> Component {
     lil_divs(el_hai_extra_spacey)
 }
 
-fn lots_of_attributes() -> Component {
+pub fn attributes_retain_spacing() -> Component {
     tmpl(
         "
 		<p hai></p>
@@ -126,10 +122,6 @@ fn lots_of_attributes() -> Component {
 		",
         [],
     )
-}
-
-pub fn attributes_retain_spacing() -> Component {
-    lots_of_attributes()
 }
 
 fn attribute_list() -> Component {
