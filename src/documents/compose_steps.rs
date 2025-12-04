@@ -323,7 +323,7 @@ fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
     push_formatted_space(results, tag_info);
 
     let attr = get_text_from_step(template_str, step);
-    results.push_str(attr.trim());
+    results.push_str(attr);
 
     tag_info.text_format = TextFormat::Text
 }
