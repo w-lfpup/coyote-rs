@@ -54,6 +54,10 @@ impl HtmlRules {
 }
 
 impl RulesetImpl for HtmlRules {
+    fn attr_is_banned(&self, attr: &str) -> bool {
+        attr.starts_with("on")
+    }
+
     fn get_document_memory_limit(&self) -> usize {
         self.params.document_memory_limit
     }

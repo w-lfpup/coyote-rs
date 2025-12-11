@@ -10,6 +10,8 @@ pub struct Step {
     pub target: usize,
 }
 
+// block tags
+
 pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepKind) -> Vec<Step> {
     let mut steps = Vec::from([Step {
         kind: intial_kind.clone(),

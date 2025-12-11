@@ -54,6 +54,10 @@ impl XmlRules {
 }
 
 impl RulesetImpl for XmlRules {
+    fn attr_is_banned(&self, attr: &str) -> bool {
+        false
+    }
+
     fn get_document_memory_limit(&self) -> usize {
         self.params.document_memory_limit
     }
