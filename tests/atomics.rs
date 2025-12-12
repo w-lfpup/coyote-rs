@@ -213,3 +213,25 @@ fn banned_attribute() {
 
     assert_eq!(Ok(expected.to_string()), results);
 }
+
+#[test]
+fn banned_attribute_quoted() {
+    let template = acs::banned_attribute_quoted();
+    let expected = "<span>UwU</span>";
+
+    let mut html = Html::new();
+    let results = html.render(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn banned_attribute_single_quoted() {
+    let template = acs::banned_attribute_single_quoted();
+    let expected = "<span>UwU</span>";
+
+    let mut html = Html::new();
+    let results = html.render(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
