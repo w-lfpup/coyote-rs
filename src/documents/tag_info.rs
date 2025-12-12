@@ -11,6 +11,7 @@ pub enum TextFormat {
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TagInfo {
+    pub banned_attr: bool,
     pub banned_path: bool,
     pub indent_count: usize,
     pub inline_el: bool,
@@ -24,6 +25,7 @@ pub struct TagInfo {
 impl TagInfo {
     pub fn get_root(rules: &dyn RulesetImpl) -> TagInfo {
         TagInfo {
+            banned_attr: false,
             banned_path: false,
             indent_count: 0,
             inline_el: true,
