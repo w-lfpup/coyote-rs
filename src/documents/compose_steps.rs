@@ -2,6 +2,10 @@ use crate::documents::tag_info::{TagInfo, TextFormat};
 use crate::documents::text_components::{push_alt_text_component, push_multiline_attributes};
 use crate::template_steps::{RulesetImpl, Step, StepKind, get_text_from_step};
 
+pub struct ComposeState {
+    attr_is_banned: bool,
+}
+
 pub fn compose_steps(
     rules: &dyn RulesetImpl,
     results: &mut String,
@@ -9,10 +13,16 @@ pub fn compose_steps(
     template_str: &str,
     steps: &Vec<Step>,
 ) {
+    let mut compose_state = ComposeState {
+        attr_is_banned: false,
+    };
+
     for step in steps {
         match step.kind {
             StepKind::Tag => push_element(results, tag_info_stack, rules, template_str, step),
-            StepKind::ElementClosed => close_element(results, tag_info_stack, rules),
+            StepKind::ElementClosed => {
+                close_element(results, tag_info_stack, &mut compose_state, rules)
+            }
             StepKind::EmptyElementClosed => close_empty_element(results, tag_info_stack),
             StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
             StepKind::TailElementSpace => push_element_space(tag_info_stack, step),
@@ -21,16 +31,37 @@ pub fn compose_steps(
             StepKind::TextAlt => push_alt_text(results, tag_info_stack, rules, template_str, step),
             StepKind::TextLineSpace => push_text_space(results, tag_info_stack, template_str, step),
             StepKind::TextSpace => push_text_space(results, tag_info_stack, template_str, step),
-            StepKind::Attr => push_attr(results, tag_info_stack, template_str, step),
-            StepKind::AttrValueSingleQuoted => {
-                push_attr_value_single_quoted(results, tag_info_stack, rules, template_str, step)
-            }
-            StepKind::AttrValueDoubleQuoted => {
-                push_attr_value_double_quoted(results, tag_info_stack, rules, template_str, step)
-            }
-            StepKind::AttrValueUnquoted => {
-                push_attr_value_unquoted(results, tag_info_stack, template_str, step)
-            }
+            StepKind::Attr => push_attr(
+                results,
+                tag_info_stack,
+                &mut compose_state,
+                rules,
+                template_str,
+                step,
+            ),
+            StepKind::AttrValueSingleQuoted => push_attr_value_single_quoted(
+                results,
+                tag_info_stack,
+                &mut compose_state,
+                rules,
+                template_str,
+                step,
+            ),
+            StepKind::AttrValueDoubleQuoted => push_attr_value_double_quoted(
+                results,
+                tag_info_stack,
+                &mut compose_state,
+                rules,
+                template_str,
+                step,
+            ),
+            StepKind::AttrValueUnquoted => push_attr_value_unquoted(
+                results,
+                tag_info_stack,
+                &mut compose_state,
+                template_str,
+                step,
+            ),
             StepKind::ElementSpace => push_element_space(tag_info_stack, step),
             StepKind::ElementLineSpace => push_element_space(tag_info_stack, step),
             _ => {}
@@ -161,7 +192,14 @@ fn push_element(
     stack.push(next_tag_info);
 }
 
-fn close_element(results: &mut String, stack: &mut Vec<TagInfo>, rules: &dyn RulesetImpl) {
+fn close_element(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    compose_state: &mut ComposeState,
+    rules: &dyn RulesetImpl,
+) {
+    compose_state.attr_is_banned = false;
+
     let tag_info = match stack.last_mut() {
         Some(tag_info) => tag_info,
         _ => return,
@@ -310,7 +348,14 @@ fn close_tail_tag(results: &mut String, stack: &mut Vec<TagInfo>) {
     prev_tag_info.text_format = TextFormat::Text;
 }
 
-fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
+fn push_attr(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    compose_state: &mut ComposeState,
+    rules: &dyn RulesetImpl,
+    template_str: &str,
+    step: &Step,
+) {
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
         _ => return,
@@ -320,9 +365,17 @@ fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
         return;
     }
 
+    let attr = get_text_from_step(template_str, step);
+
+    if rules.attr_is_banned(attr) {
+        compose_state.attr_is_banned = true;
+        return;
+    }
+
+    compose_state.attr_is_banned = false;
+
     push_formatted_space(results, tag_info);
 
-    let attr = get_text_from_step(template_str, step);
     results.push_str(attr);
 
     tag_info.text_format = TextFormat::Text
@@ -331,9 +384,14 @@ fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
 fn push_attr_value_unquoted(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
+    composed_state: &mut ComposeState,
     template_str: &str,
     step: &Step,
 ) {
+    if composed_state.attr_is_banned {
+        return;
+    }
+
     let tag_info = match stack.last() {
         Some(curr) => curr,
         _ => return,
@@ -351,10 +409,15 @@ fn push_attr_value_unquoted(
 fn push_attr_value_single_quoted(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
+    composed_state: &mut ComposeState,
     rules: &dyn RulesetImpl,
     template_str: &str,
     step: &Step,
 ) {
+    if composed_state.attr_is_banned {
+        return;
+    }
+
     let tag_info = match stack.last() {
         Some(curr) => curr,
         _ => return,
@@ -373,10 +436,15 @@ fn push_attr_value_single_quoted(
 fn push_attr_value_double_quoted(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
+    composed_state: &mut ComposeState,
     rules: &dyn RulesetImpl,
     template_str: &str,
     step: &Step,
 ) {
+    if composed_state.attr_is_banned {
+        return;
+    }
+
     let tag_info = match stack.last() {
         Some(curr) => curr,
         _ => return,

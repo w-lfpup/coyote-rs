@@ -54,7 +54,7 @@ impl XmlRules {
 }
 
 impl RulesetImpl for XmlRules {
-    fn attr_is_banned(&self, attr: &str) -> bool {
+    fn attr_is_banned(&self, _attr: &str) -> bool {
         false
     }
 

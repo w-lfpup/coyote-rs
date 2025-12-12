@@ -199,30 +199,30 @@ fn add_attr_inj(
 
     match cmpnt {
         Component::Attr(attr) => {
-            if let Err(e) = push_attr_component(document_results, tag_info, attr) {
+            if let Err(e) = push_attr_component(document_results, rules, tag_info, attr) {
                 return Err(e);
             }
         }
         Component::AttrVal(attr, val) => {
-            if let Err(e) = push_attr_component(document_results, tag_info, attr) {
+            if let Err(e) = push_attr_val_component(document_results, rules, tag_info, attr, val) {
                 return Err(e);
             }
-
-            push_attr_value_component(document_results, rules, tag_info, val)
         }
         Component::List(attr_list) => {
             for cmpnt in attr_list {
                 match cmpnt {
                     Component::Attr(attr) => {
-                        if let Err(e) = push_attr_component(document_results, tag_info, attr) {
+                        if let Err(e) = push_attr_component(document_results, rules, tag_info, attr)
+                        {
                             return Err(e);
                         }
                     }
                     Component::AttrVal(attr, val) => {
-                        if let Err(e) = push_attr_component(document_results, tag_info, attr) {
+                        if let Err(e) =
+                            push_attr_val_component(document_results, rules, tag_info, attr, val)
+                        {
                             return Err(e);
                         }
-                        push_attr_value_component(document_results, rules, tag_info, val)
                     }
                     _ => {}
                 }
@@ -249,7 +249,16 @@ fn remove_template_glyphs(text: &str) -> String {
     safer_text
 }
 
-fn push_attr_component(results: &mut String, tag_info: &TagInfo, attr: &str) -> Result<(), Errors> {
+fn push_attr_component(
+    results: &mut String,
+    rules: &dyn RulesetImpl,
+    tag_info: &TagInfo,
+    attr: &str,
+) -> Result<(), Errors> {
+    if rules.attr_is_banned(attr) {
+        return Ok(());
+    }
+
     if let Err(e) = attr_is_valid(attr) {
         return Err(e);
     }
@@ -257,6 +266,33 @@ fn push_attr_component(results: &mut String, tag_info: &TagInfo, attr: &str) -> 
     push_formatted_space(results, tag_info);
 
     results.push_str(attr);
+
+    Ok(())
+}
+
+fn push_attr_val_component(
+    results: &mut String,
+    rules: &dyn RulesetImpl,
+    tag_info: &TagInfo,
+    attr: &str,
+    val: &str,
+) -> Result<(), Errors> {
+    if rules.attr_is_banned(attr) {
+        return Ok(());
+    }
+
+    if let Err(e) = attr_is_valid(attr) {
+        return Err(e);
+    }
+
+    push_formatted_space(results, tag_info);
+
+    results.push_str(attr);
+
+    results.push_str("=\"");
+    let escaped = val.replace("\"", "&quot;");
+    push_multiline_attributes(results, rules, &escaped, tag_info);
+    results.push('"');
 
     Ok(())
 }
@@ -289,17 +325,17 @@ fn forbidden_attr_glyph(glyph: char) -> bool {
     }
 }
 
-fn push_attr_value_component(
-    results: &mut String,
-    rules: &dyn RulesetImpl,
-    tag_info: &TagInfo,
-    val: &str,
-) {
-    results.push_str("=\"");
-    let escaped = val.replace("\"", "&quot;");
-    push_multiline_attributes(results, rules, &escaped, tag_info);
-    results.push('"');
-}
+// fn push_attr_value_component(
+//     results: &mut String,
+//     rules: &dyn RulesetImpl,
+//     tag_info: &TagInfo,
+//     val: &str,
+// ) {
+//     results.push_str("=\"");
+//     let escaped = val.replace("\"", "&quot;");
+//     push_multiline_attributes(results, rules, &escaped, tag_info);
+//     results.push('"');
+// }
 
 fn push_text_component_injection(results: &mut String, stack: &mut Vec<TagInfo>, text: &str) {
     let tag_info = match stack.last_mut() {
