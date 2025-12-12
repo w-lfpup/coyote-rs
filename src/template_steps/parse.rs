@@ -24,6 +24,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
     let mut inj_kind = intial_kind;
     let mut sliding_window: Option<SlidingWindow> = None;
     let mut contentless = false;
+    let mut attr_banned = false;
 
     for (index, glyph) in template_str.char_indices() {
         let mut next_step_origin = index;
@@ -110,6 +111,13 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
             }
             _ => {}
         }
+
+        // Is step kind attr
+        if StepKind::Attr == end_step.kind {
+            // if banned 
+        } 
+
+        // if step is not 
 
         // Add CURRENT STEP
         steps.push(Step {
