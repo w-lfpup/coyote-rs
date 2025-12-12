@@ -2,10 +2,6 @@ use crate::documents::tag_info::{TagInfo, TextFormat};
 use crate::documents::text_components::{push_alt_text_component, push_multiline_attributes};
 use crate::template_steps::{RulesetImpl, Step, StepKind, get_text_from_step};
 
-pub struct ComposeState {
-    attr_is_banned: bool,
-}
-
 pub fn compose_steps(
     rules: &dyn RulesetImpl,
     results: &mut String,
@@ -13,10 +9,6 @@ pub fn compose_steps(
     template_str: &str,
     steps: &Vec<Step>,
 ) {
-    let mut compose_state = ComposeState {
-        attr_is_banned: false,
-    };
-
     for step in steps {
         match step.kind {
             StepKind::Tag => push_element(results, tag_info_stack, rules, template_str, step),
