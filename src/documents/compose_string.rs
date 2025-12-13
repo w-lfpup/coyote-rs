@@ -325,18 +325,6 @@ fn forbidden_attr_glyph(glyph: char) -> bool {
     }
 }
 
-// fn push_attr_value_component(
-//     results: &mut String,
-//     rules: &dyn RulesetImpl,
-//     tag_info: &TagInfo,
-//     val: &str,
-// ) {
-//     results.push_str("=\"");
-//     let escaped = val.replace("\"", "&quot;");
-//     push_multiline_attributes(results, rules, &escaped, tag_info);
-//     results.push('"');
-// }
-
 fn push_text_component_injection(results: &mut String, stack: &mut Vec<TagInfo>, text: &str) {
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
