@@ -160,3 +160,26 @@ fn lil_attributes(hai: fn() -> Component) -> Component {
 pub fn attribute_component_injections_retain_spacing() -> Component {
     lil_attributes(attribute_list)
 }
+
+pub fn banned_attributes() -> Component {
+    tmpl("<span onkeypress
+    bowow onbowow click>UwU</span>", [])
+}
+
+pub fn banned_attributes_quoted() -> Component {
+    tmpl("<span onclick=\"
+   bowow     console.log('danger!')
+        \" bark bark
+        onbark>UwU</span>", [])
+}
+
+pub fn banned_attributes_single_quoted() -> Component {
+    tmpl(
+        "<span onbegonia='
+            console.log(\"BEGONIA!\")
+        '
+            dash='chase'
+            up=down>UwU</span>",
+        [],
+    )
+}

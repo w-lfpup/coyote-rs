@@ -78,3 +78,34 @@ fn attribute_component_injections_retain_spacing() {
 
     assert_eq!(Ok(expected.to_string()), results);
 }
+
+
+#[test]
+fn banned_attributes() {
+    let template = fcs::banned_attributes();
+    let expected = "<span bark bark\n>UwU</span>";
+    let mut html = HtmlOnly::new();
+    let results = html.render(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn banned_attributes_quoted() {
+    let template = fcs::banned_attributes_quoted();
+    let expected = "<span\nbowow click>UwU</span>";
+    let mut html = HtmlOnly::new();
+    let results = html.render(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}
+
+#[test]
+fn banned_attributes_single_quoted() {
+    let template = fcs::banned_attributes_single_quoted();
+    let expected = "<span\ndash='chase'\nup=down>UwU</span>";
+    let mut html = HtmlOnly::new();
+    let results = html.render(&template);
+
+    assert_eq!(Ok(expected.to_string()), results);
+}

@@ -325,6 +325,7 @@ fn push_attr(
 
     if rules.attr_is_banned(attr) {
         tag_info.banned_attr = true;
+        tag_info.text_format = TextFormat::Text;
         return;
     }
 
