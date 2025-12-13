@@ -231,3 +231,32 @@ pub fn document_with_alt_text_elements_retains_spacing() -> Component {
         [],
     )
 }
+
+pub fn banned_attributes() -> Component {
+    tmpl(
+        "<span onkeypress
+    bowow onbowow click>UwU</span>",
+        [],
+    )
+}
+
+pub fn banned_attributes_quoted() -> Component {
+    tmpl(
+        "<span onclick=\"
+        console.log('danger!')
+        \" bark bark
+        onbark>UwU</span>",
+        [],
+    )
+}
+
+pub fn banned_attributes_single_quoted() -> Component {
+    tmpl(
+        "<span onbegonia='
+            console.log(\"BEGONIA!\")
+        '
+            dash='chase'
+            up=down>UwU</span>",
+        [],
+    )
+}

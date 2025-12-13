@@ -56,7 +56,7 @@ fn malicious() -> Component {
 
 fn hello_world() -> Component {
     tmpl(
-        "<p>hai {} :3</p>",
+        "<p onclick='console.log(\"another malicious rawwrr\")'>hai {} :3</p>",
         [malicious()],
     )
 }

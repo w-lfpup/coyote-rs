@@ -1,8 +1,8 @@
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum StepKind {
     Attr,
-    AttrDoubleQuote,
-    AttrDoubleQuoteClosed,
+    AttrValueDoubleQuote,
+    AttrValueDoubleQuoteClosed,
     AttrMapInjection,
     AttrSetter,
     AttrSingleQuote,
@@ -39,8 +39,8 @@ pub enum StepKind {
 pub fn route(glyph: char, prev_kind: &StepKind) -> StepKind {
     match prev_kind {
         StepKind::Attr => get_kind_from_attribute(glyph),
-        StepKind::AttrDoubleQuote => get_kind_from_attribute_double_quote(glyph),
-        StepKind::AttrDoubleQuoteClosed => get_kind_from_attribute_quote_closed(glyph),
+        StepKind::AttrValueDoubleQuote => get_kind_from_attribute_double_quote(glyph),
+        StepKind::AttrValueDoubleQuoteClosed => get_kind_from_attribute_quote_closed(glyph),
         StepKind::AttrMapInjection => get_kind_from_injection(glyph),
         StepKind::AttrSetter => get_kind_from_attribute_setter(glyph),
         StepKind::AttrSingleQuote => get_kind_from_attribute_single_quote(glyph),
@@ -92,7 +92,7 @@ fn get_kind_from_attribute_single_quote(glyph: char) -> StepKind {
 
 fn get_kind_from_attribute_double_quote(glyph: char) -> StepKind {
     match glyph {
-        '"' => StepKind::AttrDoubleQuoteClosed,
+        '"' => StepKind::AttrValueDoubleQuoteClosed,
         _ => StepKind::AttrValueDoubleQuoted,
     }
 }
@@ -115,7 +115,7 @@ fn get_kind_from_attribute_setter(glyph: char) -> StepKind {
     }
 
     match glyph {
-        '"' => StepKind::AttrDoubleQuote,
+        '"' => StepKind::AttrValueDoubleQuote,
         '\'' => StepKind::AttrSingleQuote,
         _ => StepKind::AttrValueUnquoted,
     }

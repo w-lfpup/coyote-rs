@@ -21,7 +21,7 @@ pub fn compose_steps(
             StepKind::TextAlt => push_alt_text(results, tag_info_stack, rules, template_str, step),
             StepKind::TextLineSpace => push_text_space(results, tag_info_stack, template_str, step),
             StepKind::TextSpace => push_text_space(results, tag_info_stack, template_str, step),
-            StepKind::Attr => push_attr(results, tag_info_stack, template_str, step),
+            StepKind::Attr => push_attr(results, tag_info_stack, rules, template_str, step),
             StepKind::AttrValueSingleQuoted => {
                 push_attr_value_single_quoted(results, tag_info_stack, rules, template_str, step)
             }
@@ -48,11 +48,10 @@ fn push_text(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
         return;
     }
 
-    let text = get_text_from_step(template_str, step);
     if !tag_info.preformatted_text_path {
         push_formatted_space(results, &tag_info);
     }
-
+    let text = get_text_from_step(template_str, step);
     results.push_str(text);
 
     tag_info.text_format = TextFormat::Text;
@@ -251,11 +250,7 @@ fn pop_element(
         _ => return,
     };
 
-    if tag_info.banned_path {
-        return;
-    }
-
-    if tag_info.void_el {
+    if tag_info.banned_path || tag_info.void_el {
         return;
     }
 
@@ -310,7 +305,13 @@ fn close_tail_tag(results: &mut String, stack: &mut Vec<TagInfo>) {
     prev_tag_info.text_format = TextFormat::Text;
 }
 
-fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
+fn push_attr(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    rules: &dyn RulesetImpl,
+    template_str: &str,
+    step: &Step,
+) {
     let tag_info = match stack.last_mut() {
         Some(curr) => curr,
         _ => return,
@@ -320,10 +321,18 @@ fn push_attr(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
         return;
     }
 
-    push_formatted_space(results, tag_info);
-
     let attr = get_text_from_step(template_str, step);
-    results.push_str(attr.trim());
+
+    if rules.attr_is_banned(attr) {
+        tag_info.banned_attr = true;
+        tag_info.text_format = TextFormat::Text;
+        return;
+    }
+
+    tag_info.banned_attr = false;
+
+    push_formatted_space(results, tag_info);
+    results.push_str(attr);
 
     tag_info.text_format = TextFormat::Text
 }
@@ -339,7 +348,7 @@ fn push_attr_value_unquoted(
         _ => return,
     };
 
-    if tag_info.banned_path {
+    if tag_info.banned_path || tag_info.banned_attr {
         return;
     }
 
@@ -360,7 +369,7 @@ fn push_attr_value_single_quoted(
         _ => return,
     };
 
-    if tag_info.banned_path {
+    if tag_info.banned_path || tag_info.banned_attr {
         return;
     }
 
@@ -382,7 +391,7 @@ fn push_attr_value_double_quoted(
         _ => return,
     };
 
-    if tag_info.banned_path {
+    if tag_info.banned_path || tag_info.banned_attr {
         return;
     }
 

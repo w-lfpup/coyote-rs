@@ -1,4 +1,5 @@
 pub trait RulesetImpl {
+    fn attr_is_banned(&self, attr: &str) -> bool;
     fn get_document_memory_limit(&self) -> usize;
     fn get_cache_memory_limit(&self) -> usize;
     fn get_alt_text_tag_from_close_sequence(&self, tag: &str) -> Option<&str>;

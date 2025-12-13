@@ -151,3 +151,18 @@ pub fn attribute_with_single_quote_value() -> Component {
 pub fn attribute_with_double_quote_value() -> Component {
     tmpl("<span hai=\"hewoo\">UwU</span>", [])
 }
+
+pub fn banned_attribute() -> Component {
+    tmpl("<span onkeypress>UwU</span>", [])
+}
+
+pub fn banned_attribute_quoted() -> Component {
+    tmpl("<span onclick=\"console.log('danger!')\">UwU</span>", [])
+}
+
+pub fn banned_attribute_single_quoted() -> Component {
+    tmpl(
+        "<span onbegonia='\nconsole.log(\"BEGONIA!\")\n'>UwU</span>",
+        [],
+    )
+}
