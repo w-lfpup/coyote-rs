@@ -94,6 +94,7 @@ impl RulesetImpl for HtmlWithCssRules {
     fn get_close_sequence_from_alt_text_tag(&self, tag: &str) -> Option<&str> {
         match tag {
             "script" => Some("</script"),
+			"style" => Some("</style"),
             _ => None,
         }
     }
@@ -101,6 +102,7 @@ impl RulesetImpl for HtmlWithCssRules {
     fn get_alt_text_tag_from_close_sequence(&self, tag: &str) -> Option<&str> {
         match tag {
             "</script" => Some("script"),
+			"</style" => Some("style"),
             _ => None,
         }
     }
