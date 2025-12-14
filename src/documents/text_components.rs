@@ -135,13 +135,13 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
     if let Some(first_line) = text_iter.next() {
         let found_index = get_index_of_first_char(first_line);
         match tag_info.text_format {
-            TextFormat::LineSpace => {
+            TextFormat::BreakingSpace => {
                 results.push('\n');
                 if first_line.len() != found_index {
                     results.push_str(&"\t".repeat(tag_info.indent_count));
                 }
             }
-            TextFormat::Space => {
+            TextFormat::NonBreakingSpace => {
                 if first_line.len() != found_index {
                     results.push(' ');
                 }
@@ -219,11 +219,11 @@ fn push_line_of_text(results: &mut String, line: &str) {
 
     for glyph in line.chars() {
         if glyph.is_whitespace() {
-            state = TextFormat::Space;
+            state = TextFormat::NonBreakingSpace;
             continue;
         }
 
-        if state == TextFormat::Space {
+        if state == TextFormat::NonBreakingSpace {
             results.push(' ')
         }
 

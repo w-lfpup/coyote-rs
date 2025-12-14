@@ -4,8 +4,8 @@ use crate::template_steps::RulesetImpl;
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum TextFormat {
     Initial,
-    LineSpace,
-    Space,
+    BreakingSpace,
+    NonBreakingSpace,
     Text,
 }
 

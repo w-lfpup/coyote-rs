@@ -33,7 +33,7 @@ pub fn compose_steps(
             StepKind::AttrValueUnquoted => {
                 push_attr_value_unquoted(results, tag_info_stack, template_str, step)
             }
-            StepKind::TagSpace => push_element_space(tag_info_stack, step),
+            StepKind::TagNonBreakingSpace => push_element_space(tag_info_stack, step),
             StepKind::TagBreakingSpace => push_element_space(tag_info_stack, step),
             _ => {}
         }
@@ -102,15 +102,16 @@ fn push_text_space(
         results.push_str(text);
     }
 
-    if TextFormat::Initial == tag_info.text_format || TextFormat::LineSpace == tag_info.text_format
+    if TextFormat::Initial == tag_info.text_format
+        || TextFormat::BreakingSpace == tag_info.text_format
     {
         return;
     }
 
     tag_info.text_format = match step.kind {
-        StepKind::TagBreakingSpace => TextFormat::LineSpace,
-        StepKind::BreakingSpace => TextFormat::LineSpace,
-        _ => TextFormat::Space,
+        StepKind::TagBreakingSpace => TextFormat::BreakingSpace,
+        StepKind::BreakingSpace => TextFormat::BreakingSpace,
+        _ => TextFormat::NonBreakingSpace,
     }
 }
 
@@ -124,14 +125,15 @@ fn push_element_space(stack: &mut Vec<TagInfo>, step: &Step) {
         return;
     }
 
-    if TextFormat::Initial == tag_info.text_format || TextFormat::LineSpace == tag_info.text_format
+    if TextFormat::Initial == tag_info.text_format
+        || TextFormat::BreakingSpace == tag_info.text_format
     {
         return;
     }
 
     tag_info.text_format = match step.kind {
-        StepKind::TagBreakingSpace => TextFormat::LineSpace,
-        _ => TextFormat::Space,
+        StepKind::TagBreakingSpace => TextFormat::BreakingSpace,
+        _ => TextFormat::NonBreakingSpace,
     }
 }
 
@@ -171,7 +173,7 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>, rules: &dyn Rul
 
     if !tag_info.banned_path {
         match tag_info.text_format {
-            TextFormat::LineSpace => {
+            TextFormat::BreakingSpace => {
                 results.push('\n');
 
                 // needs an offset logic
@@ -410,8 +412,8 @@ fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &T
     }
 
     match tag_info.text_format {
-        TextFormat::Space => results.push(' '),
-        TextFormat::LineSpace => {
+        TextFormat::NonBreakingSpace => results.push(' '),
+        TextFormat::BreakingSpace => {
             results.push('\n');
             results.push_str(&"\t".repeat(prev_tag_info.indent_count))
         }
@@ -421,8 +423,8 @@ fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &T
 
 pub fn push_formatted_space(results: &mut String, tag_info: &TagInfo) {
     match tag_info.text_format {
-        TextFormat::Space => results.push(' '),
-        TextFormat::LineSpace => {
+        TextFormat::NonBreakingSpace => results.push(' '),
+        TextFormat::BreakingSpace => {
             results.push('\n');
             results.push_str(&"\t".repeat(tag_info.indent_count))
         }

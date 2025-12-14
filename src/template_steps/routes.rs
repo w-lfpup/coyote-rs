@@ -24,7 +24,7 @@ pub enum StepKind {
     TagClosedEmpty,
     TagOpened,
     TagSolidus,
-    TagSpace,
+    TagNonBreakingSpace,
     TailTag,
     TailTagClosed,
     TailTagSolidus,
@@ -54,7 +54,7 @@ pub fn route(glyph: char, prev_kind: &StepKind) -> StepKind {
         StepKind::TagBreakingSpace => get_kind_from_element_space(glyph),
         StepKind::TagOpened => get_kind_from_element(glyph),
         StepKind::TagSolidus => get_kind_from_empty_element(glyph),
-        StepKind::TagSpace => get_kind_from_element_space(glyph),
+        StepKind::TagNonBreakingSpace => get_kind_from_element_space(glyph),
         StepKind::TailTag => get_kind_from_tail_tag(glyph),
         StepKind::TailTagSolidus => get_kind_from_tail_element_solidus(glyph),
         StepKind::TailTagSpace => get_kind_from_tail_element_space(glyph),
@@ -70,7 +70,7 @@ fn get_kind_from_attribute(glyph: char) -> StepKind {
         '>' => StepKind::TagClosed,
         '/' => StepKind::TagSolidus,
         _ => match glyph.is_whitespace() {
-            true => StepKind::TagSpace,
+            true => StepKind::TagNonBreakingSpace,
             _ => StepKind::Attr,
         },
     }
@@ -103,7 +103,7 @@ fn get_kind_from_attribute_quote_closed(glyph: char) -> StepKind {
         '>' => StepKind::TagClosed,
         '/' => StepKind::TagSolidus,
         _ => match glyph.is_whitespace() {
-            true => StepKind::TagSpace,
+            true => StepKind::TagNonBreakingSpace,
             _ => StepKind::Attr,
         },
     }
@@ -126,7 +126,7 @@ fn get_kind_from_attribute_value_unquoted(glyph: char) -> StepKind {
         '>' => StepKind::TagClosed,
         '\n' => StepKind::TagBreakingSpace,
         _ => match glyph.is_whitespace() {
-            true => StepKind::TagSpace,
+            true => StepKind::TagNonBreakingSpace,
             _ => StepKind::AttrValueUnquoted,
         },
     }
@@ -151,7 +151,7 @@ fn get_kind_from_element_space(glyph: char) -> StepKind {
         '{' => StepKind::AttrMapInjection,
         '\n' => StepKind::TagBreakingSpace,
         _ => match glyph.is_whitespace() {
-            true => StepKind::TagSpace,
+            true => StepKind::TagNonBreakingSpace,
             _ => StepKind::Attr,
         },
     }
@@ -170,7 +170,7 @@ fn get_kind_from_tag(glyph: char) -> StepKind {
         '/' => StepKind::TagSolidus,
         '\n' => StepKind::TagBreakingSpace,
         _ => match glyph.is_whitespace() {
-            true => StepKind::TagSpace,
+            true => StepKind::TagNonBreakingSpace,
             _ => StepKind::Tag,
         },
     }
