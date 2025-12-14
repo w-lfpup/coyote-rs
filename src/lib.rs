@@ -6,7 +6,8 @@ mod template_steps;
 
 pub use components::*;
 pub use document_builders::{
-    DocumentParams, Html, HtmlOnly, HtmlOnlyRules, HtmlRules, TemplateBuilder, Xml, XmlRules,
+    DocumentParams, Html, HtmlCssOnly, HtmlCssOnlyRules, HtmlOnly, HtmlOnlyRules, HtmlRules,
+    TemplateBuilder, Xml, XmlRules,
 };
 pub use documents::{TemplateBuilderImpl, compose_string};
 pub use template_steps::{RulesetImpl, TemplateSteps, compose};
