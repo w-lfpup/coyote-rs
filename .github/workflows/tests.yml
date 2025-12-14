@@ -17,3 +17,7 @@ jobs:
       run: cargo build
     - name: Run tests
       run: cargo test
+    - name: Build [serde]
+      run: cargo build --features serde
+    - name: Run tests [serde]
+      run: cargo test --features serde
