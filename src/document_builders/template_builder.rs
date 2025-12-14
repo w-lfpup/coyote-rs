@@ -17,7 +17,7 @@ impl TemplateBuilder {
 }
 
 impl TemplateBuilderImpl for TemplateBuilder {
-    fn build(&mut self, rules: &dyn RulesetImpl, template_str: &str) -> TemplateSteps {
+    fn compose(&mut self, rules: &dyn RulesetImpl, template_str: &str) -> TemplateSteps {
         // obliterate cache if memory limit exceeded
         if rules.get_cache_memory_limit() < self.memory_footprint {
             self.memory_footprint = 0;
