@@ -12,15 +12,17 @@ pub fn compose_steps(
     for step in steps {
         match step.kind {
             StepKind::Tag => push_element(results, tag_info_stack, rules, template_str, step),
-            StepKind::ElementClosed => close_element(results, tag_info_stack, rules),
-            StepKind::EmptyElementClosed => close_empty_element(results, tag_info_stack),
+            StepKind::TagClosed => close_element(results, tag_info_stack, rules),
+            StepKind::TagClosedEmpty => close_empty_element(results, tag_info_stack),
             StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
-            StepKind::TailElementSpace => push_element_space(tag_info_stack, step),
-            StepKind::TailElementClosed => close_tail_tag(results, tag_info_stack),
+            StepKind::TailTagSpace => push_element_space(tag_info_stack, step),
+            StepKind::TailTagClosed => close_tail_tag(results, tag_info_stack),
             StepKind::Text => push_text(results, tag_info_stack, template_str, step),
             StepKind::TextAlt => push_alt_text(results, tag_info_stack, rules, template_str, step),
-            StepKind::TextLineSpace => push_text_space(results, tag_info_stack, template_str, step),
-            StepKind::TextSpace => push_text_space(results, tag_info_stack, template_str, step),
+            StepKind::BreakingSpace => push_text_space(results, tag_info_stack, template_str, step),
+            StepKind::NonBreakingSpace => {
+                push_text_space(results, tag_info_stack, template_str, step)
+            }
             StepKind::Attr => push_attr(results, tag_info_stack, rules, template_str, step),
             StepKind::AttrValueSingleQuoted => {
                 push_attr_value_single_quoted(results, tag_info_stack, rules, template_str, step)
@@ -31,8 +33,8 @@ pub fn compose_steps(
             StepKind::AttrValueUnquoted => {
                 push_attr_value_unquoted(results, tag_info_stack, template_str, step)
             }
-            StepKind::ElementSpace => push_element_space(tag_info_stack, step),
-            StepKind::ElementLineSpace => push_element_space(tag_info_stack, step),
+            StepKind::TagSpace => push_element_space(tag_info_stack, step),
+            StepKind::TagBreakingSpace => push_element_space(tag_info_stack, step),
             _ => {}
         }
     }
@@ -105,8 +107,8 @@ fn push_text_space(
     }
 
     tag_info.text_format = match step.kind {
-        StepKind::ElementLineSpace => TextFormat::LineSpace,
-        StepKind::TextLineSpace => TextFormat::LineSpace,
+        StepKind::TagBreakingSpace => TextFormat::LineSpace,
+        StepKind::BreakingSpace => TextFormat::LineSpace,
         _ => TextFormat::Space,
     }
 }
@@ -127,7 +129,7 @@ fn push_element_space(stack: &mut Vec<TagInfo>, step: &Step) {
     }
 
     tag_info.text_format = match step.kind {
-        StepKind::ElementLineSpace => TextFormat::LineSpace,
+        StepKind::TagBreakingSpace => TextFormat::LineSpace,
         _ => TextFormat::Space,
     }
 }

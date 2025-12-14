@@ -6,8 +6,8 @@ pub const FALLBACK_DOCUMENT_MEMORY_LIMIT: usize = 32 * MEGABYTE;
 pub struct DocumentParams {
     pub cache_memory_limit: usize,
     pub document_memory_limit: usize,
-    pub respect_indentation: bool,
     pub embedded_content: String,
+    pub respect_indentation: bool,
 }
 
 // deprecated elements

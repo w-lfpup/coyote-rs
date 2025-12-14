@@ -98,7 +98,6 @@ pub fn push_alt_text_component(
     }
 
     // last
-    let last = texts[texts.len() - 1];
     results.push('\n');
 
     if rules.respect_indentation() {
@@ -110,7 +109,8 @@ pub fn push_alt_text_component(
         results.push_str(&"\t".repeat(indent_offset));
     }
 
-    results.push_str(last.trim())
+    let last = texts[texts.len() - 1].trim();
+    results.push_str(last)
 }
 
 pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo) {
@@ -213,10 +213,10 @@ pub fn push_multiline_attributes(
     }
 
     // last
-    let last = texts[texts.len() - 1];
     results.push('\n');
     results.push_str(&"\t".repeat(tag_info.indent_count));
-    results.push_str(last.trim())
+    let last = texts[texts.len() - 1].trim();
+    results.push_str(last)
 }
 
 fn push_line_of_text(results: &mut String, line: &str) {

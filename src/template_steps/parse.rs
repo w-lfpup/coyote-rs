@@ -73,7 +73,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
         }
 
         match end_step.kind {
-            StepKind::ElementClosed => {
+            StepKind::TagClosed => {
                 // ALT ELEMENTS
                 if let Some(close_seq) = rules.get_close_sequence_from_alt_text_tag(tag) {
                     let mut slider = SlidingWindow::new(close_seq);
@@ -175,7 +175,7 @@ fn push_contentless_steps(rules: &dyn RulesetImpl, steps: &mut Vec<Step>, tag: &
         target: index,
     });
     steps.push(Step {
-        kind: StepKind::TailElementClosed,
+        kind: StepKind::TailTagClosed,
         origin: index,
         target: index,
     });
@@ -220,7 +220,7 @@ fn push_contentless_steps_edge(
     }
 
     steps.push(Step {
-        kind: StepKind::TailElementClosed,
+        kind: StepKind::TailTagClosed,
         origin: target,
         target: index,
     });
