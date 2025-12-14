@@ -2,7 +2,9 @@
 
 Create `HTML` documents in Rust.
 
-HTML in, HTML out. No suprises, no dependencies.
+HTML in, HTML out.
+
+No suprises, no dependencies.
 
 [![Tests](https://github.com/w-lfpup/coyote-rs/actions/workflows/tests.yml/badge.svg)](https://github.com/w-lfpup/coyote-rs/actions/workflows/tests.yml)
 
@@ -53,7 +55,7 @@ The output will be:
 
 ## Spaces
 
-`Coyote` never spaces or new lines.
+`Coyote` never spaces or new lines. So what you write looks like what you get, breaking spaces and all.
 
 Learn more about how `coyote` handles [spacing](./spacing.md).
 

@@ -98,7 +98,6 @@ pub fn push_alt_text_component(
     }
 
     // last
-    let last = texts[texts.len() - 1];
     results.push('\n');
 
     if rules.respect_indentation() {
@@ -110,7 +109,8 @@ pub fn push_alt_text_component(
         results.push_str(&"\t".repeat(indent_offset));
     }
 
-    results.push_str(last.trim())
+    let last = texts[texts.len() - 1].trim();
+    results.push_str(last)
 }
 
 pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo) {
@@ -135,13 +135,13 @@ pub fn push_text_component(results: &mut String, text: &str, tag_info: &TagInfo)
     if let Some(first_line) = text_iter.next() {
         let found_index = get_index_of_first_char(first_line);
         match tag_info.text_format {
-            TextFormat::LineSpace => {
+            TextFormat::BreakingSpace => {
                 results.push('\n');
                 if first_line.len() != found_index {
                     results.push_str(&"\t".repeat(tag_info.indent_count));
                 }
             }
-            TextFormat::Space => {
+            TextFormat::NonBreakingSpace => {
                 if first_line.len() != found_index {
                     results.push(' ');
                 }
@@ -173,11 +173,6 @@ pub fn push_multiline_attributes(
     tag_info: &TagInfo,
 ) {
     if tag_info.banned_path {
-        return;
-    }
-
-    if tag_info.preformatted_text_path {
-        results.push_str(text);
         return;
     }
 
@@ -213,10 +208,10 @@ pub fn push_multiline_attributes(
     }
 
     // last
-    let last = texts[texts.len() - 1];
     results.push('\n');
     results.push_str(&"\t".repeat(tag_info.indent_count));
-    results.push_str(last.trim())
+    let last = texts[texts.len() - 1].trim();
+    results.push_str(last)
 }
 
 fn push_line_of_text(results: &mut String, line: &str) {
@@ -224,11 +219,11 @@ fn push_line_of_text(results: &mut String, line: &str) {
 
     for glyph in line.chars() {
         if glyph.is_whitespace() {
-            state = TextFormat::Space;
+            state = TextFormat::NonBreakingSpace;
             continue;
         }
 
-        if state == TextFormat::Space {
+        if state == TextFormat::NonBreakingSpace {
             results.push(' ')
         }
 

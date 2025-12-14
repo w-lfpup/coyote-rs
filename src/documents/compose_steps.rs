@@ -12,15 +12,17 @@ pub fn compose_steps(
     for step in steps {
         match step.kind {
             StepKind::Tag => push_element(results, tag_info_stack, rules, template_str, step),
-            StepKind::ElementClosed => close_element(results, tag_info_stack, rules),
-            StepKind::EmptyElementClosed => close_empty_element(results, tag_info_stack),
+            StepKind::TagClosed => close_element(results, tag_info_stack, rules),
+            StepKind::TagClosedEmpty => close_empty_element(results, tag_info_stack),
             StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
-            StepKind::TailElementSpace => push_element_space(tag_info_stack, step),
-            StepKind::TailElementClosed => close_tail_tag(results, tag_info_stack),
+            StepKind::TailTagSpace => push_element_space(tag_info_stack, step),
+            StepKind::TailTagClosed => close_tail_tag(results, tag_info_stack),
             StepKind::Text => push_text(results, tag_info_stack, template_str, step),
             StepKind::TextAlt => push_alt_text(results, tag_info_stack, rules, template_str, step),
-            StepKind::TextLineSpace => push_text_space(results, tag_info_stack, template_str, step),
-            StepKind::TextSpace => push_text_space(results, tag_info_stack, template_str, step),
+            StepKind::BreakingSpace => push_text_space(results, tag_info_stack, template_str, step),
+            StepKind::NonBreakingSpace => {
+                push_text_space(results, tag_info_stack, template_str, step)
+            }
             StepKind::Attr => push_attr(results, tag_info_stack, rules, template_str, step),
             StepKind::AttrValueSingleQuoted => {
                 push_attr_value_single_quoted(results, tag_info_stack, rules, template_str, step)
@@ -31,8 +33,8 @@ pub fn compose_steps(
             StepKind::AttrValueUnquoted => {
                 push_attr_value_unquoted(results, tag_info_stack, template_str, step)
             }
-            StepKind::ElementSpace => push_element_space(tag_info_stack, step),
-            StepKind::ElementLineSpace => push_element_space(tag_info_stack, step),
+            StepKind::TagNonBreakingSpace => push_element_space(tag_info_stack, step),
+            StepKind::TagBreakingSpace => push_element_space(tag_info_stack, step),
             _ => {}
         }
     }
@@ -51,6 +53,7 @@ fn push_text(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
     if !tag_info.preformatted_text_path {
         push_formatted_space(results, &tag_info);
     }
+
     let text = get_text_from_step(template_str, step);
     results.push_str(text);
 
@@ -99,15 +102,16 @@ fn push_text_space(
         results.push_str(text);
     }
 
-    if TextFormat::Initial == tag_info.text_format || TextFormat::LineSpace == tag_info.text_format
+    if TextFormat::Initial == tag_info.text_format
+        || TextFormat::BreakingSpace == tag_info.text_format
     {
         return;
     }
 
     tag_info.text_format = match step.kind {
-        StepKind::ElementLineSpace => TextFormat::LineSpace,
-        StepKind::TextLineSpace => TextFormat::LineSpace,
-        _ => TextFormat::Space,
+        StepKind::TagBreakingSpace => TextFormat::BreakingSpace,
+        StepKind::BreakingSpace => TextFormat::BreakingSpace,
+        _ => TextFormat::NonBreakingSpace,
     }
 }
 
@@ -121,14 +125,15 @@ fn push_element_space(stack: &mut Vec<TagInfo>, step: &Step) {
         return;
     }
 
-    if TextFormat::Initial == tag_info.text_format || TextFormat::LineSpace == tag_info.text_format
+    if TextFormat::Initial == tag_info.text_format
+        || TextFormat::BreakingSpace == tag_info.text_format
     {
         return;
     }
 
     tag_info.text_format = match step.kind {
-        StepKind::ElementLineSpace => TextFormat::LineSpace,
-        _ => TextFormat::Space,
+        StepKind::TagBreakingSpace => TextFormat::BreakingSpace,
+        _ => TextFormat::NonBreakingSpace,
     }
 }
 
@@ -168,7 +173,7 @@ fn close_element(results: &mut String, stack: &mut Vec<TagInfo>, rules: &dyn Rul
 
     if !tag_info.banned_path {
         match tag_info.text_format {
-            TextFormat::LineSpace => {
+            TextFormat::BreakingSpace => {
                 results.push('\n');
 
                 // needs an offset logic
@@ -407,8 +412,8 @@ fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &T
     }
 
     match tag_info.text_format {
-        TextFormat::Space => results.push(' '),
-        TextFormat::LineSpace => {
+        TextFormat::NonBreakingSpace => results.push(' '),
+        TextFormat::BreakingSpace => {
             results.push('\n');
             results.push_str(&"\t".repeat(prev_tag_info.indent_count))
         }
@@ -418,8 +423,8 @@ fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &T
 
 pub fn push_formatted_space(results: &mut String, tag_info: &TagInfo) {
     match tag_info.text_format {
-        TextFormat::Space => results.push(' '),
-        TextFormat::LineSpace => {
+        TextFormat::NonBreakingSpace => results.push(' '),
+        TextFormat::BreakingSpace => {
             results.push('\n');
             results.push_str(&"\t".repeat(tag_info.indent_count))
         }

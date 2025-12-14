@@ -157,7 +157,7 @@ fn get_bit_from_component_stack<'a>(
         Component::Text(_) => StackBit::Cmpnt(cmpnt),
         Component::List(_) => StackBit::Cmpnt(cmpnt),
         Component::Tmpl(tmpl, _) => {
-            let template_steps = builder.build(rules, tmpl.template_str);
+            let template_steps = builder.compose(rules, tmpl.template_str);
             StackBit::Tmpl(
                 cmpnt,
                 template_steps,
@@ -168,7 +168,7 @@ fn get_bit_from_component_stack<'a>(
             )
         }
         Component::TmplString(tmpl_string, _) => {
-            let template_steps = builder.build(rules, tmpl_string);
+            let template_steps = builder.compose(rules, tmpl_string);
             StackBit::Tmpl(
                 cmpnt,
                 template_steps,
@@ -324,18 +324,6 @@ fn forbidden_attr_glyph(glyph: char) -> bool {
         _ => false,
     }
 }
-
-// fn push_attr_value_component(
-//     results: &mut String,
-//     rules: &dyn RulesetImpl,
-//     tag_info: &TagInfo,
-//     val: &str,
-// ) {
-//     results.push_str("=\"");
-//     let escaped = val.replace("\"", "&quot;");
-//     push_multiline_attributes(results, rules, &escaped, tag_info);
-//     results.push('"');
-// }
 
 fn push_text_component_injection(results: &mut String, stack: &mut Vec<TagInfo>, text: &str) {
     let tag_info = match stack.last_mut() {

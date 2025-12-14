@@ -1,27 +1,26 @@
 use crate::components::Component;
-use crate::document_builders::flyweight as fw;
-use crate::document_builders::template_builder::Builder;
+use crate::document_builders::{TemplateBuilder, flyweight as fw};
 use crate::documents::compose_string;
 use crate::errors::Errors;
 use crate::template_steps::RulesetImpl;
 
 pub struct Xml {
     rules: XmlRules,
-    builder: Builder,
+    builder: TemplateBuilder,
 }
 
 impl Xml {
     pub fn new() -> Xml {
         Xml {
             rules: XmlRules::new(),
-            builder: Builder::new(),
+            builder: TemplateBuilder::new(),
         }
     }
 
     pub fn from(params: &fw::DocumentParams) -> Xml {
         Xml {
             rules: XmlRules::from(params.clone()),
-            builder: Builder::new(),
+            builder: TemplateBuilder::new(),
         }
     }
 
@@ -40,7 +39,7 @@ impl XmlRules {
             cache_memory_limit: fw::FALLBACK_CACHE_MEMORY_LIMIT,
             document_memory_limit: fw::FALLBACK_DOCUMENT_MEMORY_LIMIT,
             embedded_content: String::from("xml"),
-            respect_indentation: false,
+            respect_indentation: true,
         };
 
         XmlRules { params }
