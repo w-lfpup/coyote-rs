@@ -4,22 +4,22 @@ use crate::documents::compose_string;
 use crate::errors::Errors;
 use crate::template_steps::RulesetImpl;
 
-pub struct HtmlWithCss {
-    rules: HtmlWithCssRules,
+pub struct HtmlCssOnly {
+    rules: HtmlCssOnlyRules,
     builder: TemplateBuilder,
 }
 
-impl HtmlWithCss {
-    pub fn new() -> HtmlWithCss {
-        HtmlWithCss {
-            rules: HtmlWithCssRules::new(),
+impl HtmlCssOnly {
+    pub fn new() -> HtmlCssOnly {
+        HtmlCssOnly {
+            rules: HtmlCssOnlyRules::new(),
             builder: TemplateBuilder::new(),
         }
     }
 
-    pub fn from(params: &fw::DocumentParams) -> HtmlWithCss {
-        HtmlWithCss {
-            rules: HtmlWithCssRules::from(params),
+    pub fn from(params: &fw::DocumentParams) -> HtmlCssOnly {
+        HtmlCssOnly {
+            rules: HtmlCssOnlyRules::from(params),
             builder: TemplateBuilder::new(),
         }
     }
@@ -29,12 +29,12 @@ impl HtmlWithCss {
     }
 }
 
-pub struct HtmlWithCssRules {
+pub struct HtmlCssOnlyRules {
     params: fw::DocumentParams,
 }
 
-impl HtmlWithCssRules {
-    pub fn new() -> HtmlWithCssRules {
+impl HtmlCssOnlyRules {
+    pub fn new() -> HtmlCssOnlyRules {
         let params = fw::DocumentParams {
             cache_memory_limit: fw::FALLBACK_CACHE_MEMORY_LIMIT,
             document_memory_limit: fw::FALLBACK_DOCUMENT_MEMORY_LIMIT,
@@ -42,17 +42,17 @@ impl HtmlWithCssRules {
             respect_indentation: true,
         };
 
-        HtmlWithCssRules { params }
+        HtmlCssOnlyRules { params }
     }
 
-    pub fn from(params: &fw::DocumentParams) -> HtmlWithCssRules {
-        HtmlWithCssRules {
+    pub fn from(params: &fw::DocumentParams) -> HtmlCssOnlyRules {
+        HtmlCssOnlyRules {
             params: params.clone(),
         }
     }
 }
 
-impl RulesetImpl for HtmlWithCssRules {
+impl RulesetImpl for HtmlCssOnlyRules {
     fn attr_is_banned(&self, attr: &str) -> bool {
         attr.starts_with("on")
     }
@@ -94,7 +94,7 @@ impl RulesetImpl for HtmlWithCssRules {
     fn get_close_sequence_from_alt_text_tag(&self, tag: &str) -> Option<&str> {
         match tag {
             "script" => Some("</script"),
-			"style" => Some("</style"),
+            "style" => Some("</style"),
             _ => None,
         }
     }
@@ -102,7 +102,7 @@ impl RulesetImpl for HtmlWithCssRules {
     fn get_alt_text_tag_from_close_sequence(&self, tag: &str) -> Option<&str> {
         match tag {
             "</script" => Some("script"),
-			"</style" => Some("style"),
+            "</style" => Some("style"),
             _ => None,
         }
     }
@@ -131,7 +131,7 @@ impl RulesetImpl for HtmlWithCssRules {
         fw::is_preformatted_text_el(tag)
     }
 
-    fn tag_is_inline_el(&self, _tag: &str) -> bool {
+    fn tag_is_inline_el(&self, tag: &str) -> bool {
         fw::is_inline_el(tag)
     }
 }
