@@ -53,6 +53,7 @@ fn push_text(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str,
     if !tag_info.preformatted_text_path {
         push_formatted_space(results, &tag_info);
     }
+
     let text = get_text_from_step(template_str, step);
     results.push_str(text);
 

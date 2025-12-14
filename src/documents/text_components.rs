@@ -176,11 +176,6 @@ pub fn push_multiline_attributes(
         return;
     }
 
-    if tag_info.preformatted_text_path {
-        results.push_str(text);
-        return;
-    }
-
     let texts: Vec<&str> = text.lines().collect();
     if 0 == texts.len() {
         return;
