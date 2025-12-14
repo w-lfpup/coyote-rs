@@ -1,0 +1,135 @@
+use crate::components::Component;
+use crate::document_builders::{TemplateBuilder, flyweight as fw};
+use crate::documents::compose_string;
+use crate::errors::Errors;
+use crate::template_steps::RulesetImpl;
+
+pub struct HtmlWithCss {
+    rules: HtmlWithCssRules,
+    builder: TemplateBuilder,
+}
+
+impl HtmlWithCss {
+    pub fn new() -> HtmlWithCss {
+        HtmlWithCss {
+            rules: HtmlWithCssRules::new(),
+            builder: TemplateBuilder::new(),
+        }
+    }
+
+    pub fn from(params: &fw::DocumentParams) -> HtmlWithCss {
+        HtmlWithCss {
+            rules: HtmlWithCssRules::from(params),
+            builder: TemplateBuilder::new(),
+        }
+    }
+
+    pub fn render(&mut self, component: &Component) -> Result<String, Errors> {
+        compose_string(&mut self.builder, &self.rules, component)
+    }
+}
+
+pub struct HtmlWithCssRules {
+    params: fw::DocumentParams,
+}
+
+impl HtmlWithCssRules {
+    pub fn new() -> HtmlWithCssRules {
+        let params = fw::DocumentParams {
+            cache_memory_limit: fw::FALLBACK_CACHE_MEMORY_LIMIT,
+            document_memory_limit: fw::FALLBACK_DOCUMENT_MEMORY_LIMIT,
+            embedded_content: String::from("html"),
+            respect_indentation: false,
+        };
+
+        HtmlWithCssRules { params }
+    }
+
+    pub fn from(params: &fw::DocumentParams) -> HtmlWithCssRules {
+        HtmlWithCssRules {
+            params: params.clone(),
+        }
+    }
+}
+
+impl RulesetImpl for HtmlWithCssRules {
+    fn attr_is_banned(&self, attr: &str) -> bool {
+        attr.starts_with("on")
+    }
+
+    fn get_document_memory_limit(&self) -> usize {
+        self.params.document_memory_limit
+    }
+
+    fn get_cache_memory_limit(&self) -> usize {
+        self.params.cache_memory_limit
+    }
+
+    fn get_initial_embedded_content(&self) -> &str {
+        &self.params.embedded_content
+    }
+
+    fn get_close_sequence_from_contentless_tag(&self, tag: &str) -> Option<&str> {
+        match tag {
+            "!--" => Some("-->"),
+            _ => None,
+        }
+    }
+
+    fn get_contentless_tag_from_close_sequence(&self, tag: &str) -> Option<&str> {
+        match tag {
+            "--" => Some("!--"),
+            _ => None,
+        }
+    }
+
+    fn tag_is_prefix_of_contentless_el(&self, tag: &str) -> Option<&str> {
+        if tag.starts_with("!--") {
+            return Some("!--");
+        }
+
+        return None;
+    }
+
+    fn get_close_sequence_from_alt_text_tag(&self, tag: &str) -> Option<&str> {
+        match tag {
+            "script" => Some("</script"),
+            _ => None,
+        }
+    }
+
+    fn get_alt_text_tag_from_close_sequence(&self, tag: &str) -> Option<&str> {
+        match tag {
+            "</script" => Some("script"),
+            _ => None,
+        }
+    }
+
+    fn respect_indentation(&self) -> bool {
+        self.params.respect_indentation
+    }
+
+    fn tag_is_banned_el(&self, tag: &str) -> bool {
+        match tag {
+            "link" => true,
+            "script" => true,
+            _ => fw::is_banned_el(tag),
+        }
+    }
+
+    fn tag_is_void_el(&self, tag: &str) -> bool {
+        fw::is_void_el(tag)
+    }
+
+    fn tag_is_embedded_content_el(&self, tag: &str) -> bool {
+        fw::is_embedded_el(tag)
+    }
+
+    fn tag_is_preformatted_text_el(&self, tag: &str) -> bool {
+        fw::is_preformatted_text_el(tag)
+    }
+
+    fn tag_is_inline_el(&self, _tag: &str) -> bool {
+        fw::is_inline_el(tag)
+    }
+}
