@@ -13,6 +13,13 @@ impl error::Error for Errors {}
 impl fmt::Display for Errors {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            Errors::DocumentMemoryLimitExceeded(memory_limit, document_length) => {
+                write!(
+                    f,
+                    "Document exceeded memory limit: {}/{}",
+                    document_length, memory_limit
+                )
+            }
             Errors::InvalidAttribute(attribute, index, glyph) => {
                 write!(
                     f,
@@ -22,13 +29,6 @@ impl fmt::Display for Errors {
             }
             Errors::UnbalancedTemplate(template_str) => {
                 write!(f, "The following template is unbalanced:\n{}", template_str)
-            }
-            Errors::DocumentMemoryLimitExceeded(memory_limit, document_length) => {
-                write!(
-                    f,
-                    "Document exceeded memory limit: {}/{}",
-                    document_length, memory_limit
-                )
             }
         }
     }
