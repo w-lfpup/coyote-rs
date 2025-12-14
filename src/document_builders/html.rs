@@ -1,27 +1,26 @@
 use crate::components::Component;
-use crate::document_builders::flyweight as fw;
-use crate::document_builders::template_builder::Builder;
+use crate::document_builders::{TemplateBuilder, flyweight as fw};
 use crate::documents::compose_string;
 use crate::errors::Errors;
 use crate::template_steps::RulesetImpl;
 
 pub struct Html {
     rules: HtmlRules,
-    builder: Builder,
+    builder: TemplateBuilder,
 }
 
 impl Html {
     pub fn new() -> Html {
         Html {
             rules: HtmlRules::new(),
-            builder: Builder::new(),
+            builder: TemplateBuilder::new(),
         }
     }
 
     pub fn from(params: &fw::DocumentParams) -> Html {
         Html {
             rules: HtmlRules::from(params),
-            builder: Builder::new(),
+            builder: TemplateBuilder::new(),
         }
     }
 
