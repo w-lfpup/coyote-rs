@@ -39,7 +39,7 @@ impl HtmlWithCssRules {
             cache_memory_limit: fw::FALLBACK_CACHE_MEMORY_LIMIT,
             document_memory_limit: fw::FALLBACK_DOCUMENT_MEMORY_LIMIT,
             embedded_content: String::from("html"),
-            respect_indentation: false,
+            respect_indentation: true,
         };
 
         HtmlWithCssRules { params }
