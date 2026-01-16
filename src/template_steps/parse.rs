@@ -10,8 +10,6 @@ pub struct Step {
     pub target: usize,
 }
 
-// block tags
-
 pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepKind) -> Vec<Step> {
     let mut steps = Vec::from([Step {
         kind: intial_kind.clone(),
@@ -21,7 +19,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
 
     // this is the "state" of parsing.
     let mut tag: &str = "";
-    let mut inj_kind = intial_kind;
+    let mut injection_kind = intial_kind;
     let mut sliding_window: Option<SlidingWindow> = None;
     let mut contentless = false;
 
@@ -62,19 +60,19 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
 
         // step kind delta
         let mut curr_kind = match end_step.kind {
-            StepKind::InjectionConfirmed => routes::route(glyph, &inj_kind),
+            StepKind::InjectionConfirmed => routes::route(glyph, &injection_kind),
             _ => routes::route(glyph, &end_step.kind),
         };
         if curr_kind == end_step.kind {
             continue;
         }
         if is_injection_kind(&curr_kind) {
-            inj_kind = end_step.kind.clone();
+            injection_kind = end_step.kind.clone();
         }
 
         match end_step.kind {
             StepKind::TagClosed => {
-                // ALT ELEMENTS
+                // edge case ALT ELEMENTS
                 if let Some(close_seq) = rules.get_close_sequence_from_alt_text_tag(tag) {
                     let mut slider = SlidingWindow::new(close_seq);
                     slider.slide(glyph);
@@ -85,7 +83,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
             StepKind::Tag => {
                 tag = get_text_from_step(template_str, &end_step);
 
-                // COMMENTS
+                // edge case COMMENTS
                 if let Some(prefix) = rules.tag_is_prefix_of_contentless_el(tag) {
                     let diff = &tag[prefix.len()..];
                     tag = prefix;
@@ -144,17 +142,14 @@ fn push_alt_element_steps(rules: &dyn RulesetImpl, steps: &mut Vec<Step>, tag: &
         _ => return,
     };
 
-    let closing_sequence = match rules.get_close_sequence_from_alt_text_tag(tag) {
-        Some(sequence) => sequence,
-        _ => return,
+    if let Some(closing_sequence) = rules.get_close_sequence_from_alt_text_tag(tag) {
+        step.target = index - (closing_sequence.len() - 1);
+        steps.push(Step {
+            kind: StepKind::TailTag,
+            origin: index - (closing_sequence.len() - 1),
+            target: index - (closing_sequence.len()),
+        });
     };
-
-    step.target = index - (closing_sequence.len() - 1);
-    steps.push(Step {
-        kind: StepKind::TailTag,
-        origin: index - (closing_sequence.len() - 1),
-        target: index - (closing_sequence.len()),
-    });
 }
 
 fn push_contentless_steps(rules: &dyn RulesetImpl, steps: &mut Vec<Step>, tag: &str, index: usize) {

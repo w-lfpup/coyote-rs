@@ -41,20 +41,20 @@ pub fn route(glyph: char, prev_kind: &StepKind) -> StepKind {
         StepKind::Attr => get_kind_from_attribute(glyph),
         StepKind::AttrMapInjection => get_kind_from_injection(glyph),
         StepKind::AttrSetter => get_kind_from_attribute_setter(glyph),
-        StepKind::AttrValueSingleQuoteOpened => get_kind_from_attribute_single_quote(glyph),
-        StepKind::AttrValueSingleQuoteClosed => get_kind_from_attribute_quote_closed(glyph),
-        StepKind::AttrValueDoubleQuoteOpened => get_kind_from_attribute_double_quote(glyph),
         StepKind::AttrValueDoubleQuoteClosed => get_kind_from_attribute_quote_closed(glyph),
         StepKind::AttrValueDoubleQuoted => get_kind_from_attribute_double_quote(glyph),
+        StepKind::AttrValueDoubleQuoteOpened => get_kind_from_attribute_double_quote(glyph),
+        StepKind::AttrValueSingleQuoteClosed => get_kind_from_attribute_quote_closed(glyph),
         StepKind::AttrValueSingleQuoted => get_kind_from_attribute_single_quote(glyph),
+        StepKind::AttrValueSingleQuoteOpened => get_kind_from_attribute_single_quote(glyph),
         StepKind::AttrValueUnquoted => get_kind_from_attribute_value_unquoted(glyph),
         StepKind::DescendantInjection => get_kind_from_injection(glyph),
         StepKind::InjectionSpace => get_kind_from_injection(glyph),
         StepKind::Tag => get_kind_from_tag(glyph),
         StepKind::TagBreakingSpace => get_kind_from_element_space(glyph),
+        StepKind::TagNonBreakingSpace => get_kind_from_element_space(glyph),
         StepKind::TagOpened => get_kind_from_element(glyph),
         StepKind::TagSolidus => get_kind_from_empty_element(glyph),
-        StepKind::TagNonBreakingSpace => get_kind_from_element_space(glyph),
         StepKind::TailTag => get_kind_from_tail_tag(glyph),
         StepKind::TailTagSolidus => get_kind_from_tail_element_solidus(glyph),
         StepKind::TailTagSpace => get_kind_from_tail_element_space(glyph),
@@ -83,17 +83,14 @@ fn get_kind_from_injection(glyph: char) -> StepKind {
     }
 }
 
-fn get_kind_from_attribute_single_quote(glyph: char) -> StepKind {
+fn get_kind_from_attribute_setter(glyph: char) -> StepKind {
     match glyph {
-        '\'' => StepKind::AttrValueSingleQuoteClosed,
-        _ => StepKind::AttrValueSingleQuoted,
-    }
-}
-
-fn get_kind_from_attribute_double_quote(glyph: char) -> StepKind {
-    match glyph {
-        '"' => StepKind::AttrValueDoubleQuoteClosed,
-        _ => StepKind::AttrValueDoubleQuoted,
+        '\'' => StepKind::AttrValueSingleQuoteOpened,
+        '"' => StepKind::AttrValueDoubleQuoteOpened,
+        _ => match glyph.is_whitespace() {
+            true => StepKind::AttrSetter,
+            _ => StepKind::AttrValueUnquoted,
+        },
     }
 }
 
@@ -109,15 +106,17 @@ fn get_kind_from_attribute_quote_closed(glyph: char) -> StepKind {
     }
 }
 
-fn get_kind_from_attribute_setter(glyph: char) -> StepKind {
-    if glyph.is_whitespace() {
-        return StepKind::AttrSetter;
-    }
-
+fn get_kind_from_attribute_double_quote(glyph: char) -> StepKind {
     match glyph {
-        '\'' => StepKind::AttrValueSingleQuoteOpened,
-        '"' => StepKind::AttrValueDoubleQuoteOpened,
-        _ => StepKind::AttrValueUnquoted,
+        '"' => StepKind::AttrValueDoubleQuoteClosed,
+        _ => StepKind::AttrValueDoubleQuoted,
+    }
+}
+
+fn get_kind_from_attribute_single_quote(glyph: char) -> StepKind {
+    match glyph {
+        '\'' => StepKind::AttrValueSingleQuoteClosed,
+        _ => StepKind::AttrValueSingleQuoted,
     }
 }
 
@@ -132,15 +131,15 @@ fn get_kind_from_attribute_value_unquoted(glyph: char) -> StepKind {
     }
 }
 
-fn get_kind_from_element(glyph: char) -> StepKind {
-    if glyph.is_whitespace() {
-        return StepKind::TagOpened;
-    }
-
+fn get_kind_from_tag(glyph: char) -> StepKind {
     match glyph {
-        '>' => StepKind::Fragment,
-        '/' => StepKind::TailTagSolidus,
-        _ => StepKind::Tag,
+        '>' => StepKind::TagClosed,
+        '/' => StepKind::TagSolidus,
+        '\n' => StepKind::TagBreakingSpace,
+        _ => match glyph.is_whitespace() {
+            true => StepKind::TagNonBreakingSpace,
+            _ => StepKind::Tag,
+        },
     }
 }
 
@@ -157,6 +156,21 @@ fn get_kind_from_element_space(glyph: char) -> StepKind {
     }
 }
 
+fn get_kind_from_element(glyph: char) -> StepKind {
+    if glyph.is_whitespace() {
+        return StepKind::TagOpened;
+    }
+
+    match glyph {
+        '>' => StepKind::Fragment,
+        '/' => StepKind::TailTagSolidus,
+        _ => match glyph.is_whitespace() {
+            true => StepKind::TagOpened,
+            _ => StepKind::Tag,
+        },
+    }
+}
+
 fn get_kind_from_empty_element(glyph: char) -> StepKind {
     match glyph {
         '>' => StepKind::TagClosedEmpty,
@@ -164,37 +178,23 @@ fn get_kind_from_empty_element(glyph: char) -> StepKind {
     }
 }
 
-fn get_kind_from_tag(glyph: char) -> StepKind {
+fn get_kind_from_tail_tag(glyph: char) -> StepKind {
     match glyph {
-        '>' => StepKind::TagClosed,
-        '/' => StepKind::TagSolidus,
-        '\n' => StepKind::TagBreakingSpace,
+        '>' => StepKind::TailTagClosed,
         _ => match glyph.is_whitespace() {
-            true => StepKind::TagNonBreakingSpace,
-            _ => StepKind::Tag,
+            true => StepKind::TailTagSpace,
+            _ => StepKind::TailTag,
         },
     }
 }
 
 fn get_kind_from_tail_element_solidus(glyph: char) -> StepKind {
-    if glyph.is_whitespace() {
-        return StepKind::TailTagSolidus;
-    }
-
     match glyph {
         '>' => StepKind::FragmentClosed,
-        _ => StepKind::TailTag,
-    }
-}
-
-fn get_kind_from_tail_tag(glyph: char) -> StepKind {
-    if glyph.is_whitespace() {
-        return StepKind::TailTagSpace;
-    }
-
-    match glyph {
-        '>' => StepKind::TailTagClosed,
-        _ => StepKind::TailTag,
+        _ => match glyph.is_whitespace() {
+            true => StepKind::TailTagSolidus,
+            _ => StepKind::TailTag,
+        },
     }
 }
 

@@ -9,6 +9,11 @@ pub struct Html {
     builder: TemplateBuilder,
 }
 
+// Make this more generic
+
+// Coyote::new()
+// Coyote::from(Rules::server())
+
 impl Html {
     pub fn new() -> Html {
         Html {
