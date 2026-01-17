@@ -23,9 +23,6 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
     let mut sliding_window: Option<SlidingWindow> = None;
 
     for (index, glyph) in template_str.char_indices() {
-        let mut next_step_origin = index;
-        let mut contentless = false;
-
         if let Some(ref mut slider) = sliding_window {
             if !slider.slide(glyph) {
                 continue;
@@ -63,6 +60,9 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
         if is_injection_kind(&curr_kind) {
             injection_kind = end_step.kind.clone();
         }
+
+        let mut next_step_origin = index;
+        let mut contentless = false;
 
         match end_step.kind {
             StepKind::TagClosed => {
@@ -110,8 +110,8 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
             target: index,
         });
 
+        // <!--comment_edge_case-->
         if contentless {
-            // <!--comment_edge_case-->
             push_contentless_steps_edge(rules, &mut steps, tag, index)
         }
     }
