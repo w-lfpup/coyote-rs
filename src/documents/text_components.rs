@@ -38,15 +38,15 @@ fn get_largest_common_space_index(texts: &[&str]) -> usize {
         let mut line_chars = line.chars();
 
         let mut next_space_index = 0;
-        while let Some((src_index, src_chr)) = prev_line_chars.next() {
-            next_space_index = src_index;
+        while let Some((origin_index, origin_glyph)) = prev_line_chars.next() {
+            next_space_index = origin_index;
 
-            let tgt_chr = match line_chars.next() {
-                Some(tgt_chr) => tgt_chr,
+            let target_glyph = match line_chars.next() {
+                Some(target_glyph) => target_glyph,
                 _ => break,
             };
 
-            if src_chr != tgt_chr || !src_chr.is_whitespace() {
+            if origin_glyph != target_glyph || !origin_glyph.is_whitespace() {
                 break;
             }
         }
@@ -204,7 +204,7 @@ pub fn push_multiline_attributes(
         }
 
         results.push_str(&"\t".repeat(indent_count));
-        push_line_of_text(results, &line[common_space_index..])
+        push_line_of_text(results, &line[common_space_index..]);
     }
 
     // last
