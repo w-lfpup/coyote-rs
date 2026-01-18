@@ -11,56 +11,47 @@ pub fn compose_steps(
 ) {
     for step in steps {
         match step.kind {
-            StepKind::Tag => push_element(results, tag_info_stack, rules, template_str, step),
-            StepKind::TagClosed => close_element(results, tag_info_stack, rules),
-            StepKind::TagClosedEmpty => close_empty_element(results, tag_info_stack),
-            StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
-            StepKind::TailTagSpace => push_element_space(tag_info_stack, step),
-            StepKind::TailTagClosed => close_tail_tag(results, tag_info_stack),
-            StepKind::Text => push_text(results, tag_info_stack, template_str, step),
-            StepKind::TextAlt => push_alt_text(results, tag_info_stack, rules, template_str, step),
-            StepKind::BreakingSpace => push_text_space(results, tag_info_stack, template_str, step),
-            StepKind::NonBreakingSpace => {
-                push_text_space(results, tag_info_stack, template_str, step)
-            }
             StepKind::Attr => push_attr(results, tag_info_stack, rules, template_str, step),
-            StepKind::AttrValueSingleQuoted => {
-                push_attr_value_single_quoted(results, tag_info_stack, rules, template_str, step)
-            }
             StepKind::AttrValueDoubleQuoted => {
                 push_attr_value_double_quoted(results, tag_info_stack, rules, template_str, step)
+            }
+            StepKind::AttrValueSingleQuoted => {
+                push_attr_value_single_quoted(results, tag_info_stack, rules, template_str, step)
             }
             StepKind::AttrValueUnquoted => {
                 push_attr_value_unquoted(results, tag_info_stack, template_str, step)
             }
-            StepKind::TagNonBreakingSpace => push_element_space(tag_info_stack, step),
+            StepKind::BreakingSpace => push_text_space(results, tag_info_stack, template_str, step),
+            StepKind::NonBreakingSpace => {
+                push_text_space(results, tag_info_stack, template_str, step)
+            }
+            StepKind::Tag => push_element(results, tag_info_stack, rules, template_str, step),
             StepKind::TagBreakingSpace => push_element_space(tag_info_stack, step),
+            StepKind::TagClosed => close_element(results, tag_info_stack, rules),
+            StepKind::TagClosedEmpty => close_empty_element(results, tag_info_stack),
+            StepKind::TagNonBreakingSpace => push_element_space(tag_info_stack, step),
+            StepKind::TailTag => pop_element(results, tag_info_stack, rules, template_str, step),
+            StepKind::TailTagClosed => close_tail_tag(results, tag_info_stack),
+            StepKind::TailTagSpace => push_element_space(tag_info_stack, step),
+            StepKind::Text => push_text(results, tag_info_stack, template_str, step),
+            StepKind::TextAlt => push_alt_text(results, tag_info_stack, rules, template_str, step),
             _ => {}
         }
     }
 }
 
-fn push_text(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
-    let tag_info = match stack.last_mut() {
-        Some(curr) => curr,
-        _ => return,
-    };
-
-    if tag_info.banned_path {
-        return;
+pub fn push_formatted_space(results: &mut String, tag_info: &TagInfo) {
+    match tag_info.text_format {
+        TextFormat::NonBreakingSpace => results.push(' '),
+        TextFormat::BreakingSpace => {
+            results.push('\n');
+            results.push_str(&"\t".repeat(tag_info.indent_count))
+        }
+        _ => {}
     }
-
-    if !tag_info.preformatted_text_path {
-        push_formatted_space(results, &tag_info);
-    }
-
-    let text = get_text_from_step(template_str, step);
-    results.push_str(text);
-
-    tag_info.text_format = TextFormat::Text;
 }
 
-fn push_alt_text(
+fn push_attr(
     results: &mut String,
     stack: &mut Vec<TagInfo>,
     rules: &dyn RulesetImpl,
@@ -76,11 +67,86 @@ fn push_alt_text(
         return;
     }
 
-    let text = get_text_from_step(template_str, step);
-    push_alt_text_component(results, rules, text, tag_info);
+    let attr = get_text_from_step(template_str, step);
 
-    tag_info.text_format = TextFormat::Text;
+    if rules.attr_is_banned(attr) {
+        tag_info.banned_attr = true;
+        tag_info.text_format = TextFormat::Text;
+        return;
+    }
+
+    tag_info.banned_attr = false;
+
+    push_formatted_space(results, tag_info);
+    results.push_str(attr);
+
+    tag_info.text_format = TextFormat::Text
 }
+
+fn push_attr_value_double_quoted(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    rules: &dyn RulesetImpl,
+    template_str: &str,
+    step: &Step,
+) {
+    let tag_info = match stack.last() {
+        Some(curr) => curr,
+        _ => return,
+    };
+
+    if tag_info.banned_path || tag_info.banned_attr {
+        return;
+    }
+
+    let text = get_text_from_step(template_str, step);
+    results.push_str("=\"");
+    push_multiline_attributes(results, rules, &text, tag_info);
+    results.push('"');
+}
+
+fn push_attr_value_single_quoted(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    rules: &dyn RulesetImpl,
+    template_str: &str,
+    step: &Step,
+) {
+    let tag_info = match stack.last() {
+        Some(curr) => curr,
+        _ => return,
+    };
+
+    if tag_info.banned_path || tag_info.banned_attr {
+        return;
+    }
+
+    let text = get_text_from_step(template_str, step);
+    results.push_str("='");
+    push_multiline_attributes(results, rules, &text, tag_info);
+    results.push('\'');
+}
+
+fn push_attr_value_unquoted(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    template_str: &str,
+    step: &Step,
+) {
+    let tag_info = match stack.last() {
+        Some(curr) => curr,
+        _ => return,
+    };
+
+    if tag_info.banned_path || tag_info.banned_attr {
+        return;
+    }
+
+    let text = get_text_from_step(template_str, step);
+    results.push('=');
+    results.push_str(text);
+}
+
 
 fn push_text_space(
     results: &mut String,
@@ -135,6 +201,63 @@ fn push_element_space(stack: &mut Vec<TagInfo>, step: &Step) {
         StepKind::TagBreakingSpace => TextFormat::BreakingSpace,
         _ => TextFormat::NonBreakingSpace,
     }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+fn push_text(results: &mut String, stack: &mut Vec<TagInfo>, template_str: &str, step: &Step) {
+    let tag_info = match stack.last_mut() {
+        Some(curr) => curr,
+        _ => return,
+    };
+
+    if tag_info.banned_path {
+        return;
+    }
+
+    if !tag_info.preformatted_text_path {
+        push_formatted_space(results, &tag_info);
+    }
+
+    let text = get_text_from_step(template_str, step);
+    results.push_str(text);
+
+    tag_info.text_format = TextFormat::Text;
+}
+
+fn push_alt_text(
+    results: &mut String,
+    stack: &mut Vec<TagInfo>,
+    rules: &dyn RulesetImpl,
+    template_str: &str,
+    step: &Step,
+) {
+    let tag_info = match stack.last_mut() {
+        Some(curr) => curr,
+        _ => return,
+    };
+
+    if tag_info.banned_path {
+        return;
+    }
+
+    let text = get_text_from_step(template_str, step);
+    push_alt_text_component(results, rules, text, tag_info);
+
+    tag_info.text_format = TextFormat::Text;
 }
 
 fn push_element(
@@ -310,101 +433,11 @@ fn close_tail_tag(results: &mut String, stack: &mut Vec<TagInfo>) {
     prev_tag_info.text_format = TextFormat::Text;
 }
 
-fn push_attr(
-    results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    rules: &dyn RulesetImpl,
-    template_str: &str,
-    step: &Step,
-) {
-    let tag_info = match stack.last_mut() {
-        Some(curr) => curr,
-        _ => return,
-    };
 
-    if tag_info.banned_path {
-        return;
-    }
 
-    let attr = get_text_from_step(template_str, step);
 
-    if rules.attr_is_banned(attr) {
-        tag_info.banned_attr = true;
-        tag_info.text_format = TextFormat::Text;
-        return;
-    }
 
-    tag_info.banned_attr = false;
 
-    push_formatted_space(results, tag_info);
-    results.push_str(attr);
-
-    tag_info.text_format = TextFormat::Text
-}
-
-fn push_attr_value_unquoted(
-    results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    template_str: &str,
-    step: &Step,
-) {
-    let tag_info = match stack.last() {
-        Some(curr) => curr,
-        _ => return,
-    };
-
-    if tag_info.banned_path || tag_info.banned_attr {
-        return;
-    }
-
-    let text = get_text_from_step(template_str, step);
-    results.push('=');
-    results.push_str(text);
-}
-
-fn push_attr_value_single_quoted(
-    results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    rules: &dyn RulesetImpl,
-    template_str: &str,
-    step: &Step,
-) {
-    let tag_info = match stack.last() {
-        Some(curr) => curr,
-        _ => return,
-    };
-
-    if tag_info.banned_path || tag_info.banned_attr {
-        return;
-    }
-
-    let text = get_text_from_step(template_str, step);
-    results.push_str("='");
-    push_multiline_attributes(results, rules, &text, tag_info);
-    results.push('\'');
-}
-
-fn push_attr_value_double_quoted(
-    results: &mut String,
-    stack: &mut Vec<TagInfo>,
-    rules: &dyn RulesetImpl,
-    template_str: &str,
-    step: &Step,
-) {
-    let tag_info = match stack.last() {
-        Some(curr) => curr,
-        _ => return,
-    };
-
-    if tag_info.banned_path || tag_info.banned_attr {
-        return;
-    }
-
-    let text = get_text_from_step(template_str, step);
-    results.push_str("=\"");
-    push_multiline_attributes(results, rules, &text, tag_info);
-    results.push('"');
-}
 
 fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &TagInfo) {
     if tag_info.preformatted_text_path {
@@ -421,13 +454,3 @@ fn push_space_on_pop(results: &mut String, prev_tag_info: &TagInfo, tag_info: &T
     }
 }
 
-pub fn push_formatted_space(results: &mut String, tag_info: &TagInfo) {
-    match tag_info.text_format {
-        TextFormat::NonBreakingSpace => results.push(' '),
-        TextFormat::BreakingSpace => {
-            results.push('\n');
-            results.push_str(&"\t".repeat(tag_info.indent_count))
-        }
-        _ => {}
-    }
-}
