@@ -25,12 +25,11 @@ impl TemplateBuilderImpl for TemplateBuilder {
         // obliterate cache if memory limit exceeded
         self.memory_footprint += template_str.len();
         if rules.get_cache_memory_limit() < self.memory_footprint {
-            self.memory_footprint = 0;
+            self.memory_footprint = template_str.len();
             self.results_cache = HashMap::new();
         }
 
         let steps = compose(rules, template_str);
-
         self.results_cache
             .insert(template_str.to_string(), steps.clone());
 
