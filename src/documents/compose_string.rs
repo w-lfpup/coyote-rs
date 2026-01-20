@@ -27,7 +27,7 @@ pub fn compose_string(
     let mut document_results = "".to_string();
 
     let mut tag_info_stack: Vec<TagInfo> = Vec::from([TagInfo::get_root(rules)]);
-    let mut component_stack: Vec<StackBit> = Vec::from([get_bit_from_component_stack(
+    let mut component_stack: Vec<StackBit> = Vec::from([get_stack_bit_from_component(
         &mut tag_info_stack,
         builder,
         rules,
@@ -56,7 +56,7 @@ pub fn compose_string(
                 }
                 Component::List(list) => {
                     for cmpnt in list.iter().rev() {
-                        let bit = get_bit_from_component_stack(
+                        let bit = get_stack_bit_from_component(
                             &mut tag_info_stack,
                             builder,
                             rules,
@@ -122,7 +122,7 @@ pub fn compose_string(
                         StepKind::DescendantInjection => {
                             component_stack.push(cmpnt_bit);
 
-                            let bit = get_bit_from_component_stack(
+                            let bit = get_stack_bit_from_component(
                                 &mut tag_info_stack,
                                 builder,
                                 rules,
@@ -147,7 +147,7 @@ pub fn compose_string(
     Ok(document_results)
 }
 
-fn get_bit_from_component_stack<'a>(
+fn get_stack_bit_from_component<'a>(
     stack: &mut Vec<TagInfo>,
     builder: &mut dyn TemplateBuilderImpl,
     rules: &dyn RulesetImpl,

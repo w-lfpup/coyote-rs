@@ -10,4 +10,5 @@ pub use document_builders::{
     TemplateBuilder, Xml, XmlRules,
 };
 pub use documents::{TemplateBuilderImpl, compose_string};
+pub use errors::*;
 pub use template_steps::{RulesetImpl, TemplateSteps, compose};
