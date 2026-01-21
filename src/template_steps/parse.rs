@@ -78,7 +78,7 @@ pub fn parse_str(rules: &dyn RulesetImpl, template_str: &str, intial_kind: StepK
                 tag = get_text_from_step(template_str, &end_step);
 
                 // edge case COMMENTS
-                if let Some(prefix) = rules.tag_is_prefix_of_contentless_el(tag) {
+                if let Some(prefix) = rules.get_prefix_of_contentless_el(tag) {
                     let diff = &tag[prefix.len()..];
                     tag = prefix;
 

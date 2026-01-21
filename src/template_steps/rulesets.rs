@@ -11,7 +11,7 @@ pub trait RulesetImpl {
     fn tag_is_banned_el(&self, tag: &str) -> bool;
     fn tag_is_inline_el(&self, tag: &str) -> bool;
     fn tag_is_embedded_content_el(&self, tag: &str) -> bool;
-    fn tag_is_prefix_of_contentless_el(&self, tag: &str) -> Option<&str>;
+    fn get_prefix_of_contentless_el(&self, tag: &str) -> Option<&str>;
     fn tag_is_preformatted_text_el(&self, tag: &str) -> bool;
     fn tag_is_void_el(&self, tag: &str) -> bool;
 }

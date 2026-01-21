@@ -83,7 +83,7 @@ impl RulesetImpl for HtmlCssOnlyRules {
         }
     }
 
-    fn tag_is_prefix_of_contentless_el(&self, tag: &str) -> Option<&str> {
+    fn get_prefix_of_contentless_el(&self, tag: &str) -> Option<&str> {
         if tag.starts_with("!--") {
             return Some("!--");
         }
