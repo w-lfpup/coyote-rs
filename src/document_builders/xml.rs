@@ -71,7 +71,7 @@ impl RulesetImpl for XmlRules {
 
     fn get_close_sequence_from_contentless_tag(&self, tag: &str) -> Option<&str> {
         match tag {
-            "?" => Some("?"),
+            "?" => Some("?>"),
             "!--" => Some("-->"),
             "![CDATA[" => Some("]]>"),
             _ => None,
