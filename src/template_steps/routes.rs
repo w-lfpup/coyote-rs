@@ -157,15 +157,13 @@ fn get_kind_from_element_space(glyph: char) -> StepKind {
 }
 
 fn get_kind_from_element(glyph: char) -> StepKind {
-    if glyph.is_whitespace() {
-        return StepKind::TagOpened;
-    }
-
     match glyph {
         '>' => StepKind::Fragment,
         '/' => StepKind::TailTagSolidus,
+        '{' => StepKind::AttrMapInjection,
+        '\n' => StepKind::TagBreakingSpace,
         _ => match glyph.is_whitespace() {
-            true => StepKind::TagOpened,
+            true => StepKind::TagNonBreakingSpace,
             _ => StepKind::Tag,
         },
     }

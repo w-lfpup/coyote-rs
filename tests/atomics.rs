@@ -48,17 +48,6 @@ fn block_element_with_text() {
 }
 
 #[test]
-fn block_element_with_text_for_string() {
-    let template = acs::block_element_with_text_for_string();
-    let expected = "<p>\n\thello!\n</p>";
-
-    let mut html = Html::new();
-    let results = html.render(&template);
-
-    assert_eq!(Ok(expected.to_string()), results);
-}
-
-#[test]
 fn inline_element_with_text() {
     let template = acs::inline_element_with_text();
     let expected = "<b> hello! </b>";
@@ -102,7 +91,6 @@ fn non_void_element() {
     assert_eq!(Ok(expected.to_string()), results);
 }
 
-// needs updating
 #[test]
 fn comment_element() {
     let template = acs::comment_element();

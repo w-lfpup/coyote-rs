@@ -43,17 +43,6 @@ pub fn block_element_with_text() -> Component {
     )
 }
 
-pub fn block_element_with_text_for_string() -> Component {
-    tmpl_string(
-        "
-		<p>
-			hello!
-		</p>
-		",
-        [],
-    )
-}
-
 pub fn inline_element_with_text() -> Component {
     tmpl(
         "

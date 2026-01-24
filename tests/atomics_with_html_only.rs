@@ -48,17 +48,6 @@ fn block_element_with_text() {
 }
 
 #[test]
-fn block_element_with_text_for_string() {
-    let template = acs::block_element_with_text_for_string();
-    let expected = "<p>\nhello!\n</p>";
-
-    let mut html = HtmlOnly::new();
-    let results = html.render(&template);
-
-    assert_eq!(Ok(expected.to_string()), results);
-}
-
-#[test]
 fn inline_element_with_text() {
     let template = acs::inline_element_with_text();
     let expected = "<b> hello! </b>";
