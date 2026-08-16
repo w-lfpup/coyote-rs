@@ -2,9 +2,9 @@
 
 `Coyote` _never_ adds spaces or new lines.
 
-Space is compositional in HTML. It has weight and meaning.
+Space is compositional in HTML.
 
-`Coyote` adheres to the lines and spaces defined by templates, text nodes, and attribute values.
+`Coyote` respects lines and spaces defined by templates, text nodes, and attribute values.
 
 So every new line and space is intentional.
 
