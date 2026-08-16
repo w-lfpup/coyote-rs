@@ -56,8 +56,8 @@ pub fn route(glyph: char, prev_kind: &StepKind) -> StepKind {
         StepKind::TagOpened => get_kind_from_element(glyph),
         StepKind::TagSolidus => get_kind_from_empty_element(glyph),
         StepKind::TailTag => get_kind_from_tail_tag(glyph),
-        StepKind::TailTagSolidus => get_kind_from_tail_tag_solidus(glyph),
-        StepKind::TailTagSpace => get_kind_from_tail_tag_space(glyph),
+        StepKind::TailTagSolidus => get_kind_from_tail_element_solidus(glyph),
+        StepKind::TailTagSpace => get_kind_from_tail_element_space(glyph),
         _ => get_kind_from_text(glyph),
     }
 }
@@ -176,7 +176,7 @@ fn get_kind_from_tag(glyph: char) -> StepKind {
     }
 }
 
-fn get_kind_from_tail_tag_solidus(glyph: char) -> StepKind {
+fn get_kind_from_tail_element_solidus(glyph: char) -> StepKind {
     if glyph.is_whitespace() {
         return StepKind::TailTagSolidus;
     }
@@ -198,7 +198,7 @@ fn get_kind_from_tail_tag(glyph: char) -> StepKind {
     }
 }
 
-fn get_kind_from_tail_tag_space(glyph: char) -> StepKind {
+fn get_kind_from_tail_element_space(glyph: char) -> StepKind {
     match glyph {
         '>' => StepKind::TailTagClosed,
         _ => StepKind::TailTagSpace,
